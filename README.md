@@ -1,10 +1,14 @@
-# <img src="app/static/img/logo.png" height="32" align="middle"> Piruetas
+# <p align="center"><img src="app/static/img/logo-alpha.png" height="128"></p>
 
-A minimalistic, self-hosted diary and journaling web app. Piruetas gives each day its own page with a clean writing experience, multi-user support, and full control over your data.
+# Piruetas
+
+A minimalistic, self-hosted diary and journaling web app.
+
+Piruetas gives each day its own page with a clean writing experience, multi-user support, and full control over your data.
 
 ## Try it
 
-A live demo is available at [piruetas.patilla.es](https://piruetas.patilla.es).  
+A live demo is available at [piruetas.patilla.es](https://piruetas.patilla.es).
 Log in with **demo** / **mysupersecretpassword** — content resets every 30 minutes.
 
 | Dark | Light |
