@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     port: int = 8000
     secure_cookies: bool = True
     week_start: str = "monday"  # "monday" or "sunday"
+    demo_enabled: bool = False
+    demo_username: str = "demo"
+    demo_password: str = "demo"
+    demo_reset_interval: int = 1800  # seconds
 
     @model_validator(mode="after")
     def validate_settings(self) -> "Settings":

@@ -1,6 +1,15 @@
-# Piruetas
+# <img src="app/static/img/logo.png" height="32" align="middle"> Piruetas
 
 A minimalistic, self-hosted diary and journaling web app. Piruetas gives each day its own page with a clean writing experience, multi-user support, and full control over your data.
+
+## Try it
+
+A live demo is available at [piruetas.patilla.es](https://piruetas.patilla.es).  
+Log in with **demo** / **mysupersecretpassword** — content resets every 30 minutes.
+
+| Dark | Light |
+|------|-------|
+| ![Dark theme](screenshots/dark-theme.png) | ![Light theme](screenshots/light-theme.png) |
 
 ## Features
 
@@ -72,6 +81,10 @@ Open `http://localhost:8000`.
 | `PORT` | `8000` | Port to listen on |
 | `SECURE_COOKIES` | `true` | Set to `false` for local dev without HTTPS |
 | `WEEK_START` | `monday` | Calendar week start: `monday` or `sunday` |
+| `DEMO_ENABLED` | `false` | Enable demo user and periodic content reset |
+| `DEMO_USERNAME` | `demo` | Demo account username |
+| `DEMO_PASSWORD` | `demo` | Demo account password |
+| `DEMO_RESET_INTERVAL` | `1800` | Seconds between demo content wipes |
 
 ## Updating (Docker)
 

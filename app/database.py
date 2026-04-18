@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from typing import Generator
 
@@ -6,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from app import models as _models  # noqa: F401
-from app.models import User
+from app.models import Entry, Image, User
 from app.settings import get_settings
 
 _engine = None
