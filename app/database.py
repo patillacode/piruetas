@@ -56,6 +56,37 @@ def seed_admin(session: Session) -> None:
             session.rollback()
 
 
+def seed_demo(session: Session) -> None:
+    settings = get_settings()
+    if not settings.demo_enabled:
+        return
+    existing = session.exec(select(User).where(User.username == settings.demo_username)).first()
+    if not existing:
+        hashed = bcrypt.hashpw(settings.demo_password.encode(), bcrypt.gensalt()).decode()
+        demo = User(username=settings.demo_username, hashed_password=hashed, is_admin=False)
+        try:
+            session.add(demo)
+            session.commit()
+        except IntegrityError:
+            session.rollback()
+
+
+def delete_demo_user_content(session: Session) -> None:
+    settings = get_settings()
+    demo = session.exec(select(User).where(User.username == settings.demo_username)).first()
+    if not demo:
+        return
+    for entry in session.exec(select(Entry).where(Entry.user_id == demo.id)).all():
+        session.delete(entry)
+    for image in session.exec(select(Image).where(Image.user_id == demo.id)).all():
+        session.delete(image)
+    session.commit()
+    uploads = Path(settings.data_dir) / "uploads" / str(demo.id)
+    if uploads.exists():
+        shutil.rmtree(uploads)
+        uploads.mkdir(parents=True, exist_ok=True)
+
+
 def get_session() -> Generator[Session, None, None]:
     with Session(get_engine()) as session:
         yield session
