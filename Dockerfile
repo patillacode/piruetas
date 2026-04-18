@@ -12,7 +12,7 @@ COPY app/ app/
 RUN addgroup --system --gid 1000 appuser && \
     adduser --system --uid 1000 --gid 1000 --no-create-home appuser && \
     mkdir -p /data/uploads && \
-    chown -R appuser:appuser /data
+    chown -R appuser:appuser /app /data
 
 USER appuser
 
