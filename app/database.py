@@ -1,4 +1,5 @@
 import shutil
+import warnings
 from pathlib import Path
 from typing import Generator
 
@@ -21,6 +22,13 @@ def get_engine():
         if db_url.startswith("sqlite:///"):
             db_file = db_url[len("sqlite:///") :]
             db_path = Path(db_file) if db_file else Path("piruetas.db")
+            data_dir = Path(settings.data_dir)
+            if not db_path.is_absolute() or not str(db_path).startswith(str(data_dir)):
+                warnings.warn(
+                    f"DATABASE_URL resolves to '{db_path}', which is outside DATA_DIR '{data_dir}'. "
+                    "Use 4 slashes for an absolute path: sqlite:////data/piruetas.db",
+                    stacklevel=2,
+                )
             db_path.parent.mkdir(parents=True, exist_ok=True)
         _engine = create_engine(db_url, connect_args={"check_same_thread": False})
     return _engine

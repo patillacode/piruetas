@@ -80,7 +80,7 @@ Open `http://localhost:8000`.
 | `SECRET_KEY` | — | Required. Random string for session signing |
 | `ADMIN_USERNAME` | `admin` | Admin username (seeded at startup) |
 | `ADMIN_PASSWORD` | `changeme` | Admin password — change this! |
-| `DATABASE_URL` | `sqlite:////data/piruetas.db` | SQLite database path |
+| `DATABASE_URL` | `sqlite:////data/piruetas.db` | SQLite database path — **4 slashes** for absolute `/data/...`; 3 slashes resolves relative to `/app` and bypasses the volume mount |
 | `DATA_DIR` | `/data` | Directory for database and image uploads |
 | `PORT` | `8000` | Port to listen on |
 | `SECURE_COOKIES` | `true` | Set to `false` for local dev without HTTPS |
