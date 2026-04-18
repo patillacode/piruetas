@@ -181,13 +181,6 @@ async def public_share(
         raise HTTPException(status_code=404, detail="Not found")
 
     author = session.get(User, entry.user_id)
-    recent = session.exec(
-        select(Entry)
-        .where(Entry.user_id == entry.user_id, Entry.id != entry.id)
-        .order_by(Entry.date.desc())
-        .limit(4)
-    ).all()
-    entries = [entry] + list(recent)
     return templates.TemplateResponse(
-        request, "share.html", ctx(request, entries=entries, user=author)
+        request, "share.html", ctx(request, entry=entry, user=author)
     )

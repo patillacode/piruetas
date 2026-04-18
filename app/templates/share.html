@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ entries[0].date.strftime('%B') }} {{ entries[0].date.day }}, {{ entries[0].date.year }} — Piruetas{% endblock %}
+{% block title %}{{ entry.date.strftime('%B') }} {{ entry.date.day }}, {{ entry.date.year }} — Piruetas{% endblock %}
 
 {% block head_extra %}
 <style>
@@ -22,12 +22,10 @@
 {% block body %}
 <div class="share-wrap">
     {% if user %}<p class="share-author">{{ user.username }}</p>{% endif %}
-    {% for entry in entries %}
     <article class="share-entry">
         <p class="share-date">{{ entry.date.strftime('%A, %B') }} {{ entry.date.day }}, {{ entry.date.year }}</p>
         <div class="share-body">{{ entry.content | safe }}</div>
     </article>
-    {% endfor %}
     <div class="share-footer">{{ t.written_with if t is defined else 'Written with Piruetas' }}</div>
 </div>
 {% endblock %}
