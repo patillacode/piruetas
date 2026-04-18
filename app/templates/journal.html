@@ -2,6 +2,10 @@
 
 {% block title %}{{ date.strftime('%B %d, %Y') }} — Piruetas{% endblock %}
 
+{% block nav_links %}
+<button class="btn-ghost mobile-share-trigger" id="share-btn-mobile">{{ t.share }}</button>
+{% endblock %}
+
 {% block head_extra %}
 <link rel="stylesheet" href="/static/css/editor.css">
 <link rel="stylesheet" href="/static/css/calendar.css">
@@ -24,12 +28,12 @@
         <div class="editor-toolbar" id="editor-toolbar">
             <button class="tbtn" data-action="bold" title="Bold (Ctrl+B)"><b>B</b></button>
             <button class="tbtn" data-action="italic" title="Italic (Ctrl+I)"><i>I</i></button>
-            <button class="tbtn" data-action="link" title="{{ t.link }}">{{ t.link }}</button>
+            <button class="tbtn" data-action="link" title="{{ t.link }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
             <span class="tbtn-sep"></span>
-            <button class="tbtn" data-action="undo" title="{{ t.undo }} (Ctrl+Z)">{{ t.undo }}</button>
-            <button class="tbtn" data-action="redo" title="{{ t.redo }} (Ctrl+Shift+Z)">{{ t.redo }}</button>
+            <button class="tbtn" data-action="undo" title="{{ t.undo }} (Ctrl+Z)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg></button>
+            <button class="tbtn" data-action="redo" title="{{ t.redo }} (Ctrl+Shift+Z)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-3.51"/></svg></button>
             <span class="tbtn-sep"></span>
-            <button class="tbtn" data-action="image" title="{{ t.image }}">{{ t.image }}</button>
+            <button class="tbtn" data-action="image" title="{{ t.image }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
             <span class="tbtn-sep"></span>
             <button class="tbtn tbtn-share" id="share-btn">{{ t.share }}</button>
         </div>
@@ -47,6 +51,12 @@
                 </div>
             </main>
         </div>
+    </div>
+</div>
+<div id="mobile-cal-overlay" class="mobile-cal-overlay" hidden>
+    <div class="mobile-cal-sheet">
+        <div class="mobile-cal-handle"></div>
+        <div id="mobile-calendar" class="calendar"></div>
     </div>
 </div>
 <div id="save-toast" class="save-toast"></div>

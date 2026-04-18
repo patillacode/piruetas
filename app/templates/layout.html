@@ -11,7 +11,10 @@
         <form method="post" action="/logout" style="display:inline">
             <button class="btn-ghost" type="submit">{{ t.sign_out if t is defined else 'Sign out' }}</button>
         </form>
-        <a href="/locale/{{ 'en' if locale == 'es' else 'es' }}" class="locale-btn">{{ 'EN' if locale == 'es' else 'ES' }}</a>
+        <select class="locale-select" id="language-picker-select" aria-label="Language">
+            <option value="en" {% if locale=='en' %}selected{% endif %}>🇬🇧</option>
+            <option value="es" {% if locale=='es' %}selected{% endif %}>🇪🇸</option>
+        </select>
         <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">☀</button>
     </nav>
 </header>
@@ -38,6 +41,13 @@
         localStorage.setItem('theme', next);
         applyTheme(next);
     });
+
+    const localePicker = document.getElementById('language-picker-select');
+    if (localePicker) {
+        localePicker.addEventListener('change', () => {
+            window.location.href = '/locale/' + localePicker.value;
+        });
+    }
 </script>
 {% block page_scripts %}{% endblock %}
 {% endblock %}

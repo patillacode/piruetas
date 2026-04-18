@@ -38,8 +38,8 @@
     }
   }
 
-  function render() {
-    const container = document.getElementById('calendar');
+  function render(target) {
+    const container = target || document.getElementById('calendar');
     if (!container) return;
 
     const today = new Date();
@@ -123,11 +123,17 @@
     container.appendChild(grid);
   }
 
+  function renderAll() {
+    render(document.getElementById('calendar'));
+    const mob = document.getElementById('mobile-calendar');
+    if (mob) render(mob);
+  }
+
   function navigate(delta) {
     displayMonth += delta;
     if (displayMonth < 1) { displayMonth = 12; displayYear--; }
     if (displayMonth > 12) { displayMonth = 1; displayYear++; }
-    fetchEntryDays(displayYear, displayMonth).then(render);
+    fetchEntryDays(displayYear, displayMonth).then(renderAll);
   }
 
   async function init() {
@@ -139,7 +145,16 @@
     displayMonth = m;
 
     await fetchEntryDays(displayYear, displayMonth);
-    render();
+    renderAll();
+
+    const mobileBtn = document.getElementById('mobile-date-btn');
+    const overlay = document.getElementById('mobile-cal-overlay');
+    if (mobileBtn && overlay) {
+      mobileBtn.addEventListener('click', () => { overlay.hidden = false; });
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.hidden = true;
+      });
+    }
   }
 
   document.addEventListener('DOMContentLoaded', init);

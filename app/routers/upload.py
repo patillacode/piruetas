@@ -58,11 +58,8 @@ async def upload_image(
 async def serve_upload(
     user_id: int,
     filename: str,
-    current_user: User = Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ):
-    if current_user.id != user_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Forbidden")
     file_path = Path(settings.data_dir) / "uploads" / str(user_id) / filename
     if not file_path.exists() or not file_path.is_file():
         raise HTTPException(status_code=404, detail="Not found")

@@ -134,13 +134,16 @@ function setupDragDrop(wrapper) {
 
 // ── share ──
 function setupShare() {
-  const btn = document.getElementById('share-btn');
+  const btns = [
+    document.getElementById('share-btn'),
+    document.getElementById('share-btn-mobile'),
+  ].filter(Boolean);
   const popup = document.getElementById('share-popup');
   const urlInput = document.getElementById('share-url');
   const copyBtn = document.getElementById('copy-share-btn');
-  if (!btn || !popup) return;
+  if (!btns.length || !popup) return;
 
-  btn.addEventListener('click', async () => {
+  btns.forEach(btn => btn.addEventListener('click', async () => {
     const saveUrl = window.PIRUETAS?.saveUrl;
     if (!saveUrl) return;
     if (!popup.hidden) { popup.hidden = true; return; }
@@ -149,16 +152,25 @@ function setupShare() {
       if (!res.ok) return;
       const { url } = await res.json();
       urlInput.value = window.location.origin + url;
-      const rect = btn.getBoundingClientRect();
-      popup.style.top = `${rect.bottom + 6}px`;
-      popup.style.left = `${Math.max(8, rect.left - 20)}px`;
+      if (window.innerWidth <= 768) {
+        popup.style.top = '64px';
+        popup.style.left = '8px';
+        popup.style.right = '8px';
+        popup.style.width = 'auto';
+      } else {
+        popup.style.right = '';
+        popup.style.width = '';
+        const rect = btn.getBoundingClientRect();
+        popup.style.top = `${rect.bottom + 6}px`;
+        popup.style.left = `${Math.max(8, rect.left - 20)}px`;
+      }
       popup.hidden = false;
       urlInput.select();
     } catch { /* silent */ }
-  });
+  }));
 
   document.addEventListener('click', (e) => {
-    if (!popup.hidden && !popup.contains(e.target) && e.target !== btn) {
+    if (!popup.hidden && !popup.contains(e.target) && !btns.includes(e.target)) {
       popup.hidden = true;
     }
   });
