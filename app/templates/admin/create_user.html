@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}New user — Piruetas{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block body %}
+<div class="card">
+    <h1 class="login-title" style="margin-bottom:0.5rem">New user</h1>
+    <p style="color:var(--muted);font-size:0.875rem;margin-bottom:1.5rem"><a href="/admin" style="color:var(--muted)">{{ t.admin_back if t is defined else '← Admin' }}</a></p>
+    {% if error %}<p class="error-msg">{{ error }}</p>{% endif %}
+    <form method="post" action="/admin/users/new">
+        <div class="field">
+            <label>{{ t.username if t is defined else 'Username' }}</label>
+            <input type="text" name="username" value="{{ username or '' }}" required
+                   pattern="[a-zA-Z0-9_]{3,32}" title="3–32 characters: letters, numbers, underscore" autofocus>
+        </div>
+        <div class="field">
+            <label>{{ t.password if t is defined else 'Password' }}</label>
+            <input type="password" name="password" required minlength="8">
+        </div>
+        <button type="submit" class="btn btn-primary">{{ t.create_user if t is defined else 'Create user' }}</button>
+    </form>
+</div>
+{% endblock %}

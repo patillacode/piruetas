@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ date.strftime('%B %d, %Y') }} — Piruetas{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="/static/css/editor.css">
+<link rel="stylesheet" href="/static/css/calendar.css">
+{% endblock %}
+
+{% block page_content %}
+<div class="mobile-date-nav" id="mobile-date-nav">
+    <a class="mobile-date-arrow" id="mobile-prev" href="#">&#8249;</a>
+    <button class="mobile-date-current" id="mobile-date-btn">Loading...</button>
+    <a class="mobile-date-arrow" id="mobile-next" href="#">&#8250;</a>
+</div>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div id="calendar" class="calendar">Calendar coming soon</div>
+        <div class="sidebar-footer">
+            <span class="sidebar-username">{{ user.username }}</span>
+        </div>
+    </aside>
+    <div class="content-area">
+        <div class="editor-toolbar" id="editor-toolbar">
+            <button class="tbtn" data-action="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+            <button class="tbtn" data-action="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+            <button class="tbtn" data-action="link" title="{{ t.link }}">{{ t.link }}</button>
+            <span class="tbtn-sep"></span>
+            <button class="tbtn" data-action="undo" title="{{ t.undo }} (Ctrl+Z)">{{ t.undo }}</button>
+            <button class="tbtn" data-action="redo" title="{{ t.redo }} (Ctrl+Shift+Z)">{{ t.redo }}</button>
+            <span class="tbtn-sep"></span>
+            <button class="tbtn" data-action="image" title="{{ t.image }}">{{ t.image }}</button>
+            <span class="tbtn-sep"></span>
+            <button class="tbtn tbtn-share" id="share-btn">{{ t.share }}</button>
+        </div>
+        <div class="content-col">
+            <main class="main-content">
+                <div class="date-heading">
+                    <span class="date-weekday">{{ weekdays[date.weekday()] }}</span>
+                    <span class="date-full">{{ months[date.month - 1] }} {{ date.day }}, {{ date.year }}</span>
+                </div>
+                <div class="editor-wrapper">
+                    <div id="editor"></div>
+                </div>
+                <div class="editor-footer">
+                    <span id="word-count">0 words</span>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+<div id="save-toast" class="save-toast"></div>
+<div id="share-popup" class="share-popup" hidden>
+    <input id="share-url" type="text" readonly>
+    <button id="copy-share-btn" class="tbtn">{{ t['copy_btn'] }}</button>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    window.PIRUETAS = {
+        entryDate: "{{ date.isoformat() }}",
+        weekStart: {{ week_start }},
+        locale: "{{ locale }}",
+        months: {{ months | tojson }},
+        entryContent: {{ (entry.content if entry else '') | tojson }},
+        saveUrl: "/journal/{{ date.year }}/{{ '%02d' % date.month }}/{{ '%02d' % date.day }}",
+        strings: {
+            saved: {{ t.saved | tojson }},
+            errorSaving: {{ t.error_saving | tojson }},
+            copy: {{ t['copy_btn'] | tojson }},
+            copied: {{ t.copied | tojson }},
+            placeholder: {{ t.write_anything | tojson }},
+            wordSingular: {{ t.word | tojson }},
+            wordPlural: {{ t.words | tojson }},
+        },
+    };
+    (function() {
+        const cfg = window.PIRUETAS;
+        if (!cfg || !cfg.entryDate) return;
+        const [y, m, d] = cfg.entryDate.split('-').map(Number);
+        const btn = document.getElementById('mobile-date-btn');
+        if (btn) {
+            const months = cfg.months || ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            btn.textContent = `${months[m-1]} ${d}, ${y}`;
+        }
+        function offsetDate(year, month, day, delta) {
+            const dt = new Date(year, month - 1, day + delta);
+            return { year: dt.getFullYear(), month: dt.getMonth() + 1, day: dt.getDate() };
+        }
+        function dateUrl(year, month, day) {
+            return `/journal/${year}/${String(month).padStart(2,'0')}/${String(day).padStart(2,'0')}`;
+        }
+        const prev = document.getElementById('mobile-prev');
+        const next = document.getElementById('mobile-next');
+        if (prev) { const p = offsetDate(y, m, d, -1); prev.href = dateUrl(p.year, p.month, p.day); }
+        if (next) { const n = offsetDate(y, m, d, 1); next.href = dateUrl(n.year, n.month, n.day); }
+    })();
+</script>
+<script src="/static/js/calendar.js"></script>
+<script type="module" src="/static/js/editor.js"></script>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Piruetas — Sign in{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block body %}
+<div class="card">
+    <h1 class="login-title">Piruetas</h1>
+    {% if error %}<p class="error-msg">{{ error }}</p>{% endif %}
+    <form method="post" action="/login">
+        <div class="field">
+            <label for="username">{{ t.username if t is defined else 'Username' }}</label>
+            <input type="text" id="username" name="username" required autofocus>
+        </div>
+        <div class="field">
+            <label for="password">{{ t.password if t is defined else 'Password' }}</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ t.sign_in if t is defined else 'Sign in' }}</button>
+    </form>
+</div>
+{% endblock %}

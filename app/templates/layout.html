@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block body %}
+<header class="app-header">
+    <a class="logo" href="/">Piruetas</a>
+    <nav>
+        {% block nav_links %}{% endblock %}
+        {% if user is defined and user and user.is_admin %}
+        <a href="/admin">Admin</a>
+        {% endif %}
+        <form method="post" action="/logout" style="display:inline">
+            <button class="btn-ghost" type="submit">{{ t.sign_out if t is defined else 'Sign out' }}</button>
+        </form>
+        <a href="/locale/{{ 'en' if locale == 'es' else 'es' }}" class="locale-btn">{{ 'EN' if locale == 'es' else 'ES' }}</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">☀</button>
+    </nav>
+</header>
+{% block page_content %}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const themeToggle = document.getElementById('theme-toggle');
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.textContent = '☽';
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            themeToggle.textContent = '☀';
+        }
+    }
+    const savedTheme = localStorage.getItem('theme') || '';
+    applyTheme(savedTheme);
+    themeToggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? '' : 'dark';
+        localStorage.setItem('theme', next);
+        applyTheme(next);
+    });
+</script>
+{% block page_scripts %}{% endblock %}
+{% endblock %}

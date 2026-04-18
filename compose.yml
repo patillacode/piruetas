@@ -1,0 +1,9 @@
+services:
+  piruetas:
+    image: forgejo.patilla.es/patillacode/piruetas:latest
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      - ./data:/data
+    env_file: .env
+    restart: unless-stopped

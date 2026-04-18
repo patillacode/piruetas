@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin — Piruetas{% endblock %}
+
+{% block head_extra %}
+<style>
+    .admin-wrap { max-width: 680px; margin: calc(var(--header-height) + 2rem) auto; padding: 0 1.5rem; }
+    .admin-title { font-family: var(--font-reading); font-size: 1.5rem; font-weight: 400; margin-bottom: 2rem; color: var(--text); }
+    .user-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .user-table th { text-align: left; font-size: 0.75rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 0 0.75rem; border-bottom: 1px solid var(--border); }
+    .user-table td { padding: 0.875rem 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .user-table tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; font-size: 0.6875rem; font-weight: 500; padding: 2px 7px; border-radius: 999px; background: var(--surface); color: var(--muted); }
+    .badge-admin { background: var(--accent); color: white; }
+    .action-form { display: inline; }
+    .btn-sm { font-size: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); background: none; color: var(--muted); font-family: var(--font-ui); transition: all 150ms ease; }
+    .btn-sm:hover { color: var(--accent); border-color: var(--accent); }
+    .btn-sm-danger:hover { color: #DC2626; border-color: #DC2626; }
+    .reset-form { display: none; margin-top: 0.5rem; }
+    .reset-form input { padding: 0.25rem 0.5rem; font-size: 0.875rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); margin-right: 0.375rem; }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="admin-wrap">
+    {% if error %}<p class="error-msg" style="margin-bottom:1rem">{{ error }}</p>{% endif %}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
+        <h1 class="admin-title" style="margin-bottom:0">Users</h1>
+        <a href="/admin/users/new" class="btn btn-primary" style="width:auto;padding:0.5rem 1rem;font-size:0.875rem">New user</a>
+    </div>
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td style="font-weight:500">{{ u.username }}</td>
+                <td>
+                    <span class="badge {% if u.is_admin %}badge-admin{% endif %}">
+                        {{ 'admin' if u.is_admin else 'user' }}
+                    </span>
+                </td>
+                <td style="color:var(--muted);font-size:0.8125rem">
+                    {% if u.created_at %}{{ u.created_at.strftime('%b') }} {{ u.created_at.day }}, {{ u.created_at.year }}{% else %}—{% endif %}
+                </td>
+                <td>
+                    {% if not u.is_admin %}
+                    <button class="btn-sm" onclick="document.getElementById('reset-{{ u.id }}').style.display='block';this.style.display='none'">Reset pw</button>
+                    <div id="reset-{{ u.id }}" class="reset-form">
+                        <form method="post" action="/admin/users/{{ u.id }}/reset-password" style="display:flex;gap:0.375rem;align-items:center">
+                            <input type="password" name="new_password" placeholder="New password" minlength="8" required>
+                            <button type="submit" class="btn-sm">Save</button>
+                        </form>
+                    </div>
+                    <form method="post" action="/admin/users/{{ u.id }}/delete" class="action-form"
+                          onsubmit="return confirm('Delete {{ u.username }}? This cannot be undone.')">
+                        <button type="submit" class="btn-sm btn-sm-danger">Delete</button>
+                    </form>
+                    {% else %}
+                    <span style="color:var(--muted);font-size:0.8125rem">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
