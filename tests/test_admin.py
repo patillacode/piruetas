@@ -64,6 +64,16 @@ def test_cannot_delete_self(client, admin_user):
     assert resp2.status_code == 200
 
 
+def test_create_user_short_password_rejected(client, admin_user):
+    login(client, "admin", "adminpass123")
+    resp = client.post(
+        "/admin/users/new",
+        data={"username": "validuser", "password": "short"},
+    )
+    assert resp.status_code == 200
+    assert b"8 characters" in resp.content
+
+
 def test_reset_password(client, session, admin_user, regular_user):
     login(client, "admin", "adminpass123")
     resp = client.post(

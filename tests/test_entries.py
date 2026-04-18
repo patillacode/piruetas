@@ -54,6 +54,40 @@ def test_invalid_date_returns_404(client, admin_user):
     assert resp.status_code == 404
 
 
+def test_share_creates_url(client, admin_user):
+    login(client, "admin", "adminpass123")
+    client.post("/journal/2026/04/10", json={"content": "<p>Shareable</p>", "word_count": 1})
+    resp = client.post("/journal/2026/04/10/share")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "url" in data
+    assert data["url"].startswith("/share/")
+
+
+def test_share_is_idempotent(client, admin_user):
+    login(client, "admin", "adminpass123")
+    client.post("/journal/2026/04/10", json={"content": "<p>Same token</p>", "word_count": 2})
+    url1 = client.post("/journal/2026/04/10/share").json()["url"]
+    url2 = client.post("/journal/2026/04/10/share").json()["url"]
+    assert url1 == url2
+
+
+def test_share_missing_entry_returns_404(client, admin_user):
+    login(client, "admin", "adminpass123")
+    resp = client.post("/journal/2026/04/10/share")
+    assert resp.status_code == 404
+
+
+def test_share_url_accessible_without_auth(client, admin_user):
+    login(client, "admin", "adminpass123")
+    client.post("/journal/2026/04/10", json={"content": "<p>Public</p>", "word_count": 1})
+    url = client.post("/journal/2026/04/10/share").json()["url"]
+    client.cookies.clear()
+    resp = client.get(url)
+    assert resp.status_code == 200
+    assert b"Public" in resp.content
+
+
 def test_users_cannot_see_each_others_entries(client, session, admin_user, regular_user):
     """Admin creates an entry; regular user's calendar should not include it."""
     from tests.conftest import login as do_login

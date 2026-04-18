@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session
 
@@ -31,6 +31,11 @@ app.include_router(auth.router)
 app.include_router(journal.router)
 app.include_router(upload.router)
 app.include_router(admin.router)
+
+
+@app.get("/health")
+def health():
+    return JSONResponse({"status": "ok"})
 
 
 @app.get("/")
