@@ -10,7 +10,7 @@ import uvicorn
 from sqlmodel import Session
 
 from app.auth import SESSION_COOKIE, make_session_token
-from app.database import get_engine, init_db
+from app.database import get_engine
 from app.models import User
 from app.settings import get_settings
 
@@ -63,10 +63,11 @@ def live_server(tmp_path):
     base_url = f"http://127.0.0.1:{port}"
     for _ in range(100):
         try:
-            httpx.get(f"{base_url}/health", timeout=0.5)
-            break
+            if httpx.get(f"{base_url}/health", timeout=0.5).status_code == 200:
+                break
         except Exception:
-            time.sleep(0.1)
+            pass
+        time.sleep(0.1)
     else:
         raise RuntimeError("Test server did not start in time")
 
@@ -107,7 +108,8 @@ def seed_admin(live_server):
     yield admin
 
 
-def _make_auth_cookie(user: User, base_url: str) -> dict:
+def _make_auth_cookie(user: User) -> dict:
+    assert user.id is not None
     token = make_session_token(
         user_id=user.id,
         is_admin=user.is_admin,
@@ -125,12 +127,12 @@ def _make_auth_cookie(user: User, base_url: str) -> dict:
 @pytest.fixture()
 def authenticated_page(page, live_server, seed_user):
     page.goto(live_server)
-    page.context.add_cookies([_make_auth_cookie(seed_user, live_server)])
+    page.context.add_cookies([_make_auth_cookie(seed_user)])
     yield page
 
 
 @pytest.fixture()
 def admin_page(page, live_server, seed_admin):
     page.goto(live_server)
-    page.context.add_cookies([_make_auth_cookie(seed_admin, live_server)])
+    page.context.add_cookies([_make_auth_cookie(seed_admin)])
     yield page
