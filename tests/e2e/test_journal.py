@@ -2,11 +2,13 @@ import base64
 from datetime import date
 
 import httpx
-import pytest
 from sqlmodel import Session
 
+from app.auth import SESSION_COOKIE, make_session_token
 from app.database import get_engine
 from app.models import Entry
+
+TEST_SECRET_KEY = "test-secret-key-for-playwright-e2e"
 
 
 MINIMAL_PNG = base64.b64decode(
@@ -58,6 +60,7 @@ def test_create_entry(authenticated_page, live_server):
         "() => !document.getElementById('save-toast')?.classList.contains('show')",
         timeout=10000,
     )
+    authenticated_page.wait_for_load_state("networkidle")
 
     resp = authenticated_page.request.get(f"{live_server}/journal/2021/03/10")
     assert resp.status == 200
@@ -83,6 +86,7 @@ def test_edit_entry(authenticated_page, live_server, seed_user):
         "() => !document.getElementById('save-toast')?.classList.contains('show')",
         timeout=10000,
     )
+    authenticated_page.wait_for_load_state("networkidle")
 
     resp = authenticated_page.request.get(f"{live_server}/journal/2020/01/15")
     assert "Updated" in resp.text()
@@ -128,17 +132,7 @@ def test_upload_image(authenticated_page, live_server, seed_user):
     assert img.is_visible()
 
 
-def test_unauthenticated_image_access(page, live_server, seed_user):
-    with Session(get_engine()) as session:
-        entry = Entry(
-            user_id=seed_user.id,
-            date=date(2020, 1, 15),
-            content="<p>test</p>",
-            word_count=1,
-        )
-        session.add(entry)
-        session.commit()
-
+def test_unauthenticated_image_access(live_server, seed_user):
     upload_path = f"/uploads/{seed_user.id}/nonexistent.png"
 
     resp = httpx.get(f"{live_server}{upload_path}", follow_redirects=False)
@@ -157,16 +151,13 @@ def test_share_token_image_access(page, live_server, seed_user):
     content = f'<p>Shared entry</p><img src="{image_url}">'
     _seed_entry(seed_user.id, content)
 
-    from tests.e2e.conftest import TEST_SECRET_KEY
-    from app.auth import make_session_token
-
+    assert seed_user.id is not None
     token = make_session_token(
         user_id=seed_user.id,
         is_admin=seed_user.is_admin,
         session_version=seed_user.session_version,
         secret_key=TEST_SECRET_KEY,
     )
-    from app.auth import SESSION_COOKIE
 
     resp_share = httpx.post(
         f"{live_server}/journal/2020/01/15/share",
@@ -189,9 +180,7 @@ def test_share_token_image_access(page, live_server, seed_user):
 
 
 def _get_auth_cookies(user) -> dict:
-    from tests.e2e.conftest import TEST_SECRET_KEY
-    from app.auth import make_session_token, SESSION_COOKIE
-
+    assert user.id is not None
     token = make_session_token(
         user_id=user.id,
         is_admin=user.is_admin,
