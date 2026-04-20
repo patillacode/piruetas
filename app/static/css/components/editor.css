@@ -1,0 +1,117 @@
+.editor-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.ProseMirror {
+    flex: 1;
+    font-family: var(--font-reading);
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    color: var(--text);
+    outline: none;
+    padding: 0;
+    min-height: 400px;
+}
+
+.ProseMirror p { margin-bottom: 0.875em; }
+.ProseMirror p:last-child { margin-bottom: 0; }
+.ProseMirror a { color: var(--accent); }
+.ProseMirror strong { font-weight: 600; }
+.ProseMirror em { font-style: italic; }
+.ProseMirror img { max-width: 100%; border-radius: 4px; margin: 0.5em 0; }
+.ProseMirror.ProseMirror-focused { outline: none; }
+
+.ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: var(--muted);
+    pointer-events: none;
+    height: 0;
+}
+
+/* Toolbar sits above the scroll container — always visible, never sticky.
+   Padding mirrors .main-content centering: max(2rem, (100% - 720px)/2 + 2rem)
+   keeps buttons flush with the editor text at any viewport width. */
+.editor-toolbar {
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 0;
+    padding: 0.375rem max(2rem, calc((100% - 720px) / 2 + 2rem));
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.editor-toolbar .tbtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.editor-toolbar .tbtn[hidden] { display: none; }
+
+.tbtn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    line-height: 1.4;
+    transition: color 120ms, background 120ms;
+}
+.tbtn:hover { color: var(--text); background: var(--surface); }
+.tbtn:active { transform: scale(0.92); }
+.tbtn.active { color: var(--accent); }
+.tbtn:disabled { opacity: 0.35; cursor: default; }
+.tbtn b { font-family: var(--font-reading); font-weight: 700; }
+.tbtn i { font-family: var(--font-reading); font-style: italic; }
+
+.tbtn-sep {
+    display: none;
+}
+
+.editor-wrapper.drag-over { outline: 2px dashed var(--accent); border-radius: 4px; }
+
+.editor-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: var(--font-ui);
+    border-top: 1px solid var(--border);
+    margin-top: 1rem;
+}
+
+.tbtn--publish { color: var(--accent); }
+.tbtn--publish:hover { color: var(--accent-hover); background: var(--surface); }
+.tbtn--publish.tbtn--active { color: var(--muted); }
+.tbtn--publish.tbtn--active:hover { color: var(--text); background: var(--surface); }
+.tbtn--copy-link { color: var(--accent); }
+
+.save-toast {
+    position: fixed;
+    bottom: 1.75rem;
+    right: 1.75rem;
+    background: var(--text);
+    color: var(--bg);
+    padding: 0.5rem 1.125rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-family: var(--font-ui);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    z-index: 300;
+}
+.save-toast.show { opacity: 1; transform: translateY(0); }
+.save-toast.error { background: #DC2626; color: white; }

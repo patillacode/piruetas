@@ -1,0 +1,24 @@
+.date-heading {
+    margin-bottom: 1.5rem;
+}
+
+.date-heading__weekday {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.1em;
+}
+
+.date-heading__full {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    letter-spacing: -0.01em;
+}

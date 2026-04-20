@@ -9,6 +9,7 @@ class User(SQLModel, table=True):
     username: str = Field(unique=True, index=True)
     hashed_password: str
     is_admin: bool = Field(default=False)
+    session_version: int = Field(default=0)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 

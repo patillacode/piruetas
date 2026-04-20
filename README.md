@@ -21,7 +21,7 @@ Log in with **demo** / **mysupersecretpassword** — content resets every 30 min
 - Rich text editing (bold, italic, links, inline images) via Tiptap
 - Auto-save with 2-second debounce and "Saved" toast
 - Drag-and-drop image uploads (JPEG, PNG, GIF, WebP, max 10 MB)
-- Public entry sharing via unique link
+- Public entry sharing via unique link (with revocation)
 - Multi-user with admin panel (create, delete, reset passwords)
 - English and Spanish UI (locale switcher in header, cookie-persisted)
 - Configurable calendar week start (Monday or Sunday)
@@ -31,15 +31,32 @@ Log in with **demo** / **mysupersecretpassword** — content resets every 30 min
 
 ## Quick start (Docker)
 
+Create a `compose.yml`:
+
+```yaml
+services:
+  piruetas:
+    image: forgejo.patilla.es/patillacode/piruetas:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    environment:
+      SECRET_KEY: change-me-to-a-random-string
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: changeme
+    restart: unless-stopped
+```
+
 ```bash
-git clone ssh://git@forgejo.patilla.es:2223/patillacode/piruetas.git
-cd piruetas
-cp .env.example .env
-# Edit .env — set SECRET_KEY, ADMIN_USERNAME, ADMIN_PASSWORD
 docker compose up -d
 ```
 
 Open `http://localhost:8000` and log in with your admin credentials.
+
+To update: `docker compose pull && docker compose up -d`
+
+> Running behind a reverse proxy (nginx, Caddy, Traefik)? Set `TRUST_PROXY: "true"` in your environment so rate limiting uses the real client IP.
 
 ## Local development
 
@@ -56,47 +73,9 @@ just dev
 
 Open `http://localhost:8000`.
 
-## Just commands
-
-| Command | Description |
-|---|---|
-| `just install` | Create virtualenv and install dependencies |
-| `just dev` | Run development server with hot reload |
-| `just test` | Run test suite |
-| `just lint` | Lint with ruff |
-| `just format` | Format with ruff |
-| `just fix` | Auto-fix lint issues and format in one pass |
-| `just docker-build` | Build Docker image locally |
-| `just docker-run` | Run in Docker with env file and data volume |
-| `just compose-up` / `just compose-down` | Docker Compose up / down |
-| `just seed-admin` | Create admin user from env vars (idempotent) |
-| `just db-shell` | Open SQLite shell |
-| `just release 1.2.3` | Tag and push a release |
+Run `just` to see all available recipes.
 
 ## Configuration
 
-| Variable | Default | Description |
-|---|---|---|
-| `SECRET_KEY` | — | Required. Random string for session signing |
-| `ADMIN_USERNAME` | `admin` | Admin username (seeded at startup) |
-| `ADMIN_PASSWORD` | `changeme` | Admin password — change this! |
-| `DATABASE_URL` | `sqlite:////data/piruetas.db` | SQLite database path — **4 slashes** for absolute `/data/...`; 3 slashes resolves relative to `/app` and bypasses the volume mount |
-| `DATA_DIR` | `/data` | Directory for database and image uploads |
-| `PORT` | `8000` | Port to listen on |
-| `SECURE_COOKIES` | `true` | Set to `false` for local dev without HTTPS |
-| `WEEK_START` | `monday` | Calendar week start: `monday` or `sunday` |
-| `DEMO_ENABLED` | `false` | Enable demo user and periodic content reset |
-| `DEMO_USERNAME` | `demo` | Demo account username |
-| `DEMO_PASSWORD` | `demo` | Demo account password |
-| `DEMO_RESET_INTERVAL` | `1800` | Seconds between demo content wipes |
+See [CONFIGURATION.md](CONFIGURATION.md) for all available environment variables.
 
-## Updating (Docker)
-
-```bash
-docker compose pull
-docker compose up -d
-```
-
-## Tech stack
-
-Python 3.12, FastAPI, SQLite, SQLModel, Tiptap, Jinja2, itsdangerous

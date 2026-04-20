@@ -5,10 +5,12 @@
     <a class="logo" href="/">Piruetas</a>
     <nav>
         {% block nav_links %}{% endblock %}
+        <a href="/account">{{ t.account }}</a>
         {% if user is defined and user and user.is_admin %}
         <a href="/admin">Admin</a>
         {% endif %}
         <form method="post" action="/logout" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button class="btn-ghost" type="submit">{{ t.sign_out if t is defined else 'Sign out' }}</button>
         </form>
         <select class="locale-select" id="language-picker-select" aria-label="Language">
@@ -22,7 +24,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ csp_nonce }}">
     const themeToggle = document.getElementById('theme-toggle');
     function applyTheme(theme) {
         if (theme === 'dark') {

@@ -1,0 +1,61 @@
+.field {
+    margin-bottom: 1.25rem;
+}
+
+label {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 0.375rem;
+    font-family: var(--font-ui);
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: var(--font-ui);
+    background: var(--bg);
+    color: var(--text);
+    transition:
+        border-color var(--transition),
+        outline-color var(--transition);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    border-color: transparent;
+}
+
+.card {
+    width: 100%;
+    max-width: 360px;
+    padding: 2.5rem;
+}
+
+body.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.login__title {
+    font-family: var(--font-reading);
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    color: var(--text);
+}
+
+.form__error {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    font-family: var(--font-ui);
+}

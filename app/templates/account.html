@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}Account — Piruetas{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block page_content %}
+<div class="card" style="margin-top:calc(var(--header-height) + 2rem)">
+    <h1 class="login__title" style="margin-bottom:1.5rem">{{ t.change_password }}</h1>
+    {% if error %}<p class="form__error">{{ error }}</p>{% endif %}
+    {% if success %}<p style="color:var(--accent);margin-bottom:1rem">{{ success }}</p>{% endif %}
+    <form method="post" action="/account/password">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="field">
+            <label for="current_password">{{ t.current_password }}</label>
+            <input type="password" id="current_password" name="current_password" required autofocus>
+        </div>
+        <div class="field">
+            <label for="new_password">{{ t.new_password }}</label>
+            <input type="password" id="new_password" name="new_password" required minlength="8">
+        </div>
+        <div class="field">
+            <label for="confirm_password">{{ t.confirm_password }}</label>
+            <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
+        </div>
+        <button type="submit" class="btn btn-primary">{{ t.update_password }}</button>
+    </form>
+</div>
+{% endblock %}

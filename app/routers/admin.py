@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
+from app.csrf import require_csrf
 from app.database import get_session
 from app.dependencies import require_admin
 from app.models import Entry, Image, User
@@ -46,6 +47,7 @@ async def create_user(
     password: str = Form(...),
     session: Session = Depends(get_session),
     current_admin: User = Depends(require_admin),
+    _csrf=Depends(require_csrf),
 ):
     error = None
     if not re.match(r"^[a-zA-Z0-9_]{3,32}$", username):
@@ -74,6 +76,7 @@ async def delete_user(
     user_id: int,
     session: Session = Depends(get_session),
     current_admin: User = Depends(require_admin),
+    _csrf=Depends(require_csrf),
 ):
     if user_id == current_admin.id:
         return RedirectResponse("/admin", status_code=303)
@@ -109,6 +112,7 @@ async def reset_password(
     new_password: str = Form(...),
     session: Session = Depends(get_session),
     current_admin: User = Depends(require_admin),
+    _csrf=Depends(require_csrf),
 ):
     if len(new_password) < 8:
         return RedirectResponse(
@@ -121,6 +125,7 @@ async def reset_password(
         return RedirectResponse("/admin", status_code=303)
 
     user.hashed_password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    user.session_version += 1
     session.add(user)
     session.commit()
     return RedirectResponse("/admin", status_code=303)

@@ -1,4 +1,4 @@
-from tests.conftest import login
+from tests.conftest import get_csrf, login
 
 
 def test_login_success(client, admin_user):
@@ -22,7 +22,7 @@ def test_login_unknown_user(client):
 
 def test_logout(client, admin_user):
     login(client, "admin", "adminpass123")
-    resp = client.post("/logout")
+    resp = client.post("/logout", data={"csrf_token": get_csrf(client)})
     assert resp.status_code == 302
     assert (
         client.cookies.get("piruetas_session") is None or resp.cookies.get("piruetas_session") == ""

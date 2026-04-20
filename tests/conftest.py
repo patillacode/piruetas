@@ -11,6 +11,8 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 
+from app.auth import SESSION_COOKIE
+from app.csrf import generate_csrf_token
 from app.database import get_session
 from app.main import app
 from app.models import User
@@ -67,7 +69,15 @@ def regular_user_fixture(session):
     return user
 
 
+def get_csrf(client) -> str:
+    """Compute the CSRF token for the client's current session cookie."""
+    session_token = client.cookies.get(SESSION_COOKIE, "")
+    return generate_csrf_token(session_token)
+
+
 def login(client, username, password):
     """Helper: login and return client with session cookie set."""
-    resp = client.post("/login", data={"username": username, "password": password})
+    get_resp = client.get("/login")
+    csrf_cookie = get_resp.cookies.get("piruetas_login_csrf", "")
+    resp = client.post("/login", data={"username": username, "password": password, "login_csrf_token": csrf_cookie})
     return resp

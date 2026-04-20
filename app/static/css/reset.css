@@ -1,0 +1,53 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-ui);
+    background: var(--bg);
+    color: var(--text);
+    transition:
+        background var(--transition),
+        color var(--transition);
+    -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+    background: rgba(181, 115, 90, 0.18);
+    color: var(--text);
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+}
+
+mark {
+    background: transparent;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

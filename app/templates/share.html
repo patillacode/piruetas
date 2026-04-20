@@ -3,6 +3,9 @@
 {% block title %}{{ entry.date.strftime('%B') }} {{ entry.date.day }}, {{ entry.date.year }} — Piruetas{% endblock %}
 
 {% block head_extra %}
+<meta property="og:title" content="{{ entry.date.strftime('%A, %B') }} {{ entry.date.day }}, {{ entry.date.year }}">
+<meta property="og:description" content="A journal entry written with Piruetas.">
+<meta property="og:type" content="article">
 <style>
     .share-wrap { max-width: 660px; margin: 4rem auto; padding: 0 1.5rem 4rem; }
     .share-author { font-family: var(--font-ui); font-size: 0.8125rem; color: var(--muted); margin-bottom: 3rem; }
@@ -24,7 +27,7 @@
     {% if user %}<p class="share-author">{{ user.username }}</p>{% endif %}
     <article class="share-entry">
         <p class="share-date">{{ entry.date.strftime('%A, %B') }} {{ entry.date.day }}, {{ entry.date.year }}</p>
-        <div class="share-body">{{ entry.content | safe }}</div>
+        <div class="share-body">{{ shared_content | safe }}</div>
     </article>
     <div class="share-footer">{{ t.written_with if t is defined else 'Written with Piruetas' }}</div>
 </div>

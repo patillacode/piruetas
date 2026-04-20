@@ -1,0 +1,42 @@
+.theme-toggle {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.3rem 0.625rem;
+    border-radius: 6px;
+    line-height: 1;
+    transition:
+        border-color var(--transition),
+        color var(--transition);
+}
+
+.theme-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.locale-select {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0.125rem;
+    border-radius: 4px;
+    transition: color var(--transition);
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.locale-select:hover {
+    color: var(--text);
+}
+
+.locale-select:focus {
+    outline: none;
+    color: var(--text);
+}

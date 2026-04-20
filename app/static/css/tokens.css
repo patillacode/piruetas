@@ -1,0 +1,28 @@
+:root {
+    --bg: #faf8f5;
+    --text: #1c1917;
+    --surface: #f0ebe3;
+    --border: #e5e0db;
+    --accent: #b5735a;
+    --accent-hover: #a06450;
+    --muted: #9e9189;
+
+    --font-ui: "Inter", system-ui, sans-serif;
+    --font-reading: "Lora", Georgia, serif;
+    --font-display: "Cormorant Garamond", Georgia, serif;
+
+    --sidebar-width: 280px;
+    --header-height: 56px;
+
+    --transition: 150ms ease;
+}
+
+[data-theme="dark"] {
+    --bg: #18150f;
+    --text: #f2ede3;
+    --surface: #211e18;
+    --border: #322c26;
+    --accent: #c4856a;
+    --accent-hover: #b5735a;
+    --muted: #a89e93;
+}

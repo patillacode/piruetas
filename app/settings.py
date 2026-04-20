@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     data_dir: str = "/data"
     port: int = 8000
     secure_cookies: bool = True
+    trust_proxy: bool = False
     week_start: str = "monday"  # "monday" or "sunday"
     demo_enabled: bool = False
     demo_username: str = "demo"

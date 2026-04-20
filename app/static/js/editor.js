@@ -38,12 +38,11 @@ function showToast(msg, isError = false) {
 async function save() {
   if (!editor || !window.PIRUETAS?.saveUrl) return;
   const content = editor.getHTML();
-  const word_count = getWordCount(editor.getText());
   try {
     const res = await fetch(window.PIRUETAS.saveUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, word_count }),
+      body: JSON.stringify({ content }),
     });
     const s = window.PIRUETAS?.strings || {};
     showToast(res.ok ? (s.saved || 'Saved') : (s.errorSaving || 'Error saving'), !res.ok);
@@ -99,7 +98,10 @@ async function uploadAndInsertImage(file) {
         editor.chain().focus().setImage({ src: url }).run();
       }
     }
-  } catch { /* silent */ }
+  } catch {
+    const s = window.PIRUETAS?.strings || {};
+    showToast(s.errorSaving || 'Error saving', true);
+  }
 }
 
 function triggerImageUpload() {
@@ -132,55 +134,56 @@ function setupDragDrop(wrapper) {
   });
 }
 
-// ── share ──
-function setupShare() {
-  const btns = [
-    document.getElementById('share-btn'),
-    document.getElementById('share-btn-mobile'),
-  ].filter(Boolean);
-  const popup = document.getElementById('share-popup');
-  const urlInput = document.getElementById('share-url');
-  const copyBtn = document.getElementById('copy-share-btn');
-  if (!btns.length || !popup) return;
+// ── publish ──
+function setupPublish() {
+  const publishBtn = document.getElementById('publish-btn');
+  const publishBtnMobile = document.getElementById('publish-btn-mobile');
+  const copyLinkBtn = document.getElementById('copy-link-btn');
+  if (!publishBtn) return;
 
-  btns.forEach(btn => btn.addEventListener('click', async () => {
-    const saveUrl = window.PIRUETAS?.saveUrl;
-    if (!saveUrl) return;
-    if (!popup.hidden) { popup.hidden = true; return; }
+  const cfg = window.PIRUETAS;
+  const strings = cfg.strings;
+  let isPublished = !!(cfg.shareToken);
+  let shareUrl = isPublished ? `${location.origin}/share/${cfg.shareToken}` : null;
+
+  function updateUI() {
+    publishBtn.textContent = isPublished ? strings.unpublish : strings.publish;
+    publishBtn.classList.toggle('tbtn--active', isPublished);
+    if (copyLinkBtn) copyLinkBtn.hidden = !isPublished;
+    if (publishBtnMobile) publishBtnMobile.textContent = isPublished ? strings.unpublish : strings.publish;
+  }
+
+  updateUI();
+
+  publishBtn.addEventListener('click', async () => {
     try {
-      const res = await fetch(saveUrl + '/share', { method: 'POST' });
-      if (!res.ok) return;
-      const { url } = await res.json();
-      urlInput.value = window.location.origin + url;
-      if (window.innerWidth <= 768) {
-        popup.style.top = '64px';
-        popup.style.left = '8px';
-        popup.style.right = '8px';
-        popup.style.width = 'auto';
+      if (isPublished) {
+        await fetch(cfg.saveUrl + '/share', { method: 'DELETE' });
+        isPublished = false;
+        shareUrl = null;
       } else {
-        popup.style.right = '';
-        popup.style.width = '';
-        const rect = btn.getBoundingClientRect();
-        popup.style.top = `${rect.bottom + 6}px`;
-        popup.style.left = `${Math.max(8, rect.left - 20)}px`;
+        const res = await fetch(cfg.saveUrl + '/share', { method: 'POST' });
+        if (!res.ok) return;
+        const data = await res.json();
+        shareUrl = location.origin + data.url;
+        isPublished = true;
+        await navigator.clipboard.writeText(shareUrl);
+        showToast(strings.copied);
       }
-      popup.hidden = false;
-      urlInput.select();
-    } catch { /* silent */ }
-  }));
-
-  document.addEventListener('click', (e) => {
-    if (!popup.hidden && !popup.contains(e.target) && !btns.includes(e.target)) {
-      popup.hidden = true;
+      updateUI();
+    } catch {
+      showToast(strings.errorSaving || 'Error', true);
     }
   });
 
-  copyBtn?.addEventListener('click', () => {
-    navigator.clipboard.writeText(urlInput.value);
-    const s = window.PIRUETAS?.strings || {};
-    copyBtn.textContent = s.copied || 'Copied!';
-    setTimeout(() => { copyBtn.textContent = s.copy || 'Copy'; }, 1500);
+  copyLinkBtn?.addEventListener('click', async () => {
+    if (shareUrl) {
+      await navigator.clipboard.writeText(shareUrl);
+      showToast(strings.copied);
+    }
   });
+
+  publishBtnMobile?.addEventListener('click', () => publishBtn.click());
 }
 
 // ── init ──
@@ -209,7 +212,7 @@ function init() {
   const wrapper = document.querySelector('.editor-wrapper');
   if (wrapper) setupDragDrop(wrapper);
 
-  setupShare();
+  setupPublish();
 }
 
 if (document.readyState === 'loading') {

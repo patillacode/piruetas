@@ -3,9 +3,10 @@ name: Test and publish Docker image
 on:
   push:
     branches:
-      - main
+      - "**"
     tags:
       - "v*"
+  pull_request:
 
 jobs:
   test:
@@ -27,6 +28,7 @@ jobs:
 
   build:
     needs: test
+    if: startsWith(github.ref, 'refs/tags/')
     permissions:
       packages: write
     runs-on: docker

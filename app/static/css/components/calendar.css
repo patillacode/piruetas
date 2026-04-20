@@ -1,0 +1,100 @@
+.calendar {
+    font-family: var(--font-ui);
+    user-select: none;
+}
+
+.calendar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.calendar__title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.calendar__nav {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    transition: color var(--transition);
+}
+.calendar__nav:hover { color: var(--accent); }
+
+.calendar__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendar__day-name {
+    font-size: 0.6875rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 4px 0;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.calendar__day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8125rem;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text);
+    transition: background var(--transition), color var(--transition), transform 120ms ease;
+    text-decoration: none;
+    position: relative;
+}
+.calendar__day:hover { background: var(--surface); transform: scale(1.15); }
+
+/* written entry: bold accent + pen-cross strikethrough */
+.calendar__day.has-entry {
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: line-through;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 1.5px;
+}
+
+/* today: small dot below the number */
+.calendar__day.is-today::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+/* shared: subtle accent ring */
+.calendar__day.is-shared {
+    box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* active (currently viewing): solid fill, overrides everything */
+.calendar__day.is-active {
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    box-shadow: none;
+    transform: none;
+}
+.calendar__day.is-active::after { display: none; }
+
+.calendar__day.is-other-month { color: var(--muted); opacity: 0.4; }
+.calendar__day.is-empty { cursor: default; }

@@ -27,14 +27,17 @@
   let displayYear = null;
   let displayMonth = null; // 1-based
   let daysWithEntries = new Set();
+  let daysWithShares = new Set();
 
   async function fetchEntryDays(year, month) {
     try {
       const res = await fetch(`/calendar/${year}/${month}`);
       const data = await res.json();
       daysWithEntries = new Set(data.days);
+      daysWithShares = new Set(data.shared || []);
     } catch (e) {
       daysWithEntries = new Set();
+      daysWithShares = new Set();
     }
   }
 
@@ -50,22 +53,22 @@
 
     // Build header
     const header = document.createElement('div');
-    header.className = 'calendar-header';
+    header.className = 'calendar__header';
 
     const prevBtn = document.createElement('button');
-    prevBtn.className = 'calendar-nav';
+    prevBtn.className = 'calendar__nav';
     prevBtn.id = 'cal-prev';
-    prevBtn.innerHTML = '&#8249;';
+    prevBtn.textContent = '\u2039';
     prevBtn.addEventListener('click', () => navigate(-1));
 
     const title = document.createElement('span');
-    title.className = 'calendar-title';
+    title.className = 'calendar__title';
     title.textContent = `${MONTH_NAMES[displayMonth - 1]} ${displayYear}`;
 
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'calendar-nav';
+    nextBtn.className = 'calendar__nav';
     nextBtn.id = 'cal-next';
-    nextBtn.innerHTML = '&#8250;';
+    nextBtn.textContent = '\u203a';
     nextBtn.addEventListener('click', () => navigate(1));
 
     header.appendChild(prevBtn);
@@ -74,12 +77,12 @@
 
     // Build grid
     const grid = document.createElement('div');
-    grid.className = 'calendar-grid';
+    grid.className = 'calendar__grid';
 
     // Day name headers
     DAY_NAMES.forEach(d => {
       const span = document.createElement('span');
-      span.className = 'calendar-day-name';
+      span.className = 'calendar__day-name';
       span.textContent = d;
       grid.appendChild(span);
     });
@@ -87,7 +90,7 @@
     // Empty cells before first day
     for (let i = 0; i < startDow; i++) {
       const span = document.createElement('span');
-      span.className = 'calendar-day empty';
+      span.className = 'calendar__day is-empty';
       grid.appendChild(span);
     }
 
@@ -101,15 +104,17 @@
                         activeDate.month === displayMonth &&
                         activeDate.day === day);
       const hasEntry = daysWithEntries.has(day);
+      const isShared = daysWithShares.has(day);
 
       const mm = String(displayMonth).padStart(2, '0');
       const dd = String(day).padStart(2, '0');
       const dateStr = `${displayYear}/${mm}/${dd}`;
 
-      let classes = 'calendar-day';
-      if (isToday) classes += ' today';
-      if (isActive) classes += ' active';
+      let classes = 'calendar__day';
+      if (isToday) classes += ' is-today';
+      if (isActive) classes += ' is-active';
       if (hasEntry && !isActive) classes += ' has-entry';
+      if (isShared && !isActive) classes += ' is-shared';
 
       const a = document.createElement('a');
       a.className = classes;

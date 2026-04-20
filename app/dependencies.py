@@ -18,9 +18,12 @@ async def get_current_user(request: Request, session: Session = Depends(get_sess
     if result is None:
         raise HTTPException(status_code=HTTP_302_FOUND, headers={"Location": "/login"})
 
-    user_id, _ = result
+    user_id, _, token_version = result
     user = session.get(User, user_id)
     if user is None:
+        raise HTTPException(status_code=HTTP_302_FOUND, headers={"Location": "/login"})
+
+    if user.session_version != token_version:
         raise HTTPException(status_code=HTTP_302_FOUND, headers={"Location": "/login"})
 
     return user

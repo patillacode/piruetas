@@ -1,4 +1,4 @@
-from tests.conftest import login
+from tests.conftest import get_csrf, login
 
 
 def test_admin_page_accessible_to_admin(client, admin_user):
@@ -18,7 +18,7 @@ def test_create_user(client, admin_user):
     login(client, "admin", "adminpass123")
     resp = client.post(
         "/admin/users/new",
-        data={"username": "newuser", "password": "newpass123"},
+        data={"username": "newuser", "password": "newpass123", "csrf_token": get_csrf(client)},
     )
     assert resp.status_code == 303
     assert resp.headers["location"] == "/admin"
@@ -28,7 +28,7 @@ def test_create_user_duplicate_username(client, admin_user, regular_user):
     login(client, "admin", "adminpass123")
     resp = client.post(
         "/admin/users/new",
-        data={"username": "testuser", "password": "newpass456"},
+        data={"username": "testuser", "password": "newpass456", "csrf_token": get_csrf(client)},
     )
     assert resp.status_code == 200
     assert b"already taken" in resp.content
@@ -38,7 +38,7 @@ def test_create_user_invalid_username(client, admin_user):
     login(client, "admin", "adminpass123")
     resp = client.post(
         "/admin/users/new",
-        data={"username": "ab", "password": "validpass123"},
+        data={"username": "ab", "password": "validpass123", "csrf_token": get_csrf(client)},
     )
     assert resp.status_code == 200
     assert b"3-32" in resp.content
@@ -46,7 +46,7 @@ def test_create_user_invalid_username(client, admin_user):
 
 def test_delete_user(client, session, admin_user, regular_user):
     login(client, "admin", "adminpass123")
-    resp = client.post(f"/admin/users/{regular_user.id}/delete")
+    resp = client.post(f"/admin/users/{regular_user.id}/delete", data={"csrf_token": get_csrf(client)})
     assert resp.status_code == 303
     from sqlmodel import select
 
@@ -58,7 +58,7 @@ def test_delete_user(client, session, admin_user, regular_user):
 
 def test_cannot_delete_self(client, admin_user):
     login(client, "admin", "adminpass123")
-    resp = client.post(f"/admin/users/{admin_user.id}/delete")
+    resp = client.post(f"/admin/users/{admin_user.id}/delete", data={"csrf_token": get_csrf(client)})
     assert resp.status_code == 303
     resp2 = client.get("/admin/")
     assert resp2.status_code == 200
@@ -68,7 +68,7 @@ def test_create_user_short_password_rejected(client, admin_user):
     login(client, "admin", "adminpass123")
     resp = client.post(
         "/admin/users/new",
-        data={"username": "validuser", "password": "short"},
+        data={"username": "validuser", "password": "short", "csrf_token": get_csrf(client)},
     )
     assert resp.status_code == 200
     assert b"8 characters" in resp.content
@@ -78,7 +78,7 @@ def test_reset_password(client, session, admin_user, regular_user):
     login(client, "admin", "adminpass123")
     resp = client.post(
         f"/admin/users/{regular_user.id}/reset-password",
-        data={"new_password": "brandnew456"},
+        data={"new_password": "brandnew456", "csrf_token": get_csrf(client)},
     )
     assert resp.status_code == 303
     session.refresh(regular_user)

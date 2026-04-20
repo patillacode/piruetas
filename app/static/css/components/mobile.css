@@ -1,0 +1,38 @@
+.mobile-nav {
+    display: none;
+}
+
+.mobile-nav__share {
+    display: none;
+}
+
+.mobile-cal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 300;
+    display: flex;
+    align-items: flex-end;
+}
+
+.mobile-cal[hidden] {
+    display: none;
+}
+
+.mobile-cal__sheet {
+    background: var(--surface);
+    border-radius: 16px 16px 0 0;
+    padding: 1rem 1.25rem 2rem;
+    width: 100%;
+    max-height: 70vh;
+    overflow-y: auto;
+    border-top: 1px solid var(--border);
+}
+
+.mobile-cal__handle {
+    width: 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 1rem;
+}

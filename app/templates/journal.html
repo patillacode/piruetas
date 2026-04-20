@@ -3,25 +3,22 @@
 {% block title %}{{ date.strftime('%B %d, %Y') }} — Piruetas{% endblock %}
 
 {% block nav_links %}
-<button class="btn-ghost mobile-share-trigger" id="share-btn-mobile">{{ t.share }}</button>
+<button class="btn-ghost mobile-nav__share" id="publish-btn-mobile">{{ t.publish }}</button>
 {% endblock %}
 
-{% block head_extra %}
-<link rel="stylesheet" href="/static/css/editor.css">
-<link rel="stylesheet" href="/static/css/calendar.css">
-{% endblock %}
+{% block head_extra %}{% endblock %}
 
 {% block page_content %}
-<div class="mobile-date-nav" id="mobile-date-nav">
-    <a class="mobile-date-arrow" id="mobile-prev" href="#">&#8249;</a>
-    <button class="mobile-date-current" id="mobile-date-btn">Loading...</button>
-    <a class="mobile-date-arrow" id="mobile-next" href="#">&#8250;</a>
+<div class="mobile-nav" id="mobile-date-nav">
+    <a class="mobile-nav__arrow" id="mobile-prev" href="#">&#8249;</a>
+    <button class="mobile-nav__current" id="mobile-date-btn">Loading...</button>
+    <a class="mobile-nav__arrow" id="mobile-next" href="#">&#8250;</a>
 </div>
 <div class="app-layout">
     <aside class="sidebar">
         <div id="calendar" class="calendar">Calendar coming soon</div>
-        <div class="sidebar-footer">
-            <span class="sidebar-username">{{ user.username }}</span>
+        <div class="sidebar__footer">
+            <span class="sidebar__username">{{ user.username }}</span>
         </div>
     </aside>
     <div class="content-area">
@@ -35,13 +32,14 @@
             <span class="tbtn-sep"></span>
             <button class="tbtn" data-action="image" title="{{ t.image }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
             <span class="tbtn-sep"></span>
-            <button class="tbtn tbtn-share" id="share-btn">{{ t.share }}</button>
+            <button class="tbtn tbtn--publish" id="publish-btn">{{ t.publish }}</button>
+            <button class="tbtn tbtn--copy-link" id="copy-link-btn" title="{{ t.copy_link }}" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
         </div>
         <div class="content-col">
             <main class="main-content">
                 <div class="date-heading">
-                    <span class="date-weekday">{{ weekdays[date.weekday()] }}</span>
-                    <span class="date-full">{{ months[date.month - 1] }} {{ date.day }}, {{ date.year }}</span>
+                    <span class="date-heading__weekday">{{ weekdays[date.weekday()] }}</span>
+                    <span class="date-heading__full">{{ months[date.month - 1] }} {{ date.day }}, {{ date.year }}</span>
                 </div>
                 <div class="editor-wrapper">
                     <div id="editor"></div>
@@ -53,36 +51,34 @@
         </div>
     </div>
 </div>
-<div id="mobile-cal-overlay" class="mobile-cal-overlay" hidden>
-    <div class="mobile-cal-sheet">
-        <div class="mobile-cal-handle"></div>
+<div id="mobile-cal-overlay" class="mobile-cal" hidden>
+    <div class="mobile-cal__sheet">
+        <div class="mobile-cal__handle"></div>
         <div id="mobile-calendar" class="calendar"></div>
     </div>
 </div>
 <div id="save-toast" class="save-toast"></div>
-<div id="share-popup" class="share-popup" hidden>
-    <input id="share-url" type="text" readonly>
-    <button id="copy-share-btn" class="tbtn">{{ t['copy_btn'] }}</button>
-</div>
 {% endblock %}
 
 {% block page_scripts %}
-<script>
+<script nonce="{{ csp_nonce }}">
     window.PIRUETAS = {
         entryDate: "{{ date.isoformat() }}",
         weekStart: {{ week_start }},
         locale: "{{ locale }}",
         months: {{ months | tojson }},
         entryContent: {{ (entry.content if entry else '') | tojson }},
+        shareToken: {{ (entry.share_token if entry and entry.share_token else '') | tojson }},
         saveUrl: "/journal/{{ date.year }}/{{ '%02d' % date.month }}/{{ '%02d' % date.day }}",
         strings: {
             saved: {{ t.saved | tojson }},
             errorSaving: {{ t.error_saving | tojson }},
-            copy: {{ t['copy_btn'] | tojson }},
             copied: {{ t.copied | tojson }},
             placeholder: {{ t.write_anything | tojson }},
             wordSingular: {{ t.word | tojson }},
             wordPlural: {{ t.words | tojson }},
+            publish: {{ t.publish | tojson }},
+            unpublish: {{ t.unpublish | tojson }},
         },
     };
     (function() {

@@ -1,0 +1,87 @@
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
+    transition:
+        background var(--transition),
+        border-color var(--transition);
+}
+
+.app-header::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.35;
+}
+
+.app-layout {
+    display: flex;
+    height: calc(100vh - var(--header-height));
+    margin-top: var(--header-height);
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    transition: border-color var(--transition);
+    animation: fadeUp 0.4s ease both;
+    animation-delay: 0.05s;
+}
+
+.sidebar__footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.sidebar__username {
+    font-size: 0.6875rem;
+    font-family: var(--font-ui);
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* content-area wraps toolbar + scroll column; carries the page-load animation
+   so transform never touches the scroll container (which would break sticky) */
+.content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    animation: fadeUp 0.4s ease both;
+    animation-delay: 0.12s;
+}
+
+.content-col {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.main-content {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}

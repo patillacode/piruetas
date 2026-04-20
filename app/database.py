@@ -48,6 +48,10 @@ def _run_migrations(engine) -> None:
             conn.execute(text("ALTER TABLE entry ADD COLUMN share_token TEXT"))
         except OperationalError:
             pass
+        try:
+            conn.execute(text("ALTER TABLE user ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0"))
+        except OperationalError:
+            pass
         conn.commit()
 
 

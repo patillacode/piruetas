@@ -5,9 +5,10 @@
 
 {% block body %}
 <div class="card">
-    <h1 class="login-title">Piruetas</h1>
-    {% if error %}<p class="error-msg">{{ error }}</p>{% endif %}
+    <h1 class="login__title">Piruetas</h1>
+    {% if error %}<p class="form__error">{{ error }}</p>{% endif %}
     <form method="post" action="/login">
+        <input type="hidden" name="login_csrf_token" value="{{ login_csrf_token }}">
         <div class="field">
             <label for="username">{{ t.username if t is defined else 'Username' }}</label>
             <input type="text" id="username" name="username" required autofocus>

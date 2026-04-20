@@ -1,0 +1,53 @@
+.logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    font-style: italic;
+    color: var(--text);
+    text-decoration: none;
+    transition: color var(--transition), letter-spacing var(--transition);
+}
+
+.logo:hover {
+    color: var(--accent);
+    letter-spacing: 0.1em;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+nav a {
+    position: relative;
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: color var(--transition);
+}
+
+nav a:hover {
+    color: var(--accent);
+}
+
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0.5rem;
+    right: 0.5rem;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 200ms ease;
+    transform-origin: left;
+}
+
+nav a:hover::after {
+    transform: scaleX(1);
+}

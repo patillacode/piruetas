@@ -1,0 +1,103 @@
+@media (max-width: 768px) {
+    .mobile-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+        margin-top: var(--header-height);
+    }
+
+    .mobile-nav__arrow {
+        font-size: 1.5rem;
+        color: var(--muted);
+        text-decoration: none;
+        padding: 0.25rem 0.5rem;
+        line-height: 1;
+    }
+
+    .mobile-nav__arrow:hover {
+        color: var(--accent);
+    }
+
+    .mobile-nav__current {
+        font-family: var(--font-display);
+        font-size: 1.125rem;
+        font-weight: 300;
+        color: var(--text);
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .app-layout {
+        flex-direction: column;
+        height: auto;
+        margin-top: 0;
+    }
+
+    .sidebar {
+        display: none;
+    }
+    .sidebar,
+    .content-area {
+        animation: none;
+    }
+
+    .content-col {
+        display: block;
+        overflow-y: visible;
+    }
+
+    .main-content {
+        padding: 1.25rem 1rem;
+        max-width: 100%;
+        min-height: calc(100vh - var(--header-height) - 57px);
+    }
+
+    .editor-wrapper {
+        min-height: calc(100vh - var(--header-height) - 57px - 180px);
+    }
+
+    /* Editor toolbar pinned to bottom above keyboard on mobile */
+    .editor-toolbar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto !important;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        border-bottom: none;
+        border-radius: 0;
+        padding: 0.5rem 0;
+        gap: 0;
+        z-index: 200;
+        margin-bottom: 0;
+        justify-content: space-around;
+    }
+
+    .editor-toolbar .tbtn {
+        padding: 6px 0;
+    }
+
+    .app-header {
+        padding: 0 1rem;
+    }
+
+    nav a {
+        display: none;
+    }
+    nav .btn-ghost,
+    nav .theme-toggle,
+    nav .locale-select {
+        display: flex;
+    }
+    .mobile-nav__share {
+        display: flex;
+    }
+    #share-btn {
+        display: none;
+    }
+}
