@@ -30,6 +30,14 @@ format:
 test:
     uv run pytest
 
+# Run E2E tests with Playwright
+test-e2e:
+    uv run pytest tests/e2e/ -v
+
+# Run E2E tests with visible browser (for debugging)
+test-e2e-headed:
+    uv run pytest tests/e2e/ -v --headed
+
 # Run tests with coverage
 test-cov:
     uv run pytest --cov=app --cov-report=term-missing

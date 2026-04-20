@@ -21,6 +21,10 @@ dev = [
     "httpx>=0.27",
     "ruff>=0.8",
 ]
+e2e = [
+    "playwright>=1.40",
+    "pytest-playwright>=0.4",
+]
 
 [build-system]
 requires = ["hatchling"]
