@@ -4,6 +4,7 @@ from playwright.sync_api import expect
 def test_account_page_loads(authenticated_page, live_server):
     page = authenticated_page
     page.goto(f"{live_server}/account")
+    expect(page.locator("text=testuser")).to_be_visible()
     expect(page.locator('input[name="current_password"]')).to_be_visible()
     expect(page.locator('input[name="new_password"]')).to_be_visible()
 
