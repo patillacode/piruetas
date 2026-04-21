@@ -148,7 +148,7 @@ def test_share_token_image_access(page, live_server, seed_user):
     assert resp_upload.status_code == 200
     image_url = resp_upload.json()["url"]
 
-    content = f'<p>Shared entry</p><img src="{image_url}">'
+    content = f'<p>Published entry</p><img src="{image_url}">'
     _seed_entry(seed_user.id, content)
 
     assert seed_user.id is not None
@@ -169,7 +169,7 @@ def test_share_token_image_access(page, live_server, seed_user):
     page.goto(f"{live_server}/share/{share_token}")
     page.wait_for_load_state("networkidle")
     assert page.locator("body").is_visible()
-    assert "Shared entry" in page.locator("body").inner_text()
+    assert "Published entry" in page.locator("body").inner_text()
 
     img_resp = httpx.get(
         f"{live_server}{image_url}",
