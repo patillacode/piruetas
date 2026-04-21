@@ -1,7 +1,7 @@
 import os
 
 os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production")
-os.environ.setdefault("SECURE_COOKIES", "false")
+os.environ["SECURE_COOKIES"] = "false"  # must be false so TestClient (HTTP) sends cookies back
 os.environ.setdefault("DATA_DIR", "/tmp/piruetas-test")
 os.environ.setdefault("DATABASE_URL", "sqlite:////tmp/piruetas-test.db")
 
@@ -79,5 +79,12 @@ def login(client, username, password):
     """Helper: login and return client with session cookie set."""
     get_resp = client.get("/login")
     csrf_cookie = get_resp.cookies.get("piruetas_login_csrf", "")
-    resp = client.post("/login", data={"username": username, "password": password, "login_csrf_token": csrf_cookie})
+    resp = client.post(
+        "/login",
+        data={
+            "username": username,
+            "password": password,
+            "login_csrf_token": csrf_cookie,
+        },
+    )
     return resp

@@ -25,7 +25,8 @@ def get_engine():
             data_dir = Path(settings.data_dir)
             if not db_path.is_absolute() or not str(db_path).startswith(str(data_dir)):
                 warnings.warn(
-                    f"DATABASE_URL resolves to '{db_path}', which is outside DATA_DIR '{data_dir}'. "
+                    f"DATABASE_URL resolves to '{db_path}', "
+                    f"which is outside DATA_DIR '{data_dir}'. "
                     "Use 4 slashes for an absolute path: sqlite:////data/piruetas.db",
                     stacklevel=2,
                 )
@@ -43,13 +44,16 @@ def init_db() -> None:
 def _run_migrations(engine) -> None:
     from sqlalchemy import text
     from sqlalchemy.exc import OperationalError
+
     with engine.connect() as conn:
         try:
             conn.execute(text("ALTER TABLE entry ADD COLUMN share_token TEXT"))
         except OperationalError:
             pass
         try:
-            conn.execute(text("ALTER TABLE user ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0"))
+            conn.execute(
+                text("ALTER TABLE user ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0")
+            )
         except OperationalError:
             pass
         conn.commit()

@@ -15,7 +15,16 @@ router = APIRouter(prefix="/account")
 
 @router.get("")
 async def account_page(request: Request, user: User = Depends(get_current_user)):
-    return templates.TemplateResponse(request, "account.html", ctx(request, user=user, error=None, success=None))
+    return templates.TemplateResponse(
+        request,
+        "account.html",
+        ctx(
+            request,
+            user=user,
+            error=None,
+            success=None,
+        ),
+    )
 
 
 @router.post("/password")
@@ -30,7 +39,9 @@ async def change_password(
 ):
     def render(error=None, success=None):
         return templates.TemplateResponse(
-            request, "account.html", ctx(request, user=user, error=error, success=success),
+            request,
+            "account.html",
+            ctx(request, user=user, error=error, success=success),
             status_code=400 if error else 200,
         )
 
@@ -44,13 +55,18 @@ async def change_password(
     settings = get_settings()
     db_user = session.get(User, user.id)
     assert db_user is not None
-    db_user.hashed_password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    db_user.hashed_password = bcrypt.hashpw(
+        new_password.encode(),
+        bcrypt.gensalt(),
+    ).decode()
     db_user.session_version += 1
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
 
-    new_token = make_session_token(db_user.id, db_user.is_admin, db_user.session_version, settings.secret_key)
+    new_token = make_session_token(
+        db_user.id, db_user.is_admin, db_user.session_version, settings.secret_key
+    )
     response = render(success="Password changed successfully.")
     response.set_cookie(
         SESSION_COOKIE,
