@@ -126,6 +126,21 @@
     container.textContent = '';
     container.appendChild(header);
     container.appendChild(grid);
+
+    if (container.id === 'calendar') {
+      const footer = document.createElement('div');
+      footer.className = 'calendar__footer';
+      const legendBtn = document.createElement('button');
+      legendBtn.className = 'calendar__legend-btn';
+      legendBtn.textContent = '?';
+      legendBtn.setAttribute('aria-label', 'Show calendar legend');
+      legendBtn.addEventListener('click', () => {
+        const legend = document.getElementById('calendar-legend');
+        if (legend) legend.hidden = !legend.hidden;
+      });
+      footer.appendChild(legendBtn);
+      container.appendChild(footer);
+    }
   }
 
   function renderAll() {
@@ -141,6 +156,32 @@
     fetchEntryDays(displayYear, displayMonth).then(renderAll);
   }
 
+  async function fetchStats() {
+    try {
+      const res = await fetch('/journal/stats');
+      const data = await res.json();
+      const el = document.getElementById('sidebar-stats');
+      if (!el) return;
+      const s = window.PIRUETAS?.strings || {};
+      const streakText = data.streak > 0
+        ? (s.streakLabel || '{n}-day streak').replace('{n}', data.streak)
+        : (s.noStreak || 'No streak yet');
+      const entryWord = data.month_entries === 1 ? (s.entrySingular || 'entry') : (s.entryPlural || 'entries');
+      const monthText = `${data.month_entries} ${entryWord} \u00b7 ${data.month_words.toLocaleString()} ${s.wordsThisMonth || 'words this month'}`;
+      el.textContent = '';
+      const streakEl = document.createElement('div');
+      streakEl.className = 'sidebar-stats__streak';
+      streakEl.textContent = streakText;
+      const monthEl = document.createElement('div');
+      monthEl.className = 'sidebar-stats__month';
+      monthEl.textContent = monthText;
+      el.appendChild(streakEl);
+      el.appendChild(monthEl);
+    } catch {
+      // stats are non-critical
+    }
+  }
+
   async function init() {
     if (!cfg || !cfg.entryDate) return;
 
@@ -151,8 +192,14 @@
 
     await fetchEntryDays(displayYear, displayMonth);
     renderAll();
+    fetchStats();
 
     const mobileBtn = document.getElementById('mobile-date-btn');
+    if (mobileBtn) {
+      const months = cfg.months || ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      mobileBtn.textContent = `${months[m-1]} ${d}, ${y}`;
+    }
+
     const overlay = document.getElementById('mobile-cal-overlay');
     if (mobileBtn && overlay) {
       mobileBtn.addEventListener('click', () => { overlay.hidden = false; });
@@ -160,7 +207,25 @@
         if (e.target === overlay) overlay.hidden = true;
       });
     }
+
+    function offsetDate(year, month, day, delta) {
+      const dt = new Date(year, month - 1, day + delta);
+      return { year: dt.getFullYear(), month: dt.getMonth() + 1, day: dt.getDate() };
+    }
+    function dateUrl(year, month, day) {
+      return `/journal/${year}/${String(month).padStart(2,'0')}/${String(day).padStart(2,'0')}`;
+    }
+    const prev = document.getElementById('mobile-prev');
+    const next = document.getElementById('mobile-next');
+    if (prev) { const p = offsetDate(y, m, d, -1); prev.href = dateUrl(p.year, p.month, p.day); }
+    if (next) { const n = offsetDate(y, m, d, 1); next.href = dateUrl(n.year, n.month, n.day); }
   }
+
+  window.calendarRemoveEntry = function(day) {
+    daysWithEntries.delete(day);
+    daysWithShares.delete(day);
+    renderAll();
+  };
 
   document.addEventListener('DOMContentLoaded', init);
 })();

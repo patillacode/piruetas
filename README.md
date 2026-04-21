@@ -79,3 +79,9 @@ Run `just` to see all available recipes.
 
 See [CONFIGURATION.md](CONFIGURATION.md) for all available environment variables.
 
+## License
+
+Piruetas is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
+
+For use in proprietary or commercial products without complying with the AGPL-3.0, a commercial license is available. See [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) or contact patillacode@gmail.com.
+

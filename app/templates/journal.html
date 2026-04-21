@@ -19,6 +19,21 @@
 <div class="app-layout">
     <aside class="sidebar">
         <div id="calendar" class="calendar">Calendar coming soon</div>
+        <div id="calendar-legend" class="calendar-legend" hidden>
+            <div class="calendar-legend__item">
+                <a class="calendar__day is-today calendar-legend__day" tabindex="-1">7</a>
+                <span>{{ t.legend_today }}</span>
+            </div>
+            <div class="calendar-legend__item">
+                <a class="calendar__day is-shared calendar-legend__day" tabindex="-1">7</a>
+                <span>{{ t.legend_shared }}</span>
+            </div>
+            <div class="calendar-legend__item">
+                <a class="calendar__day has-entry calendar-legend__day" tabindex="-1">7</a>
+                <span>{{ t.legend_has_content }}</span>
+            </div>
+        </div>
+        <div id="sidebar-stats" class="sidebar-stats"></div>
         <div class="sidebar__footer">
             <span class="sidebar__username">{{ user.username }}</span>
         </div>
@@ -37,7 +52,7 @@
             <button class="tbtn tbtn--publish" id="publish-btn">{{ t.publish }}</button>
             <button class="tbtn tbtn--copy-link" id="copy-link-btn" title="{{ t.copy_link }}" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
             <span class="tbtn-sep"></span>
-            <button class="tbtn tbtn--delete" id="delete-btn" title="{{ t.delete_entry }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+            <button class="tbtn tbtn--delete" id="delete-btn" title="{{ t.delete_entry }}" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </div>
         <div class="content-col">
             <main class="main-content">
@@ -84,6 +99,7 @@
         locale: "{{ locale }}",
         months: {{ months | tojson }},
         entryContent: {{ (entry.content if entry else '') | tojson }},
+        entryExists: {{ (entry is not none) | tojson }},
         shareToken: {{ (entry.share_token if entry and entry.share_token else '') | tojson }},
         saveUrl: "/journal/{{ date.year }}/{{ '%02d' % date.month }}/{{ '%02d' % date.day }}",
         strings: {
@@ -97,29 +113,14 @@
             unpublish: {{ t.unpublish | tojson }},
             deleteEntry: {{ t.delete_entry | tojson }},
             cancel: {{ t.cancel | tojson }},
+            confirmDelete: {{ t.confirm_delete | tojson }},
+            noStreak: {{ t.no_streak | tojson }},
+            streakLabel: {{ t.streak_label | tojson }},
+            entrySingular: {{ t.entry_singular | tojson }},
+            entryPlural: {{ t.entry_plural | tojson }},
+            wordsThisMonth: {{ t.words_this_month | tojson }},
         },
     };
-    (function() {
-        const cfg = window.PIRUETAS;
-        if (!cfg || !cfg.entryDate) return;
-        const [y, m, d] = cfg.entryDate.split('-').map(Number);
-        const btn = document.getElementById('mobile-date-btn');
-        if (btn) {
-            const months = cfg.months || ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            btn.textContent = `${months[m-1]} ${d}, ${y}`;
-        }
-        function offsetDate(year, month, day, delta) {
-            const dt = new Date(year, month - 1, day + delta);
-            return { year: dt.getFullYear(), month: dt.getMonth() + 1, day: dt.getDate() };
-        }
-        function dateUrl(year, month, day) {
-            return `/journal/${year}/${String(month).padStart(2,'0')}/${String(day).padStart(2,'0')}`;
-        }
-        const prev = document.getElementById('mobile-prev');
-        const next = document.getElementById('mobile-next');
-        if (prev) { const p = offsetDate(y, m, d, -1); prev.href = dateUrl(p.year, p.month, p.day); }
-        if (next) { const n = offsetDate(y, m, d, 1); next.href = dateUrl(n.year, n.month, n.day); }
-    })();
 </script>
 <script src="/static/js/calendar.js"></script>
 <script type="module" src="/static/js/editor.js"></script>

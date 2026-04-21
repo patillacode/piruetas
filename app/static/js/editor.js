@@ -7,6 +7,7 @@ import Placeholder from 'https://esm.sh/@tiptap/extension-placeholder@2';
 let editor = null;
 let saveTimer = null;
 let toastTimer = null;
+let entryExists = !!(window.PIRUETAS?.entryExists);
 
 // ── word count ──
 function getWordCount(text) {
@@ -34,6 +35,12 @@ function showToast(msg, isError = false) {
   }
 }
 
+// ── delete button ──
+function updateDeleteBtn() {
+  const btn = document.getElementById('delete-btn');
+  if (btn) btn.hidden = !entryExists;
+}
+
 // ── auto-save ──
 async function save() {
   if (!editor || !window.PIRUETAS?.saveUrl) return;
@@ -44,8 +51,10 @@ async function save() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content }),
     });
+    if (res.ok) entryExists = true;
     const s = window.PIRUETAS?.strings || {};
     showToast(res.ok ? (s.saved || 'Saved') : (s.errorSaving || 'Error saving'), !res.ok);
+    if (res.ok) updateDeleteBtn();
   } catch {
     const s = window.PIRUETAS?.strings || {};
     showToast(s.errorSaving || 'Error saving', true);
@@ -172,6 +181,10 @@ function setupDelete() {
       }
       const res = await fetch(cfg.saveUrl, { method: 'DELETE' });
       if (res.ok) {
+        if (cfg.entryDate) {
+          const [, , d] = cfg.entryDate.split('-').map(Number);
+          window.calendarRemoveEntry?.(d);
+        }
         window.location.href = '/';
       } else {
         showToast(cfg.strings.errorSaving || 'Error', true);
@@ -263,6 +276,7 @@ function init() {
 
   updateWordCount();
   updateToolbar();
+  updateDeleteBtn();
 
   const toolbar = document.getElementById('editor-toolbar');
   if (toolbar) toolbar.addEventListener('mousedown', handleToolbarClick);
@@ -272,6 +286,7 @@ function init() {
 
   setupDelete();
   setupPublish();
+  setupDelete();
 }
 
 if (document.readyState === 'loading') {
