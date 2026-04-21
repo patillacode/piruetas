@@ -146,7 +146,7 @@ function setupDragDrop(wrapper) {
 // ── delete ──
 function setupDelete() {
   const deleteBtn = document.getElementById('delete-btn');
-  const deleteBtnMobile = document.getElementById('delete-btn-mobile');
+  const sheetDeleteBtn = document.getElementById('sheet-delete-btn');
   const modal = document.getElementById('delete-modal');
   const cancelBtn = document.getElementById('delete-modal-cancel');
   const confirmBtn = document.getElementById('delete-modal-confirm');
@@ -167,7 +167,10 @@ function setupDelete() {
   }
 
   deleteBtn?.addEventListener('click', openModal);
-  deleteBtnMobile?.addEventListener('click', openModal);
+  sheetDeleteBtn?.addEventListener('click', () => {
+    window._closeSheet?.();
+    setTimeout(openModal, 290);
+  });
   cancelBtn?.addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
@@ -204,7 +207,7 @@ function setupPublish() {
   const publishBtn = document.getElementById('publish-btn');
   const publishBtnMobile = document.getElementById('publish-btn-mobile');
   const copyLinkBtn = document.getElementById('copy-link-btn');
-  const copyLinkBtnMobile = document.getElementById('copy-link-btn-mobile');
+  const sheetCopyLink = document.getElementById('sheet-copy-link');
   if (!publishBtn) return;
 
   const cfg = window.PIRUETAS;
@@ -216,7 +219,7 @@ function setupPublish() {
     publishBtn.textContent = isPublished ? strings.unpublish : strings.publish;
     publishBtn.classList.toggle('tbtn--active', isPublished);
     if (copyLinkBtn) copyLinkBtn.hidden = !isPublished;
-    if (copyLinkBtnMobile) copyLinkBtnMobile.hidden = !isPublished;
+    if (sheetCopyLink) sheetCopyLink.hidden = !isPublished;
     if (publishBtnMobile) publishBtnMobile.textContent = isPublished ? strings.unpublish : strings.publish;
     cfg.shareToken = isPublished ? cfg.shareToken : '';
   }
@@ -253,7 +256,7 @@ function setupPublish() {
   }
 
   copyLinkBtn?.addEventListener('click', copyLink);
-  copyLinkBtnMobile?.addEventListener('click', copyLink);
+  sheetCopyLink?.addEventListener('click', () => { copyLink(); window._closeSheet?.(); });
   publishBtnMobile?.addEventListener('click', () => publishBtn.click());
 }
 
@@ -286,7 +289,6 @@ function init() {
 
   setupDelete();
   setupPublish();
-  setupDelete();
 }
 
 if (document.readyState === 'loading') {
