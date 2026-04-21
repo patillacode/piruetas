@@ -9,7 +9,7 @@
         {% if user is defined and user and user.is_admin %}
         <a href="/admin">Admin</a>
         {% endif %}
-        <form method="post" action="/logout" class="signout-form" style="display:inline">
+        <form method="post" action="/logout" class="signout-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button class="btn-ghost" type="submit">{{ t.sign_out if t is defined else 'Sign out' }}</button>
         </form>
