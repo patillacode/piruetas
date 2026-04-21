@@ -37,7 +37,7 @@ Calendar week start day. Accepts `monday` or `sunday`.
 Directory used for the database file and image uploads. Mount this as a volume to persist data.
 
 **`DATABASE_URL`** (default: `sqlite:////data/piruetas.db`)
-SQLite connection string. Note the **four slashes** — three resolve the path relative to `/app` (inside the container) and would bypass the volume mount.
+SQLite connection string. Note the **four slashes**, three resolve the path relative to `/app` (inside the container) and would bypass the volume mount.
 
 ---
 

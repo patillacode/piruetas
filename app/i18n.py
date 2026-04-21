@@ -1,10 +1,34 @@
 from starlette.requests import Request
 
 MONTH_NAMES: dict[str, list[str]] = {
-    "en": ["January", "February", "March", "April", "May", "June",
-           "July", "August", "September", "October", "November", "December"],
-    "es": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-           "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+    "en": [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ],
+    "es": [
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre",
+    ],
 }
 
 WEEKDAY_NAMES: dict[str, list[str]] = {
@@ -57,9 +81,14 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "stop_sharing": "Stop sharing",
         "delete_confirm": "Delete {name}? This cannot be undone.",
         "delete_entry": "Delete entry",
+        "delete_entry_confirm": "This will permanently delete this entry and cannot be undone.",
+        "delete_entry_published": (
+            "This entry is currently published, deleting it will also remove the public link."
+        ),
+        "cancel": "Cancel",
         "confirm_delete": "Delete this entry? This cannot be undone.",
         "legend_today": "Today",
-        "legend_shared": "Shared entry",
+        "legend_shared": "Published entry",
         "legend_has_content": "Has content",
         "no_streak": "No streak yet",
         "streak_label": "{n}-day streak",
@@ -110,9 +139,16 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "stop_sharing": "Dejar de compartir",
         "delete_confirm": "¿Eliminar {name}? Esta acción no se puede deshacer.",
         "delete_entry": "Eliminar entrada",
+        "delete_entry_confirm": (
+            "Esta acción eliminará permanentemente esta entrada y no se puede deshacer."
+        ),
+        "delete_entry_published": (
+            "Esta entrada está publicada, si la eliminas también se borrará el enlace público."
+        ),
+        "cancel": "Cancelar",
         "confirm_delete": "¿Eliminar esta entrada? Esta acción no se puede deshacer.",
         "legend_today": "Hoy",
-        "legend_shared": "Entrada compartida",
+        "legend_shared": "Entrada publicada",
         "legend_has_content": "Tiene contenido",
         "no_streak": "Sin racha aún",
         "streak_label": "racha de {n} días",

@@ -61,30 +61,6 @@ async function save() {
   }
 }
 
-// ── delete entry ──
-function setupDelete() {
-  const btn = document.getElementById('delete-btn');
-  if (!btn || !window.PIRUETAS?.saveUrl) return;
-  btn.addEventListener('click', async () => {
-    const s = window.PIRUETAS?.strings || {};
-    if (!confirm(s.confirmDelete || 'Delete this entry? This cannot be undone.')) return;
-    try {
-      const res = await fetch(window.PIRUETAS.saveUrl, { method: 'DELETE' });
-      if (!res.ok) return;
-      editor.commands.clearContent();
-      entryExists = false;
-      updateDeleteBtn();
-      if (window.PIRUETAS.entryDate) {
-        const [, , d] = window.PIRUETAS.entryDate.split('-').map(Number);
-        window.calendarRemoveEntry?.(d);
-      }
-    } catch {
-      const s = window.PIRUETAS?.strings || {};
-      showToast(s.errorSaving || 'Error', true);
-    }
-  });
-}
-
 function scheduleSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(save, 2000);
@@ -167,11 +143,71 @@ function setupDragDrop(wrapper) {
   });
 }
 
+// ── delete ──
+function setupDelete() {
+  const deleteBtn = document.getElementById('delete-btn');
+  const sheetDeleteBtn = document.getElementById('sheet-delete-btn');
+  const modal = document.getElementById('delete-modal');
+  const cancelBtn = document.getElementById('delete-modal-cancel');
+  const confirmBtn = document.getElementById('delete-modal-confirm');
+  const warning = document.getElementById('delete-modal-warning');
+  if (!modal || !confirmBtn) return;
+
+  const cfg = window.PIRUETAS;
+
+  function openModal() {
+    const isPublished = !!(cfg.shareToken);
+    warning.hidden = !isPublished;
+    modal.hidden = false;
+    cancelBtn.focus();
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+  }
+
+  deleteBtn?.addEventListener('click', openModal);
+  sheetDeleteBtn?.addEventListener('click', () => {
+    window._closeSheet?.();
+    setTimeout(openModal, 290);
+  });
+  cancelBtn?.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+  confirmBtn.addEventListener('click', async () => {
+    confirmBtn.disabled = true;
+    try {
+      if (cfg.shareToken) {
+        await fetch(cfg.saveUrl + '/share', { method: 'DELETE' });
+        cfg.shareToken = '';
+      }
+      const res = await fetch(cfg.saveUrl, { method: 'DELETE' });
+      if (res.ok) {
+        if (cfg.entryDate) {
+          const [, , d] = cfg.entryDate.split('-').map(Number);
+          window.calendarRemoveEntry?.(d);
+        }
+        window.location.href = '/';
+      } else {
+        showToast(cfg.strings.errorSaving || 'Error', true);
+        confirmBtn.disabled = false;
+        closeModal();
+      }
+    } catch {
+      showToast(cfg.strings.errorSaving || 'Error', true);
+      confirmBtn.disabled = false;
+      closeModal();
+    }
+  });
+}
+
 // ── publish ──
 function setupPublish() {
   const publishBtn = document.getElementById('publish-btn');
   const publishBtnMobile = document.getElementById('publish-btn-mobile');
   const copyLinkBtn = document.getElementById('copy-link-btn');
+  const sheetCopyLink = document.getElementById('sheet-copy-link');
   if (!publishBtn) return;
 
   const cfg = window.PIRUETAS;
@@ -183,7 +219,9 @@ function setupPublish() {
     publishBtn.textContent = isPublished ? strings.unpublish : strings.publish;
     publishBtn.classList.toggle('tbtn--active', isPublished);
     if (copyLinkBtn) copyLinkBtn.hidden = !isPublished;
+    if (sheetCopyLink) sheetCopyLink.hidden = !isPublished;
     if (publishBtnMobile) publishBtnMobile.textContent = isPublished ? strings.unpublish : strings.publish;
+    cfg.shareToken = isPublished ? cfg.shareToken : '';
   }
 
   updateUI();
@@ -198,6 +236,7 @@ function setupPublish() {
         const res = await fetch(cfg.saveUrl + '/share', { method: 'POST' });
         if (!res.ok) return;
         const data = await res.json();
+        cfg.shareToken = data.url.split('/').pop();
         shareUrl = location.origin + data.url;
         isPublished = true;
         await navigator.clipboard.writeText(shareUrl);
@@ -209,13 +248,15 @@ function setupPublish() {
     }
   });
 
-  copyLinkBtn?.addEventListener('click', async () => {
+  async function copyLink() {
     if (shareUrl) {
       await navigator.clipboard.writeText(shareUrl);
       showToast(strings.copied);
     }
-  });
+  }
 
+  copyLinkBtn?.addEventListener('click', copyLink);
+  sheetCopyLink?.addEventListener('click', () => { copyLink(); window._closeSheet?.(); });
   publishBtnMobile?.addEventListener('click', () => publishBtn.click());
 }
 
@@ -246,8 +287,8 @@ function init() {
   const wrapper = document.querySelector('.editor-wrapper');
   if (wrapper) setupDragDrop(wrapper);
 
-  setupPublish();
   setupDelete();
+  setupPublish();
 }
 
 if (document.readyState === 'loading') {

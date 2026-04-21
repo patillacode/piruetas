@@ -15,13 +15,29 @@
     min-height: 400px;
 }
 
-.ProseMirror p { margin-bottom: 0.875em; }
-.ProseMirror p:last-child { margin-bottom: 0; }
-.ProseMirror a { color: var(--accent); }
-.ProseMirror strong { font-weight: 600; }
-.ProseMirror em { font-style: italic; }
-.ProseMirror img { max-width: 100%; border-radius: 4px; margin: 0.5em 0; }
-.ProseMirror.ProseMirror-focused { outline: none; }
+.ProseMirror p {
+    margin-bottom: 0.875em;
+}
+.ProseMirror p:last-child {
+    margin-bottom: 0;
+}
+.ProseMirror a {
+    color: var(--accent);
+}
+.ProseMirror strong {
+    font-weight: 600;
+}
+.ProseMirror em {
+    font-style: italic;
+}
+.ProseMirror img {
+    max-width: 100%;
+    border-radius: 4px;
+    margin: 0.5em 0;
+}
+.ProseMirror.ProseMirror-focused {
+    outline: none;
+}
 
 .ProseMirror p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
@@ -31,7 +47,7 @@
     height: 0;
 }
 
-/* Toolbar sits above the scroll container — always visible, never sticky.
+/* Toolbar sits above the scroll container, always visible, never sticky.
    Padding mirrors .main-content centering: max(2rem, (100% - 720px)/2 + 2rem)
    keeps buttons flush with the editor text at any viewport width. */
 .editor-toolbar {
@@ -51,7 +67,9 @@
     align-items: center;
     justify-content: center;
 }
-.editor-toolbar .tbtn[hidden] { display: none; }
+.editor-toolbar .tbtn[hidden] {
+    display: none;
+}
 
 .tbtn {
     background: none;
@@ -64,20 +82,41 @@
     font-family: var(--font-ui);
     font-weight: 500;
     line-height: 1.4;
-    transition: color 120ms, background 120ms;
+    transition:
+        color 120ms,
+        background 120ms;
 }
-.tbtn:hover { color: var(--text); background: var(--surface); }
-.tbtn:active { transform: scale(0.92); }
-.tbtn.active { color: var(--accent); }
-.tbtn:disabled { opacity: 0.35; cursor: default; }
-.tbtn b { font-family: var(--font-reading); font-weight: 700; }
-.tbtn i { font-family: var(--font-reading); font-style: italic; }
+.tbtn:hover {
+    color: var(--text);
+    background: var(--surface);
+}
+.tbtn:active {
+    transform: scale(0.92);
+}
+.tbtn.active {
+    color: var(--accent);
+}
+.tbtn:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+.tbtn b {
+    font-family: var(--font-reading);
+    font-weight: 700;
+}
+.tbtn i {
+    font-family: var(--font-reading);
+    font-style: italic;
+}
 
 .tbtn-sep {
     display: none;
 }
 
-.editor-wrapper.drag-over { outline: 2px dashed var(--accent); border-radius: 4px; }
+.editor-wrapper.drag-over {
+    outline: 2px dashed var(--accent);
+    border-radius: 4px;
+}
 
 .editor-footer {
     display: flex;
@@ -91,13 +130,30 @@
     margin-top: 1rem;
 }
 
-.tbtn--publish { color: var(--accent); }
-.tbtn--publish:hover { color: var(--accent-hover); background: var(--surface); }
-.tbtn--publish.tbtn--active { color: var(--muted); }
-.tbtn--publish.tbtn--active:hover { color: var(--text); background: var(--surface); }
-.tbtn--copy-link { color: var(--accent); }
-.tbtn--delete { color: var(--muted); }
-.tbtn--delete:hover { color: #DC2626; background: var(--surface); }
+.tbtn--publish {
+    color: var(--accent);
+}
+.tbtn--publish:hover {
+    color: var(--accent-hover);
+    background: var(--surface);
+}
+.tbtn--publish.tbtn--active {
+    color: var(--muted);
+}
+.tbtn--publish.tbtn--active:hover {
+    color: var(--text);
+    background: var(--surface);
+}
+.tbtn--copy-link {
+    color: var(--accent);
+}
+.tbtn--delete {
+    color: var(--muted);
+}
+.tbtn--delete:hover {
+    color: #dc2626;
+    background: var(--surface);
+}
 
 .save-toast {
     position: fixed;
@@ -112,8 +168,16 @@
     pointer-events: none;
     opacity: 0;
     transform: translateY(6px);
-    transition: opacity 0.18s ease, transform 0.18s ease;
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
     z-index: 300;
 }
-.save-toast.show { opacity: 1; transform: translateY(0); }
-.save-toast.error { background: #DC2626; color: white; }
+.save-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.save-toast.error {
+    background: #dc2626;
+    color: white;
+}

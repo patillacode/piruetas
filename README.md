@@ -9,7 +9,7 @@ Piruetas gives each day its own page with a clean writing experience, multi-user
 ## Try it
 
 A live demo is available at [piruetas.patilla.es](https://piruetas.patilla.es).
-Log in with **demo** / **mysupersecretpassword** — content resets every 30 minutes.
+Log in with **demo** / **mysupersecretpassword**, content resets every 30 minutes.
 
 | Dark | Light |
 |------|-------|
@@ -100,4 +100,3 @@ See [CONFIGURATION.md](CONFIGURATION.md) for all available environment variables
 Piruetas is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
 
 For use in proprietary or commercial products without complying with the AGPL-3.0, a commercial license is available. See [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) or contact patillacode@gmail.com.
-

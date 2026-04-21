@@ -79,25 +79,51 @@
     }
 
     .editor-toolbar .tbtn {
-        padding: 6px 0;
+        padding: 10px 0;
+        min-height: 44px;
     }
 
     .app-header {
         padding: 0 1rem;
     }
 
+    /* Hide logo text on mobile, show image only to save header space */
+    .logo__text {
+        display: none;
+    }
+
     nav a {
         display: none;
     }
-    nav .btn-ghost,
+
+    /* Hide desktop-only controls — they move into the bottom sheet */
     nav .theme-toggle,
-    nav .locale-select {
+    nav .locale-select,
+    nav .signout-form {
+        display: none;
+    }
+
+    /* Show publish button and sheet trigger in header */
+    #publish-btn-mobile {
         display: flex;
     }
-    .mobile-nav__share {
+    .mobile-menu-btn {
         display: flex;
     }
+
+    /* Publish/copy-link/delete toolbar buttons hidden on mobile */
+    #publish-btn,
+    #copy-link-btn,
+    #delete-btn {
+        display: none;
+    }
+
     #share-btn {
         display: none;
+    }
+
+    /* Lift save toast above fixed bottom toolbar */
+    .save-toast {
+        bottom: calc(57px + 1rem);
     }
 }
