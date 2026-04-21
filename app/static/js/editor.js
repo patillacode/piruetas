@@ -134,11 +134,64 @@ function setupDragDrop(wrapper) {
   });
 }
 
+// ── delete ──
+function setupDelete() {
+  const deleteBtn = document.getElementById('delete-btn');
+  const deleteBtnMobile = document.getElementById('delete-btn-mobile');
+  const modal = document.getElementById('delete-modal');
+  const cancelBtn = document.getElementById('delete-modal-cancel');
+  const confirmBtn = document.getElementById('delete-modal-confirm');
+  const warning = document.getElementById('delete-modal-warning');
+  if (!modal || !confirmBtn) return;
+
+  const cfg = window.PIRUETAS;
+
+  function openModal() {
+    const isPublished = !!(cfg.shareToken);
+    warning.hidden = !isPublished;
+    modal.hidden = false;
+    cancelBtn.focus();
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+  }
+
+  deleteBtn?.addEventListener('click', openModal);
+  deleteBtnMobile?.addEventListener('click', openModal);
+  cancelBtn?.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+  confirmBtn.addEventListener('click', async () => {
+    confirmBtn.disabled = true;
+    try {
+      if (cfg.shareToken) {
+        await fetch(cfg.saveUrl + '/share', { method: 'DELETE' });
+        cfg.shareToken = '';
+      }
+      const res = await fetch(cfg.saveUrl, { method: 'DELETE' });
+      if (res.ok) {
+        window.location.href = '/';
+      } else {
+        showToast(cfg.strings.errorSaving || 'Error', true);
+        confirmBtn.disabled = false;
+        closeModal();
+      }
+    } catch {
+      showToast(cfg.strings.errorSaving || 'Error', true);
+      confirmBtn.disabled = false;
+      closeModal();
+    }
+  });
+}
+
 // ── publish ──
 function setupPublish() {
   const publishBtn = document.getElementById('publish-btn');
   const publishBtnMobile = document.getElementById('publish-btn-mobile');
   const copyLinkBtn = document.getElementById('copy-link-btn');
+  const copyLinkBtnMobile = document.getElementById('copy-link-btn-mobile');
   if (!publishBtn) return;
 
   const cfg = window.PIRUETAS;
@@ -150,7 +203,9 @@ function setupPublish() {
     publishBtn.textContent = isPublished ? strings.unpublish : strings.publish;
     publishBtn.classList.toggle('tbtn--active', isPublished);
     if (copyLinkBtn) copyLinkBtn.hidden = !isPublished;
+    if (copyLinkBtnMobile) copyLinkBtnMobile.hidden = !isPublished;
     if (publishBtnMobile) publishBtnMobile.textContent = isPublished ? strings.unpublish : strings.publish;
+    cfg.shareToken = isPublished ? cfg.shareToken : '';
   }
 
   updateUI();
@@ -165,6 +220,7 @@ function setupPublish() {
         const res = await fetch(cfg.saveUrl + '/share', { method: 'POST' });
         if (!res.ok) return;
         const data = await res.json();
+        cfg.shareToken = data.url.split('/').pop();
         shareUrl = location.origin + data.url;
         isPublished = true;
         await navigator.clipboard.writeText(shareUrl);
@@ -176,13 +232,15 @@ function setupPublish() {
     }
   });
 
-  copyLinkBtn?.addEventListener('click', async () => {
+  async function copyLink() {
     if (shareUrl) {
       await navigator.clipboard.writeText(shareUrl);
       showToast(strings.copied);
     }
-  });
+  }
 
+  copyLinkBtn?.addEventListener('click', copyLink);
+  copyLinkBtnMobile?.addEventListener('click', copyLink);
   publishBtnMobile?.addEventListener('click', () => publishBtn.click());
 }
 
@@ -212,6 +270,7 @@ function init() {
   const wrapper = document.querySelector('.editor-wrapper');
   if (wrapper) setupDragDrop(wrapper);
 
+  setupDelete();
   setupPublish();
 }
 

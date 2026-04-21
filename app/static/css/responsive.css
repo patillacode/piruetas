@@ -79,11 +79,17 @@
     }
 
     .editor-toolbar .tbtn {
-        padding: 6px 0;
+        padding: 10px 0;
+        min-height: 44px;
     }
 
     .app-header {
         padding: 0 1rem;
+    }
+
+    /* Hide logo text on mobile — show image only to save header space */
+    .logo__text {
+        display: none;
     }
 
     nav a {
@@ -96,8 +102,34 @@
     }
     .mobile-nav__share {
         display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        min-height: 36px;
     }
     #share-btn {
         display: none;
+    }
+
+    /* Move publish, copy-link, and delete out of bottom toolbar on mobile */
+    #publish-btn,
+    #copy-link-btn,
+    #delete-btn {
+        display: none;
+    }
+
+    /* Danger tint for delete button in mobile header */
+    .mobile-nav__delete {
+        color: #c0392b;
+        opacity: 0.75;
+    }
+    .mobile-nav__delete:hover {
+        opacity: 1;
+        color: #c0392b;
+    }
+
+    /* Lift save toast above fixed bottom toolbar */
+    .save-toast {
+        bottom: calc(57px + 1rem);
     }
 }

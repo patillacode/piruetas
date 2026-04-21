@@ -4,6 +4,8 @@
 
 {% block nav_links %}
 <button class="btn-ghost mobile-nav__share" id="publish-btn-mobile">{{ t.publish }}</button>
+<button class="btn-ghost mobile-nav__share mobile-nav__copy-link" id="copy-link-btn-mobile" hidden title="{{ t.copy_link }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+<button class="btn-ghost mobile-nav__share mobile-nav__delete" id="delete-btn-mobile" title="{{ t.delete_entry }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
 {% endblock %}
 
 {% block head_extra %}{% endblock %}
@@ -34,6 +36,8 @@
             <span class="tbtn-sep"></span>
             <button class="tbtn tbtn--publish" id="publish-btn">{{ t.publish }}</button>
             <button class="tbtn tbtn--copy-link" id="copy-link-btn" title="{{ t.copy_link }}" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+            <span class="tbtn-sep"></span>
+            <button class="tbtn tbtn--delete" id="delete-btn" title="{{ t.delete_entry }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </div>
         <div class="content-col">
             <main class="main-content">
@@ -58,6 +62,18 @@
     </div>
 </div>
 <div id="save-toast" class="save-toast"></div>
+
+<div id="delete-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+        <h2 class="modal__title" id="delete-modal-title">{{ t.delete_entry }}</h2>
+        <p class="modal__body">{{ t.delete_entry_confirm }}</p>
+        <p class="modal__warning" id="delete-modal-warning" hidden>{{ t.delete_entry_published }}</p>
+        <div class="modal__actions">
+            <button class="btn-ghost" id="delete-modal-cancel">{{ t.cancel }}</button>
+            <button class="btn-danger" id="delete-modal-confirm">{{ t.delete }}</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block page_scripts %}
@@ -79,6 +95,8 @@
             wordPlural: {{ t.words | tojson }},
             publish: {{ t.publish | tojson }},
             unpublish: {{ t.unpublish | tojson }},
+            deleteEntry: {{ t.delete_entry | tojson }},
+            cancel: {{ t.cancel | tojson }},
         },
     };
     (function() {

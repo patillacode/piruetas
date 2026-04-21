@@ -56,6 +56,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "user_role": "user",
         "stop_sharing": "Stop sharing",
         "delete_confirm": "Delete {name}? This cannot be undone.",
+        "delete_entry": "Delete entry",
+        "delete_entry_confirm": "This will permanently delete this entry and cannot be undone.",
+        "delete_entry_published": "This entry is currently published — deleting it will also remove the public link.",
+        "cancel": "Cancel",
     },
     "es": {
         "sign_in": "Entrar",
@@ -99,6 +103,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "user_role": "usuario",
         "stop_sharing": "Dejar de compartir",
         "delete_confirm": "¿Eliminar {name}? Esta acción no se puede deshacer.",
+        "delete_entry": "Eliminar entrada",
+        "delete_entry_confirm": "Esta acción eliminará permanentemente esta entrada y no se puede deshacer.",
+        "delete_entry_published": "Esta entrada está publicada — eliminarla también eliminará el enlace público.",
+        "cancel": "Cancelar",
     },
 }
 

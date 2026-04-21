@@ -6,12 +6,22 @@
     font-style: italic;
     color: var(--text);
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     transition: color var(--transition), letter-spacing var(--transition);
 }
 
 .logo:hover {
     color: var(--accent);
     letter-spacing: 0.1em;
+}
+
+.logo__img {
+    height: 1.5rem;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
 }
 
 nav {
