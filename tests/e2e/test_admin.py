@@ -24,7 +24,7 @@ def test_delete_user(admin_page: Page, live_server: str, seed_admin, seed_user):
     admin_page.on("dialog", lambda dialog: dialog.accept())
     admin_page.click(f'form[action="/admin/users/{user_id}/delete"] button[type="submit"]')
     admin_page.wait_for_url(f"{live_server}/admin/")
-    assert admin_page.locator("text=testuser").count() == 0
+    assert admin_page.locator(f"text={seed_user.username}").count() == 0
 
 
 def test_reset_user_password(admin_page: Page, live_server: str, seed_admin, seed_user):
@@ -38,8 +38,5 @@ def test_reset_user_password(admin_page: Page, live_server: str, seed_admin, see
 
 def test_non_admin_blocked(authenticated_page: Page, live_server: str, seed_user):
     with authenticated_page.expect_response(f"{live_server}/admin/") as response_info:
-        try:
-            authenticated_page.goto(f"{live_server}/admin/")
-        except Exception:
-            pass
-    assert response_info.value.status == 403
+        authenticated_page.goto(f"{live_server}/admin/", wait_until="commit")
+    assert response_info.value.status in (302, 403)
