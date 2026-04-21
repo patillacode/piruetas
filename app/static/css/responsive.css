@@ -95,40 +95,31 @@
     nav a {
         display: none;
     }
-    nav .btn-ghost,
+
+    /* Hide desktop-only controls — they move into the bottom sheet */
     nav .theme-toggle,
-    nav .locale-select {
-        display: flex;
-    }
-    .mobile-nav__share {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .mobile-nav__share[hidden] {
-        display: none;
-        min-width: 36px;
-        min-height: 36px;
-    }
-    #share-btn {
+    nav .locale-select,
+    nav .signout-form {
         display: none;
     }
 
-    /* Move publish, copy-link, and delete out of bottom toolbar on mobile */
+    /* Show publish button and sheet trigger in header */
+    #publish-btn-mobile {
+        display: flex;
+    }
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    /* Publish/copy-link/delete toolbar buttons hidden on mobile */
     #publish-btn,
     #copy-link-btn,
     #delete-btn {
         display: none;
     }
 
-    /* Danger tint for delete button in mobile header */
-    .mobile-nav__delete {
-        color: #c0392b;
-        opacity: 0.75;
-    }
-    .mobile-nav__delete:hover {
-        opacity: 1;
-        color: #c0392b;
+    #share-btn {
+        display: none;
     }
 
     /* Lift save toast above fixed bottom toolbar */
