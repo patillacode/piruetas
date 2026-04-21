@@ -40,6 +40,7 @@
         <a href="/locale/es" class="sheet-lang-btn {% if locale == 'es' %}active{% endif %}">ES</a>
     </div>
     <div class="sheet-sep"></div>
+    {% block mobile_sheet_bottom_items %}{% endblock %}
     <form method="post" action="/logout" style="display:contents">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <button class="sheet-item" type="submit">
