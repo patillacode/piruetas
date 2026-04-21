@@ -24,32 +24,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script nonce="{{ csp_nonce }}">
-    const themeToggle = document.getElementById('theme-toggle');
-    function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeToggle.textContent = '☽';
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-            themeToggle.textContent = '☀';
-        }
-    }
-    const savedTheme = localStorage.getItem('theme') || '';
-    applyTheme(savedTheme);
-    themeToggle.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme');
-        const next = current === 'dark' ? '' : 'dark';
-        localStorage.setItem('theme', next);
-        applyTheme(next);
-    });
-
-    const localePicker = document.getElementById('language-picker-select');
-    if (localePicker) {
-        localePicker.addEventListener('change', () => {
-            window.location.href = '/locale/' + localePicker.value;
-        });
-    }
-</script>
+<script src="/static/js/ui.js"></script>
 {% block page_scripts %}{% endblock %}
 {% endblock %}

@@ -7,6 +7,7 @@ import Placeholder from 'https://esm.sh/@tiptap/extension-placeholder@2';
 let editor = null;
 let saveTimer = null;
 let toastTimer = null;
+let entryExists = !!(window.PIRUETAS?.entryExists);
 
 // ── word count ──
 function getWordCount(text) {
@@ -34,6 +35,12 @@ function showToast(msg, isError = false) {
   }
 }
 
+// ── delete button ──
+function updateDeleteBtn() {
+  const btn = document.getElementById('delete-btn');
+  if (btn) btn.hidden = !entryExists;
+}
+
 // ── auto-save ──
 async function save() {
   if (!editor || !window.PIRUETAS?.saveUrl) return;
@@ -44,12 +51,38 @@ async function save() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content }),
     });
+    if (res.ok) entryExists = true;
     const s = window.PIRUETAS?.strings || {};
     showToast(res.ok ? (s.saved || 'Saved') : (s.errorSaving || 'Error saving'), !res.ok);
+    if (res.ok) updateDeleteBtn();
   } catch {
     const s = window.PIRUETAS?.strings || {};
     showToast(s.errorSaving || 'Error saving', true);
   }
+}
+
+// ── delete entry ──
+function setupDelete() {
+  const btn = document.getElementById('delete-btn');
+  if (!btn || !window.PIRUETAS?.saveUrl) return;
+  btn.addEventListener('click', async () => {
+    const s = window.PIRUETAS?.strings || {};
+    if (!confirm(s.confirmDelete || 'Delete this entry? This cannot be undone.')) return;
+    try {
+      const res = await fetch(window.PIRUETAS.saveUrl, { method: 'DELETE' });
+      if (!res.ok) return;
+      editor.commands.clearContent();
+      entryExists = false;
+      updateDeleteBtn();
+      if (window.PIRUETAS.entryDate) {
+        const [, , d] = window.PIRUETAS.entryDate.split('-').map(Number);
+        window.calendarRemoveEntry?.(d);
+      }
+    } catch {
+      const s = window.PIRUETAS?.strings || {};
+      showToast(s.errorSaving || 'Error', true);
+    }
+  });
 }
 
 function scheduleSave() {
@@ -205,6 +238,7 @@ function init() {
 
   updateWordCount();
   updateToolbar();
+  updateDeleteBtn();
 
   const toolbar = document.getElementById('editor-toolbar');
   if (toolbar) toolbar.addEventListener('mousedown', handleToolbarClick);
@@ -213,6 +247,7 @@ function init() {
   if (wrapper) setupDragDrop(wrapper);
 
   setupPublish();
+  setupDelete();
 }
 
 if (document.readyState === 'loading') {

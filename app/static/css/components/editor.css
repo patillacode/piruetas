@@ -96,6 +96,8 @@
 .tbtn--publish.tbtn--active { color: var(--muted); }
 .tbtn--publish.tbtn--active:hover { color: var(--text); background: var(--surface); }
 .tbtn--copy-link { color: var(--accent); }
+.tbtn--delete { color: var(--muted); }
+.tbtn--delete:hover { color: #DC2626; background: var(--surface); }
 
 .save-toast {
     position: fixed;

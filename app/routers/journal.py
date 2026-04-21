@@ -133,6 +133,39 @@ async def journal_delete(
     return JSONResponse({"deleted": True})
 
 
+@router.get("/journal/stats")
+async def journal_stats(
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    today = datetime.date.today()
+    month_start = datetime.date(today.year, today.month, 1)
+    next_month_start = (
+        datetime.date(today.year, today.month + 1, 1)
+        if today.month < 12
+        else datetime.date(today.year + 1, 1, 1)
+    )
+
+    month_stmt = select(Entry).where(
+        Entry.user_id == user.id,
+        Entry.date >= month_start,
+        Entry.date < next_month_start,
+    )
+    month_entries = session.execute(month_stmt).scalars().all()
+    month_count = len(month_entries)
+    month_words = sum(e.word_count or 0 for e in month_entries)
+
+    all_entries = session.execute(select(Entry).where(Entry.user_id == user.id)).scalars().all()
+    entry_dates = {e.date for e in all_entries}
+    streak = 0
+    current = today
+    while current in entry_dates:
+        streak += 1
+        current -= datetime.timedelta(days=1)
+
+    return JSONResponse({"streak": streak, "month_entries": month_count, "month_words": month_words})
+
+
 @router.get("/calendar/{year}/{month}")
 async def calendar_month(
     year: int,
