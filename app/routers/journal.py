@@ -163,7 +163,13 @@ async def journal_stats(
         streak += 1
         current -= datetime.timedelta(days=1)
 
-    return JSONResponse({"streak": streak, "month_entries": month_count, "month_words": month_words})
+    return JSONResponse(
+        {
+            "streak": streak,
+            "month_entries": month_count,
+            "month_words": month_words,
+        }
+    )
 
 
 @router.get("/calendar/{year}/{month}")
@@ -188,10 +194,12 @@ async def calendar_month(
     )
     entries = session.execute(stmt).scalars().all()
 
-    return JSONResponse({
-        "days": [e.date.day for e in entries],
-        "shared": [e.date.day for e in entries if e.share_token],
-    })
+    return JSONResponse(
+        {
+            "days": [e.date.day for e in entries],
+            "shared": [e.date.day for e in entries if e.share_token],
+        }
+    )
 
 
 @router.post("/journal/{year}/{month}/{day}/share")

@@ -3,7 +3,7 @@ name: Test and publish Docker image
 on:
   push:
     branches:
-      - "**"
+      - main
     tags:
       - "v*"
   pull_request:
@@ -32,6 +32,11 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright/python:v1.49.1-jammy
     steps:
+      - name: Install Node.js for actions runner
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+          apt-get install -y nodejs
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -39,7 +44,7 @@ jobs:
         run: pip install uv --no-cache-dir
 
       - name: Install dependencies
-        run: uv sync --extra e2e
+        run: uv sync --extra e2e --extra dev
 
       - name: Install Playwright browsers
         run: uv run playwright install chromium firefox

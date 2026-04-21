@@ -75,6 +75,22 @@ Open `http://localhost:8000`.
 
 Run `just` to see all available recipes.
 
+### Running tests
+
+Unit and integration tests (no browser required):
+
+```bash
+just test
+```
+
+E2E tests with Playwright (one-time browser install needed first):
+
+```bash
+just install-e2e   # downloads Chromium and Firefox — run once
+just test-e2e      # headless
+just test-e2e-headed  # with visible browser (useful for debugging)
+```
+
 ## Configuration
 
 See [CONFIGURATION.md](CONFIGURATION.md) for all available environment variables.

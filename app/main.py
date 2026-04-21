@@ -50,11 +50,13 @@ async def security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    response.headers["Permissions-Policy"] = (
-        "camera=(), microphone=(), geolocation=(), payment=()"
-    )
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
     nonce = getattr(request.state, "csp_nonce", "")
-    script_src = f"'self' 'nonce-{nonce}' https://esm.sh" if nonce else "'self' 'unsafe-inline' https://esm.sh"
+    script_src = (
+        f"'self' 'nonce-{nonce}' https://esm.sh"
+        if nonce
+        else "'self' 'unsafe-inline' https://esm.sh"
+    )
     response.headers["Content-Security-Policy"] = (
         f"default-src 'self'; "
         f"script-src {script_src}; "
@@ -72,15 +74,18 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     if exc.status_code == 404:
         return templates.TemplateResponse(request, "errors/404.html", {}, status_code=404)
     if exc.status_code >= 500:
-        return templates.TemplateResponse(request, "errors/500.html", {}, status_code=exc.status_code)
+        return templates.TemplateResponse(
+            request,
+            "errors/500.html",
+            {},
+            status_code=exc.status_code,
+        )
     return Response(status_code=exc.status_code, headers=dict(exc.headers) if exc.headers else {})
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
-    return templates.TemplateResponse(
-        request, "errors/500.html", {}, status_code=500
-    )
+    return templates.TemplateResponse(request, "errors/500.html", {}, status_code=500)
 
 
 @app.middleware("http")

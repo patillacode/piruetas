@@ -14,7 +14,6 @@ from app.database import get_engine
 from app.models import User
 from app.settings import get_settings
 
-
 TEST_SECRET_KEY = "test-secret-key-for-playwright-e2e"
 TEST_USERNAME = "testuser"
 TEST_PASSWORD = "testpassword123"

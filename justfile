@@ -74,11 +74,34 @@ seed-admin:
 db-shell:
     sqlite3 ${DATABASE_URL#sqlite:////}
 
-# Tag a release and push to trigger CI build
-release version:
-    git tag v{{version}}
-    git push origin v{{version}}
-    @echo "Released v{{version}} — CI will build and push the Docker image"
+# Install Playwright browsers for E2E tests (one-time setup)
+install-e2e:
+    uv sync --extra e2e
+    uv run playwright install chromium firefox
+
+# List recent tags (no args) or tag a release with notes (just release 1.2.3)
+release version="":
+    #!/usr/bin/env bash
+    if [ -z "{{version}}" ]; then
+        echo "Recent tags:"
+        git tag --sort=-v:refname | head -10
+    else
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        echo "=== Recent tags ==="
+        git tag --sort=-v:refname | head -5
+        echo ""
+        echo "=== Release notes for v{{version}} ==="
+        if [ -n "$LAST_TAG" ]; then
+            git log "${LAST_TAG}..HEAD" --oneline
+        else
+            git log --oneline -20
+        fi
+        echo ""
+        echo "Tagging v{{version}} and pushing..."
+        git tag v{{version}}
+        git push origin v{{version}}
+        echo "Done — CI will build and push the Docker image"
+    fi
 
 # Show recent git log
 log:

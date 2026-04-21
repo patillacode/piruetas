@@ -31,12 +31,14 @@ def test_reset_user_password(admin_page: Page, live_server: str, seed_admin, see
     user_id = seed_user.id
     admin_page.goto(f"{live_server}/admin/")
     admin_page.evaluate(f"document.getElementById('reset-{user_id}').style.display='block'")
-    admin_page.fill(f'form[action="/admin/users/{user_id}/reset-password"] input[name="new_password"]', "newpass456")
+    admin_page.fill(
+        f'form[action="/admin/users/{user_id}/reset-password"] input[name="new_password"]',
+        "newpass456",
+    )
     admin_page.click(f'form[action="/admin/users/{user_id}/reset-password"] button[type="submit"]')
     admin_page.wait_for_url(f"{live_server}/admin/")
 
 
 def test_non_admin_blocked(authenticated_page: Page, live_server: str, seed_user):
-    with authenticated_page.expect_response(f"{live_server}/admin/") as response_info:
-        authenticated_page.goto(f"{live_server}/admin/", wait_until="commit")
-    assert response_info.value.status in (302, 403)
+    response = authenticated_page.request.get(f"{live_server}/admin/")
+    assert response.status == 403

@@ -90,7 +90,8 @@ def test_share_url_accessible_without_auth(client, admin_user):
 
 def test_users_cannot_see_each_others_entries(client, session, admin_user, regular_user):
     """Admin creates an entry; regular user's calendar should not include it."""
-    from tests.conftest import get_csrf, login as do_login
+    from tests.conftest import get_csrf
+    from tests.conftest import login as do_login
 
     do_login(client, "admin", "adminpass123")
     client.post("/journal/2026/04/01", json={"content": "<p>Admin secret</p>", "word_count": 2})

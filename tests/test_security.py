@@ -1,6 +1,10 @@
-from tests.conftest import get_csrf, login
+import datetime as _dt
+import io
+import re
 
+from app.auth import make_session_token, parse_session_token
 from app.rate_limit import _attempts
+from tests.conftest import get_csrf, login
 
 
 def _clear_rate_limit():
@@ -40,7 +44,9 @@ def _login_attempt(client, username, password):
     """POST to /login with a fresh CSRF token (for rate limit testing)."""
     get_resp = client.get("/login")
     csrf = get_resp.cookies.get("piruetas_login_csrf", "")
-    return client.post("/login", data={"username": username, "password": password, "login_csrf_token": csrf})
+    return client.post(
+        "/login", data={"username": username, "password": password, "login_csrf_token": csrf}
+    )
 
 
 def test_rate_limit_blocks_after_threshold(client):
@@ -77,12 +83,12 @@ def test_hsts_absent_without_secure_cookies(client):
 
 
 # Task 2: session_version
-from app.auth import make_session_token, parse_session_token
-
-
 def test_session_token_includes_version():
     token = make_session_token(
-        user_id=1, is_admin=False, session_version=0, secret_key="test-secret-key-not-for-production"
+        user_id=1,
+        is_admin=False,
+        session_version=0,
+        secret_key="test-secret-key-not-for-production",
     )
     result = parse_session_token(token, "test-secret-key-not-for-production")
     assert result is not None
@@ -148,27 +154,32 @@ def test_login_blocked_without_csrf_token(client, regular_user):
 
 def test_login_blocked_with_wrong_csrf_token(client, regular_user):
     client.get("/login")
-    resp = client.post("/login", data={
-        "username": "testuser",
-        "password": "userpass123",
-        "login_csrf_token": "wrong-token",
-    })
+    resp = client.post(
+        "/login",
+        data={
+            "username": "testuser",
+            "password": "userpass123",
+            "login_csrf_token": "wrong-token",
+        },
+    )
     assert resp.status_code == 403
 
 
 def test_login_succeeds_with_valid_csrf(client, regular_user):
     resp = client.get("/login")
     csrf_cookie = resp.cookies.get("piruetas_login_csrf")
-    resp2 = client.post("/login", data={
-        "username": "testuser",
-        "password": "userpass123",
-        "login_csrf_token": csrf_cookie,
-    })
+    resp2 = client.post(
+        "/login",
+        data={
+            "username": "testuser",
+            "password": "userpass123",
+            "login_csrf_token": csrf_cookie,
+        },
+    )
     assert resp2.status_code == 302
 
 
 # Task 5: Magic byte validation
-import io
 
 
 def _make_jpeg() -> bytes:
@@ -209,8 +220,9 @@ def test_upload_accepts_valid_png(client, regular_user):
 
 # Task 6: TRUST_PROXY
 def test_get_client_ip_prefers_forwarded_for_when_trust_proxy():
-    from app.routers.auth import _get_client_ip
     from unittest.mock import MagicMock
+
+    from app.routers.auth import _get_client_ip
 
     request = MagicMock()
     request.headers = {"X-Forwarded-For": "203.0.113.1, 10.0.0.1"}
@@ -221,7 +233,6 @@ def test_get_client_ip_prefers_forwarded_for_when_trust_proxy():
 
 
 # Task 7: CSP nonces
-import re
 
 
 def test_csp_uses_nonce_not_unsafe_inline(client):
@@ -251,7 +262,6 @@ def test_csp_nonce_changes_per_request(client):
 
 
 # Task 8: Image access control
-import datetime as _dt
 
 
 def test_upload_serve_requires_auth(client, regular_user):
@@ -267,8 +277,9 @@ def test_upload_serve_requires_auth(client, regular_user):
 
 
 def test_upload_serve_allowed_with_valid_share_token(client, session, regular_user):
-    from app.models import Entry, Image
     from sqlmodel import select
+
+    from app.models import Entry, Image
 
     login(client, "testuser", "userpass123")
     resp = client.post(
@@ -299,8 +310,9 @@ def test_upload_serve_allowed_with_valid_share_token(client, session, regular_us
 
 
 def test_images_linked_to_entry_on_save(client, session, regular_user):
-    from app.models import Image
     from sqlmodel import select
+
+    from app.models import Image
 
     login(client, "testuser", "userpass123")
     resp = client.post(

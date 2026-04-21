@@ -1,11 +1,18 @@
-import bcrypt
 from urllib.parse import urlparse
+
+import bcrypt
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
 from app.auth import SESSION_COOKIE, SESSION_MAX_AGE, make_session_token
-from app.csrf import LOGIN_CSRF_COOKIE, LOGIN_CSRF_MAX_AGE, generate_login_csrf_token, require_csrf, validate_login_csrf
+from app.csrf import (
+    LOGIN_CSRF_COOKIE,
+    LOGIN_CSRF_MAX_AGE,
+    generate_login_csrf_token,
+    require_csrf,
+    validate_login_csrf,
+)
 from app.database import get_session
 from app.dependencies import get_current_user_optional
 from app.models import User
@@ -63,15 +70,28 @@ async def login(
         resp = templates.TemplateResponse(
             request,
             "login.html",
-            ctx(request, error="Too many login attempts. Please try again later.", login_csrf_token=new_csrf),
+            ctx(
+                request,
+                error="Too many login attempts. Please try again later.",
+                login_csrf_token=new_csrf,
+            ),
             status_code=429,
         )
-        resp.set_cookie(LOGIN_CSRF_COOKIE, new_csrf, httponly=True, samesite="strict", secure=settings.secure_cookies, max_age=LOGIN_CSRF_MAX_AGE)
+        resp.set_cookie(
+            LOGIN_CSRF_COOKIE,
+            new_csrf,
+            httponly=True,
+            samesite="strict",
+            secure=settings.secure_cookies,
+            max_age=LOGIN_CSRF_MAX_AGE,
+        )
         return resp
     user = session.exec(select(User).where(User.username == username)).first()
     if user and bcrypt.checkpw(password.encode(), user.hashed_password.encode()):
         clear_attempts(ip)
-        token = make_session_token(user.id, user.is_admin, user.session_version, settings.secret_key)
+        token = make_session_token(
+            user.id, user.is_admin, user.session_version, settings.secret_key
+        )
         response = RedirectResponse(url="/", status_code=302)
         response.set_cookie(
             SESSION_COOKIE,
@@ -91,7 +111,14 @@ async def login(
         ctx(request, error="Invalid username or password", login_csrf_token=new_csrf),
         status_code=401,
     )
-    resp.set_cookie(LOGIN_CSRF_COOKIE, new_csrf, httponly=True, samesite="strict", secure=settings.secure_cookies, max_age=LOGIN_CSRF_MAX_AGE)
+    resp.set_cookie(
+        LOGIN_CSRF_COOKIE,
+        new_csrf,
+        httponly=True,
+        samesite="strict",
+        secure=settings.secure_cookies,
+        max_age=LOGIN_CSRF_MAX_AGE,
+    )
     return resp
 
 
