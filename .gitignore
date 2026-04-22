@@ -34,3 +34,6 @@ htmlcov/
 
 # Node
 node_modules/
+
+# Local notes
+todo/
