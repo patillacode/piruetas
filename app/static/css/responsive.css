@@ -103,22 +103,18 @@
         display: none;
     }
 
-    /* Show publish button and sheet trigger in header */
-    #publish-btn-mobile {
+    /* Show share button and sheet trigger in header */
+    #share-btn-mobile {
         display: flex;
     }
     .mobile-menu-btn {
         display: flex;
     }
 
-    /* Publish/copy-link/delete toolbar buttons hidden on mobile */
-    #publish-btn,
+    /* Share/copy-link/delete toolbar buttons hidden on mobile */
+    #share-btn,
     #copy-link-btn,
     #delete-btn {
-        display: none;
-    }
-
-    #share-btn {
         display: none;
     }
 

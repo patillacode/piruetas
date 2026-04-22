@@ -130,17 +130,17 @@
     margin-top: 1rem;
 }
 
-.tbtn--publish {
+.tbtn--share {
     color: var(--accent);
 }
-.tbtn--publish:hover {
+.tbtn--share:hover {
     color: var(--accent-hover);
     background: var(--surface);
 }
-.tbtn--publish.tbtn--active {
+.tbtn--share.tbtn--active {
     color: var(--muted);
 }
-.tbtn--publish.tbtn--active:hover {
+.tbtn--share.tbtn--active:hover {
     color: var(--text);
     background: var(--surface);
 }

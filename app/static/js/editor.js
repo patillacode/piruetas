@@ -156,8 +156,8 @@ function setupDelete() {
   const cfg = window.PIRUETAS;
 
   function openModal() {
-    const isPublished = !!(cfg.shareToken);
-    warning.hidden = !isPublished;
+    const isShared = !!(cfg.shareToken);
+    warning.hidden = !isShared;
     modal.hidden = false;
     cancelBtn.focus();
   }
@@ -202,62 +202,114 @@ function setupDelete() {
   });
 }
 
-// ── publish ──
-function setupPublish() {
-  const publishBtn = document.getElementById('publish-btn');
-  const publishBtnMobile = document.getElementById('publish-btn-mobile');
+// ── share ──
+function setupShare() {
+  const shareBtn = document.getElementById('share-btn');
+  const shareBtnMobile = document.getElementById('share-btn-mobile');
   const copyLinkBtn = document.getElementById('copy-link-btn');
   const sheetCopyLink = document.getElementById('sheet-copy-link');
-  if (!publishBtn) return;
+  if (!shareBtn) return;
 
   const cfg = window.PIRUETAS;
   const strings = cfg.strings;
-  let isPublished = !!(cfg.shareToken);
-  let shareUrl = isPublished ? `${location.origin}/share/${cfg.shareToken}` : null;
+  let isShared = !!(cfg.shareToken);
+  let shareUrl = isShared ? `${location.origin}/share/${cfg.shareToken}` : null;
 
   function updateUI() {
-    publishBtn.textContent = isPublished ? strings.unpublish : strings.publish;
-    publishBtn.classList.toggle('tbtn--active', isPublished);
-    if (copyLinkBtn) copyLinkBtn.hidden = !isPublished;
-    if (sheetCopyLink) sheetCopyLink.hidden = !isPublished;
-    if (publishBtnMobile) publishBtnMobile.textContent = isPublished ? strings.unpublish : strings.publish;
-    cfg.shareToken = isPublished ? cfg.shareToken : '';
+    shareBtn.textContent = isShared ? strings.unpublish : strings.publish;
+    shareBtn.classList.toggle('tbtn--active', isShared);
+    if (copyLinkBtn) copyLinkBtn.hidden = !isShared;
+    if (sheetCopyLink) sheetCopyLink.hidden = !isShared;
+    if (shareBtnMobile) shareBtnMobile.textContent = isShared ? strings.unpublish : strings.publish;
+    cfg.shareToken = isShared ? cfg.shareToken : '';
   }
 
   updateUI();
 
-  publishBtn.addEventListener('click', async () => {
+  // ── share modal ──
+  const shareModal = document.getElementById('share-modal');
+  const shareModalUrl = document.getElementById('share-modal-url');
+  const shareModalCopy = document.getElementById('share-modal-copy');
+  const shareModalClose = document.getElementById('share-modal-close');
+
+  function openShareModal(url) {
+    if (shareModalUrl) shareModalUrl.value = url;
+    if (shareModal) shareModal.hidden = false;
+  }
+  function closeShareModal() {
+    if (shareModal) shareModal.hidden = true;
+  }
+
+  shareModalCopy?.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(shareUrl || ''); } catch {}
+    showToast(strings.copied);
+    closeShareModal();
+  });
+  shareModalClose?.addEventListener('click', closeShareModal);
+  shareModal?.addEventListener('click', (e) => { if (e.target === shareModal) closeShareModal(); });
+
+  // ── unshare modal ──
+  const unshareModal = document.getElementById('unshare-modal');
+  const unshareCancel = document.getElementById('unshare-modal-cancel');
+  const unshareConfirm = document.getElementById('unshare-modal-confirm');
+
+  function openUnshareModal() {
+    if (unshareModal) unshareModal.hidden = false;
+  }
+  function closeUnshareModal() {
+    if (unshareModal) unshareModal.hidden = true;
+  }
+
+  unshareCancel?.addEventListener('click', closeUnshareModal);
+  unshareModal?.addEventListener('click', (e) => { if (e.target === unshareModal) closeUnshareModal(); });
+  unshareConfirm?.addEventListener('click', async () => {
     try {
-      if (isPublished) {
-        await fetch(cfg.saveUrl + '/share', { method: 'DELETE' });
-        isPublished = false;
-        shareUrl = null;
-      } else {
+      await fetch(cfg.saveUrl + '/share', { method: 'DELETE' });
+      isShared = false;
+      shareUrl = null;
+      updateUI();
+    } catch {
+      showToast(strings.errorSaving || 'Error', true);
+    }
+    closeUnshareModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeShareModal();
+      closeUnshareModal();
+    }
+  });
+
+  shareBtn.addEventListener('click', async () => {
+    if (isShared) {
+      openUnshareModal();
+    } else {
+      try {
         const res = await fetch(cfg.saveUrl + '/share', { method: 'POST' });
         if (!res.ok) return;
         const data = await res.json();
         cfg.shareToken = data.url.split('/').pop();
         shareUrl = location.origin + data.url;
-        isPublished = true;
-        await navigator.clipboard.writeText(shareUrl);
-        showToast(strings.copied);
+        isShared = true;
+        updateUI();
+        openShareModal(shareUrl);
+      } catch {
+        showToast(strings.errorSaving || 'Error', true);
       }
-      updateUI();
-    } catch {
-      showToast(strings.errorSaving || 'Error', true);
     }
   });
 
   async function copyLink() {
     if (shareUrl) {
-      await navigator.clipboard.writeText(shareUrl);
+      try { await navigator.clipboard.writeText(shareUrl); } catch {}
       showToast(strings.copied);
     }
   }
 
   copyLinkBtn?.addEventListener('click', copyLink);
   sheetCopyLink?.addEventListener('click', () => { copyLink(); window._closeSheet?.(); });
-  publishBtnMobile?.addEventListener('click', () => publishBtn.click());
+  shareBtnMobile?.addEventListener('click', () => shareBtn.click());
 }
 
 // ── init ──
@@ -288,7 +340,7 @@ function init() {
   if (wrapper) setupDragDrop(wrapper);
 
   setupDelete();
-  setupPublish();
+  setupShare();
 }
 
 if (document.readyState === 'loading') {

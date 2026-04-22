@@ -3,7 +3,7 @@
 {% block title %}{{ date.strftime('%B %d, %Y') }} — Piruetas{% endblock %}
 
 {% block nav_links %}
-<button class="btn-ghost" id="publish-btn-mobile">{{ t.publish }}</button>
+<button class="btn-ghost" id="share-btn-mobile">{{ t.publish }}</button>
 {% endblock %}
 
 {% block mobile_sheet_items %}
@@ -63,7 +63,7 @@
             <span class="tbtn-sep"></span>
             <button class="tbtn" data-action="image" title="{{ t.image }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
             <span class="tbtn-sep"></span>
-            <button class="tbtn tbtn--publish" id="publish-btn">{{ t.publish }}</button>
+            <button class="tbtn tbtn--share" id="share-btn">{{ t.publish }}</button>
             <button class="tbtn tbtn--copy-link" id="copy-link-btn" title="{{ t.copy_link }}" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
             <span class="tbtn-sep"></span>
             <button class="tbtn tbtn--delete" id="delete-btn" title="{{ t.delete_entry }}" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
@@ -92,6 +92,27 @@
 </div>
 <div id="save-toast" class="save-toast"></div>
 
+<div id="share-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+        <h2 class="modal__title" id="share-modal-title">{{ t.share_modal_title }}</h2>
+        <p class="modal__body">{{ t.share_modal_body }}</p>
+        <input class="modal__url" id="share-modal-url" type="text" readonly>
+        <div class="modal__actions">
+            <button class="btn-ghost" id="share-modal-close">{{ t.close }}</button>
+            <button class="btn-accent" id="share-modal-copy">{{ t.copy_link }}</button>
+        </div>
+    </div>
+</div>
+<div id="unshare-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="unshare-modal-title">
+        <h2 class="modal__title" id="unshare-modal-title">{{ t.unshare_modal_title }}</h2>
+        <p class="modal__body">{{ t.unshare_modal_body }}</p>
+        <div class="modal__actions">
+            <button class="btn-ghost" id="unshare-modal-cancel">{{ t.cancel }}</button>
+            <button class="btn-danger" id="unshare-modal-confirm">{{ t.stop_sharing }}</button>
+        </div>
+    </div>
+</div>
 <div id="delete-modal" class="modal-overlay" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
         <h2 class="modal__title" id="delete-modal-title">{{ t.delete_entry }}</h2>

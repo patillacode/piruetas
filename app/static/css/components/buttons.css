@@ -25,6 +25,23 @@
     background: var(--accent-hover);
 }
 
+.btn-accent {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.125rem;
+    border-radius: 6px;
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.btn-accent:hover {
+    background: var(--accent-hover);
+}
+
 .btn-ghost {
     background: none;
     border: none;

@@ -179,6 +179,56 @@ def test_share_token_image_access(page, live_server, seed_user):
     assert img_resp.status_code == 200
 
 
+def test_share_button_labels(authenticated_page, live_server, seed_user):
+    _seed_entry(seed_user.id)
+
+    authenticated_page.goto(f"{live_server}/journal/2020/01/15")
+    authenticated_page.wait_for_load_state("networkidle")
+
+    share_btn = authenticated_page.locator("#share-btn")
+    assert share_btn.inner_text() == "Share"
+
+    share_btn.click()
+    authenticated_page.wait_for_function(
+        "() => document.getElementById('share-btn')?.textContent === 'Stop sharing'",
+        timeout=5000,
+    )
+    assert share_btn.inner_text() == "Stop sharing"
+
+    authenticated_page.locator("#share-modal-close").click()
+    authenticated_page.wait_for_function(
+        "() => document.getElementById('share-modal')?.hidden === true",
+        timeout=5000,
+    )
+
+    share_btn.click()
+    authenticated_page.wait_for_function(
+        "() => document.getElementById('unshare-modal')?.hidden === false",
+        timeout=5000,
+    )
+    authenticated_page.locator("#unshare-modal-confirm").click()
+    authenticated_page.wait_for_function(
+        "() => document.getElementById('share-btn')?.textContent === 'Share'",
+        timeout=5000,
+    )
+    assert share_btn.inner_text() == "Share"
+
+
+def test_share_legend_label(authenticated_page, live_server, seed_user):
+    entry = _seed_entry(seed_user.id)
+    with Session(get_engine()) as session:
+        db_entry = session.get(Entry, entry.id)
+        assert db_entry is not None
+        db_entry.share_token = "test-legend-token"
+        session.commit()
+
+    authenticated_page.goto(f"{live_server}/journal/2020/01/15")
+    authenticated_page.wait_for_load_state("networkidle")
+
+    legend_text = authenticated_page.locator(".calendar-legend .is-shared + span").inner_text()
+    assert legend_text == "Shared entry"
+
+
 def _get_auth_cookies(user) -> dict:
     assert user.id is not None
     token = make_session_token(
