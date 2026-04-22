@@ -12,6 +12,7 @@ from app.database import get_session
 from app.dependencies import require_admin
 from app.models import Entry, Image, User
 from app.settings import get_settings
+from app.tasks import get_tasks, run_cleanup_images, run_vacuum_db
 from app.templates_config import ctx, templates
 
 router = APIRouter(prefix="/admin")
@@ -104,6 +105,37 @@ async def delete_user(
     session.delete(user)
     session.commit()
     return RedirectResponse("/admin", status_code=303)
+
+
+@router.get("/tasks")
+async def admin_tasks(
+    request: Request,
+    current_admin: User = Depends(require_admin),
+):
+    return templates.TemplateResponse(
+        request, "admin/tasks.html", ctx(request, user=current_admin, tasks=get_tasks())
+    )
+
+
+@router.post("/tasks/cleanup-images/run")
+async def run_task_cleanup_images(
+    request: Request,
+    current_admin: User = Depends(require_admin),
+    _csrf=Depends(require_csrf),
+):
+    settings = get_settings()
+    run_cleanup_images(settings.data_dir)
+    return RedirectResponse("/admin/tasks", status_code=303)
+
+
+@router.post("/tasks/vacuum-db/run")
+async def run_task_vacuum_db(
+    request: Request,
+    current_admin: User = Depends(require_admin),
+    _csrf=Depends(require_csrf),
+):
+    run_vacuum_db()
+    return RedirectResponse("/admin/tasks", status_code=303)
 
 
 @router.post("/users/{user_id}/reset-password")

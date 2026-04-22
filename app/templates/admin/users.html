@@ -24,8 +24,13 @@
 {% block page_content %}
 <div class="admin-wrap">
     {% if error %}<p class="form__error" style="margin-bottom:1rem">{{ error }}</p>{% endif %}
+    <h1 class="admin-title" style="margin-bottom:1.5rem">Admin</h1>
+    <nav style="display:flex;gap:1.5rem;margin-bottom:2rem;font-size:0.875rem">
+        <a href="/admin" style="color:var(--text);font-weight:500;border-bottom:1px solid var(--text);padding-bottom:1px;text-decoration:none">{{ t.users }}</a>
+        <a href="/admin/tasks" style="color:var(--muted);text-decoration:none">Tasks</a>
+    </nav>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
-        <h1 class="admin-title" style="margin-bottom:0">{{ t.users }}</h1>
+        <span style="font-size:0.9375rem;font-weight:500;color:var(--text)">{{ t.users }}</span>
         <a href="/admin/users/new" class="btn btn-primary" style="width:auto;padding:0.5rem 1rem;font-size:0.875rem">{{ t.new_user }}</a>
     </div>
     <table class="user-table">

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap");
+@import "/static/fonts/fonts.css";
 
 @import "tokens.css";
 @import "reset.css";

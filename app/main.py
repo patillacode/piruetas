@@ -11,9 +11,13 @@ from sqlmodel import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import Response
 
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+
 from app.database import delete_demo_user_content, get_engine, init_db, seed_admin, seed_demo
 from app.routers import account, admin, auth, journal, upload
 from app.settings import get_settings
+from app.tasks import scheduled_cleanup_images, scheduled_vacuum_db
 from app.templates_config import templates
 
 
@@ -35,7 +39,24 @@ async def lifespan(app: FastAPI):
         seed_admin(session)
         seed_demo(session)
     task = asyncio.create_task(_demo_cleanup_loop()) if settings.demo_enabled else None
+
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(
+        scheduled_cleanup_images,
+        CronTrigger.from_crontab(settings.cleanup_schedule),
+        args=[settings.data_dir],
+        id="cleanup_images",
+    )
+    scheduler.add_job(
+        scheduled_vacuum_db,
+        CronTrigger.from_crontab(settings.vacuum_schedule),
+        id="vacuum_db",
+    )
+    scheduler.start()
+
     yield
+
+    scheduler.shutdown(wait=False)
     if task:
         task.cancel()
 
@@ -53,15 +74,14 @@ async def security_headers(request: Request, call_next):
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
     nonce = getattr(request.state, "csp_nonce", "")
     script_src = (
-        f"'self' 'nonce-{nonce}' https://esm.sh"
+        f"'self' 'nonce-{nonce}'"
         if nonce
-        else "'self' 'unsafe-inline' https://esm.sh"
+        else "'self' 'unsafe-inline'"
     )
     response.headers["Content-Security-Policy"] = (
         f"default-src 'self'; "
         f"script-src {script_src}; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-        "font-src 'self' https://fonts.gstatic.com; "
+        "style-src 'self' 'unsafe-inline'; "
         "img-src 'self' data: blob:;"
     )
     if settings.secure_cookies:

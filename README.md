@@ -75,6 +75,18 @@ Open `http://localhost:8000`.
 
 Run `just` to see all available recipes.
 
+### JS bundle
+
+The Tiptap editor library is bundled from npm into `app/static/js/vendor/tiptap.bundle.js` using esbuild. This file is committed to the repo so no Node tooling is needed to run the app — it's treated as a vendored asset, the same as self-hosted font files.
+
+To rebuild after upgrading Tiptap (bump versions in `package.json` first):
+
+```bash
+just build-js
+```
+
+The Docker build always rebuilds the bundle from source in a Node build stage, so the committed bundle is only used for local development without Docker.
+
 ### Running tests
 
 Unit and integration tests (no browser required):

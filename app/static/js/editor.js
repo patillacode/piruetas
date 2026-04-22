@@ -1,8 +1,4 @@
-import { Editor } from 'https://esm.sh/@tiptap/core@2';
-import StarterKit from 'https://esm.sh/@tiptap/starter-kit@2';
-import Image from 'https://esm.sh/@tiptap/extension-image@2';
-import Link from 'https://esm.sh/@tiptap/extension-link@2';
-import Placeholder from 'https://esm.sh/@tiptap/extension-placeholder@2';
+import { Editor, StarterKit, Image, Link, Placeholder } from '/static/js/vendor/tiptap.bundle.js';
 
 let editor = null;
 let saveTimer = null;

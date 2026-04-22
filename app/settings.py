@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     demo_username: str = "demo"
     demo_password: str = "demo"
     demo_reset_interval: int = 1800  # seconds
+    cleanup_schedule: str = "0 3 * * *"  # daily at 3am
+    vacuum_schedule: str = "0 3 * * 0"  # weekly on Sunday at 3am
 
     @model_validator(mode="after")
     def validate_settings(self) -> "Settings":

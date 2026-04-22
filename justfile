@@ -8,6 +8,11 @@ default:
 # Install dependencies in virtual environment
 install:
     uv sync --all-extras
+    npm install
+
+# Bundle Tiptap editor into static/js/vendor/tiptap.bundle.js (run after npm install)
+build-js:
+    node scripts/build-tiptap.mjs
 
 # Run development server with hot reload
 dev:
