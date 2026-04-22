@@ -19,7 +19,7 @@ just test-e2e-headed  # e2e with visible browser
 Run a single test file: `uv run pytest tests/test_entries.py -v`
 Run a single test: `uv run pytest tests/test_entries.py::test_name -v`
 
-For local dev: `cp .env.example .env`, set `SECRET_KEY` to any string and `SECURE_COOKIES=false`.
+For local dev: `cp .env.example .env`, set `SECRET_KEY` to any string, `SECURE_COOKIES=false`, `DATA_DIR=./data`, and `DATABASE_URL=sqlite:///./data/piruetas.db` (the default `/data` path requires Docker).
 
 ## Development
 
@@ -27,7 +27,7 @@ Feature worktrees live in `.worktrees/` (gitignored). Note: `CLAUDE.md` is also 
 
 ## Architecture
 
-FastAPI + SQLModel + Jinja2 SSR app. No JS build step — frontend JS is vanilla.
+FastAPI + SQLModel + Jinja2 SSR app. Frontend JS is vanilla. Tiptap editor is bundled via esbuild into `app/static/js/vendor/tiptap.bundle.js` (committed as a vendored asset; rebuild with `just build-js`).
 
 **Entry point**: `app/main.py` — registers routers, mounts `/static`, sets up security headers (CSP with per-request nonce), and runs DB init + admin seeding on startup.
 
@@ -35,7 +35,7 @@ FastAPI + SQLModel + Jinja2 SSR app. No JS build step — frontend JS is vanilla
 - `auth.py` — login/logout, cookie-based sessions; rate limiting on login via `app/rate_limit.py` (failed-attempt tracking by IP)
 - `journal.py` — day-per-page entries (CRUD), public share links
 - `upload.py` — image upload/delete, files stored in `{data_dir}/uploads/`; orphaned images (uploaded but not saved in an entry, or from a deleted entry) are not automatically cleaned up
-- `admin.py` — user management (admin-only)
+- `admin.py` — user management and scheduled maintenance tasks (admin-only); tasks UI at `/admin/tasks`
 - `account.py` — password change, account settings
 
 **Auth flow**: signed session cookies (itsdangerous) with `session_version` field on `User` for invalidation. Three dependency tiers in `app/dependencies.py`: `get_current_user` (redirect to login), `get_current_user_optional` (public routes), `require_admin`. CSRF protection via `require_csrf` dependency on all state-mutating routes (logout, account, admin); login uses a separate cookie-based scheme (`LOGIN_CSRF_COOKIE`).
