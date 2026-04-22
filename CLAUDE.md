@@ -21,6 +21,10 @@ Run a single test: `uv run pytest tests/test_entries.py::test_name -v`
 
 For local dev: `cp .env.example .env`, set `SECRET_KEY` to any string and `SECURE_COOKIES=false`.
 
+## Development
+
+Feature worktrees live in `.worktrees/` (gitignored). Note: `CLAUDE.md` is also gitignored — it won't be present in new worktrees, create it manually if needed.
+
 ## Architecture
 
 FastAPI + SQLModel + Jinja2 SSR app. No JS build step — frontend JS is vanilla.
@@ -47,6 +51,7 @@ FastAPI + SQLModel + Jinja2 SSR app. No JS build step — frontend JS is vanilla
 **Tests**: `tests/conftest.py` sets up an in-memory SQLite DB and async test client. E2E tests live in `tests/e2e/` and are excluded from the default `pytest` run.
 
 Test-writing gotchas:
+- E2e tests require system-level Playwright browser deps — do not run locally; they run in CI automatically
 - `TestClient` is created with `follow_redirects=False` — auth-protected routes return 302, check `status_code` accordingly
 - Use the `login()` and `get_csrf()` helpers from `conftest.py`; logging in requires a prior `GET /login` to obtain the CSRF cookie; `get_csrf()` also needed for account/admin/logout mutations
 - `get_settings()` is `lru_cache` — set env overrides before app import, or call `get_settings.cache_clear()` between tests that change settings
