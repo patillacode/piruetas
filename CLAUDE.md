@@ -55,3 +55,5 @@ Test-writing gotchas:
 - `TestClient` is created with `follow_redirects=False` — auth-protected routes return 302, check `status_code` accordingly
 - Use the `login()` and `get_csrf()` helpers from `conftest.py`; logging in requires a prior `GET /login` to obtain the CSRF cookie; `get_csrf()` also needed for account/admin/logout mutations
 - `get_settings()` is `lru_cache` — set env overrides before app import, or call `get_settings.cache_clear()` between tests that change settings
+- Prefer `wait_for_function` over `wait_for_load_state("networkidle")` for async button handlers — networkidle can resolve before a fetch even starts
+- Modal overlays intercept pointer events; close them (`locator("#modal-close").click()` + `wait_for_function` on `hidden === true`) before interacting with elements behind them
