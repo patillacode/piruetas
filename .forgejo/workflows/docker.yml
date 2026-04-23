@@ -50,7 +50,7 @@ jobs:
         run: uv run playwright install chromium firefox
 
       - name: Run E2E tests
-        run: uv run pytest tests/e2e/ -v --output=test-results
+        run: uv run pytest tests/e2e/ -v --browser chromium --browser firefox --output=test-results
         env:
           SECRET_KEY: test-secret-key-for-playwright-e2e
           SECURE_COOKIES: "false"

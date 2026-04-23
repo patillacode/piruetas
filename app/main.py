@@ -4,15 +4,14 @@ import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import Response
-
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 
 from app.database import delete_demo_user_content, get_engine, init_db, seed_admin, seed_demo
 from app.routers import account, admin, auth, journal, upload
@@ -73,11 +72,7 @@ async def security_headers(request: Request, call_next):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
     nonce = getattr(request.state, "csp_nonce", "")
-    script_src = (
-        f"'self' 'nonce-{nonce}'"
-        if nonce
-        else "'self' 'unsafe-inline'"
-    )
+    script_src = f"'self' 'nonce-{nonce}'" if nonce else "'self' 'unsafe-inline'"
     response.headers["Content-Security-Policy"] = (
         f"default-src 'self'; "
         f"script-src {script_src}; "

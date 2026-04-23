@@ -7,11 +7,13 @@ import bcrypt
 import httpx
 import pytest
 import uvicorn
-from sqlmodel import Session
+from sqlmodel import Session, select
 
+import app.database as db_module
 from app.auth import SESSION_COOKIE, make_session_token
 from app.database import get_engine
-from app.models import User
+from app.models import Entry, Image, User
+from app.rate_limit import clear_attempts
 from app.settings import get_settings
 
 TEST_SECRET_KEY = "test-secret-key-for-playwright-e2e"
@@ -27,10 +29,38 @@ def _find_free_port() -> int:
         return s.getsockname()[1]
 
 
-@pytest.fixture()
-def live_server(tmp_path):
-    import app.database as db_module
+def _delete_user(user_id: int) -> None:
+    with Session(get_engine()) as session:
+        for entry in session.exec(select(Entry).where(Entry.user_id == user_id)).all():
+            session.delete(entry)
+        for image in session.exec(select(Image).where(Image.user_id == user_id)).all():
+            session.delete(image)
+        u = session.get(User, user_id)
+        if u:
+            session.delete(u)
+        session.commit()
 
+
+@pytest.fixture(autouse=True)
+def reset_rate_limits():
+    clear_attempts("127.0.0.1")
+    yield
+    clear_attempts("127.0.0.1")
+
+
+@pytest.fixture()
+def cleanup_newuser(live_server):
+    yield
+    with Session(get_engine()) as session:
+        u = session.exec(select(User).where(User.username == "newuser_e2e")).first()
+        if u:
+            session.delete(u)
+            session.commit()
+
+
+@pytest.fixture(scope="session")
+def live_server(tmp_path_factory):
+    tmp_path = tmp_path_factory.mktemp("e2e")
     db_path = tmp_path / "test.db"
     data_dir = str(tmp_path)
 
@@ -76,6 +106,8 @@ def live_server(tmp_path):
     thread.join(timeout=5)
 
     get_settings.cache_clear()
+    if db_module._engine is not None:
+        db_module._engine.dispose()
     db_module._engine = None
 
     for k, v in original_env.items():
@@ -87,24 +119,26 @@ def live_server(tmp_path):
 
 @pytest.fixture()
 def seed_user(live_server):
-    hashed = bcrypt.hashpw(TEST_PASSWORD.encode(), bcrypt.gensalt()).decode()
+    hashed = bcrypt.hashpw(TEST_PASSWORD.encode(), bcrypt.gensalt(rounds=4)).decode()
     user = User(username=TEST_USERNAME, hashed_password=hashed, is_admin=False)
     with Session(get_engine()) as session:
         session.add(user)
         session.commit()
         session.refresh(user)
     yield user
+    _delete_user(user.id)
 
 
 @pytest.fixture()
 def seed_admin(live_server):
-    hashed = bcrypt.hashpw(TEST_ADMIN_PASSWORD.encode(), bcrypt.gensalt()).decode()
+    hashed = bcrypt.hashpw(TEST_ADMIN_PASSWORD.encode(), bcrypt.gensalt(rounds=4)).decode()
     admin = User(username=TEST_ADMIN_USERNAME, hashed_password=hashed, is_admin=True)
     with Session(get_engine()) as session:
         session.add(admin)
         session.commit()
         session.refresh(admin)
     yield admin
+    _delete_user(admin.id)
 
 
 def _make_auth_cookie(user: User) -> dict:

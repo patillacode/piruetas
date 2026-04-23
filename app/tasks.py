@@ -76,7 +76,10 @@ def run_cleanup_images(data_dir: str) -> str:
 
         session.commit()
 
-    result = f"Removed {len(orphaned)} DB records, {deleted_files} linked files, {disk_only} untracked files."
+    result = (
+        f"Removed {len(orphaned)} DB records, {deleted_files} linked files, "
+        f"{disk_only} untracked files."
+    )
     logger.info("cleanup_images: %s", result)
     _record("cleanup_images", result)
     return result

@@ -99,7 +99,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "share_modal_title": "Share this entry",
         "share_modal_body": "This creates a private link, only people you send it to can read it.",
         "unshare_modal_title": "Stop sharing?",
-        "unshare_modal_body": "The link will stop working. Anyone you've shared it with won't be able to open it anymore.",
+        "unshare_modal_body": (
+            "The link will stop working. "
+            "Anyone you've shared it with won't be able to open it anymore."
+        ),
     },
     "es": {
         "sign_in": "Entrar",
@@ -162,9 +165,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "words_this_month": "palabras este mes",
         "close": "Cerrar",
         "share_modal_title": "Compartir esta entrada",
-        "share_modal_body": "Esto crea un enlace privado, sólo las personas a las que se lo envíes podrán leerlo.",
+        "share_modal_body": (
+            "Esto crea un enlace privado, sólo las personas a las que se lo envíes podrán leerlo."
+        ),
         "unshare_modal_title": "¿Dejar de compartir?",
-        "unshare_modal_body": "El enlace dejará de funcionar. Quien lo tuviera ya no podrá abrirlo.",
+        "unshare_modal_body": (
+            "El enlace dejará de funcionar. Quien lo tuviera ya no podrá abrirlo."
+        ),
     },
 }
 

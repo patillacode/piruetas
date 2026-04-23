@@ -1,3 +1,5 @@
+import bcrypt
+
 from tests.conftest import get_csrf, login
 
 
@@ -28,7 +30,6 @@ def test_password_change_success(client, session, regular_user):
     assert resp.status_code == 200
     assert b"Password changed" in resp.content
     session.refresh(regular_user)
-    import bcrypt
     assert bcrypt.checkpw(b"newpassword99", regular_user.hashed_password.encode())
 
 

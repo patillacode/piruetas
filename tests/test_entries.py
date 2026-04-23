@@ -1,6 +1,7 @@
 import datetime
+import io
 
-from tests.conftest import login
+from tests.conftest import get_csrf, login
 
 
 def test_get_journal_today(client, admin_user):
@@ -88,14 +89,70 @@ def test_share_url_accessible_without_auth(client, admin_user):
     assert b"Public" in resp.content
 
 
+def test_autosave_invalid_date_returns_404(client, admin_user):
+    login(client, "admin", "adminpass123")
+    resp = client.post("/journal/2026/13/99", json={"content": "<p>x</p>"})
+    assert resp.status_code == 404
+
+
+def test_delete_invalid_date_returns_404(client, admin_user):
+    login(client, "admin", "adminpass123")
+    resp = client.request("DELETE", "/journal/2026/13/99")
+    assert resp.status_code == 404
+
+
+def test_delete_entry_with_images(client, session, admin_user):
+    login(client, "admin", "adminpass123")
+    jpeg = b"\xff\xd8\xff\xe0" + b"\x00" * 100
+    upload_resp = client.post(
+        "/upload",
+        files={"file": ("photo.jpg", io.BytesIO(jpeg), "image/jpeg")},
+    )
+    image_url = upload_resp.json()["url"]
+    client.post("/journal/2026/05/01", json={"content": f'<img src="{image_url}">'})
+    resp = client.request("DELETE", "/journal/2026/05/01")
+    assert resp.status_code == 200
+    assert resp.json()["deleted"] is True
+
+
+def test_journal_stats(client, admin_user):
+    login(client, "admin", "adminpass123")
+    today = datetime.date.today()
+    client.post(
+        f"/journal/{today.year}/{today.month:02d}/{today.day:02d}",
+        json={"content": "<p>streak entry</p>"},
+    )
+    resp = client.get("/journal/stats")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["streak"] >= 1
+    assert "month_entries" in data
+    assert "month_words" in data
+
+
+def test_calendar_invalid_date_returns_404(client, admin_user):
+    login(client, "admin", "adminpass123")
+    resp = client.get("/calendar/2026/13")
+    assert resp.status_code == 404
+
+
+def test_share_invalid_date_returns_404(client, admin_user):
+    login(client, "admin", "adminpass123")
+    resp = client.post("/journal/2026/13/99/share")
+    assert resp.status_code == 404
+
+
+def test_revoke_share_invalid_date_returns_404(client, admin_user):
+    login(client, "admin", "adminpass123")
+    resp = client.request("DELETE", "/journal/2026/13/99/share")
+    assert resp.status_code == 404
+
+
 def test_users_cannot_see_each_others_entries(client, session, admin_user, regular_user):
     """Admin creates an entry; regular user's calendar should not include it."""
-    from tests.conftest import get_csrf
-    from tests.conftest import login as do_login
-
-    do_login(client, "admin", "adminpass123")
+    login(client, "admin", "adminpass123")
     client.post("/journal/2026/04/01", json={"content": "<p>Admin secret</p>", "word_count": 2})
     client.post("/logout", data={"csrf_token": get_csrf(client)})
-    do_login(client, "testuser", "userpass123")
+    login(client, "testuser", "userpass123")
     resp = client.get("/calendar/2026/4")
     assert 1 not in resp.json()["days"]

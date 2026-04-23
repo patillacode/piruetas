@@ -49,3 +49,10 @@ select = ["E", "F", "I"]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 addopts = "--ignore=tests/e2e"
+filterwarnings = ["error::ResourceWarning"]
+
+[tool.coverage.run]
+source = ["app"]
+
+[tool.coverage.report]
+show_missing = true

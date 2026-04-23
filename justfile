@@ -35,9 +35,9 @@ format:
 test:
     uv run pytest
 
-# Run E2E tests with Playwright
+# Run E2E tests with Playwright (chromium + firefox)
 test-e2e:
-    uv run pytest tests/e2e/ -v
+    uv run pytest tests/e2e/ -v --browser chromium --browser firefox
 
 # Run E2E tests with visible browser (for debugging)
 test-e2e-headed:

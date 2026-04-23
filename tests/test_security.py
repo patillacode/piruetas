@@ -1,9 +1,20 @@
 import datetime as _dt
 import io
 import re
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-from app.auth import make_session_token, parse_session_token
+from fastapi.testclient import TestClient
+from sqlmodel import select
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+import app.main as main_module
+from app.auth import make_session_token, parse_session_token, sign_session, unsign_session
+from app.main import app
+from app.models import Entry, Image
 from app.rate_limit import _attempts
+from app.routers.auth import _get_client_ip
+from app.routers.upload import _validate_magic_bytes
 from tests.conftest import get_csrf, login
 
 
@@ -220,10 +231,6 @@ def test_upload_accepts_valid_png(client, regular_user):
 
 # Task 6: TRUST_PROXY
 def test_get_client_ip_prefers_forwarded_for_when_trust_proxy():
-    from unittest.mock import MagicMock
-
-    from app.routers.auth import _get_client_ip
-
     request = MagicMock()
     request.headers = {"X-Forwarded-For": "203.0.113.1, 10.0.0.1"}
     request.client.host = "127.0.0.1"
@@ -277,10 +284,6 @@ def test_upload_serve_requires_auth(client, regular_user):
 
 
 def test_upload_serve_allowed_with_valid_share_token(client, session, regular_user):
-    from sqlmodel import select
-
-    from app.models import Entry, Image
-
     login(client, "testuser", "userpass123")
     resp = client.post(
         "/upload",
@@ -310,10 +313,6 @@ def test_upload_serve_allowed_with_valid_share_token(client, session, regular_us
 
 
 def test_images_linked_to_entry_on_save(client, session, regular_user):
-    from sqlmodel import select
-
-    from app.models import Image
-
     login(client, "testuser", "userpass123")
     resp = client.post(
         "/upload",
@@ -352,3 +351,151 @@ def test_share_revocation_nonexistent_entry_returns_false(client, regular_user):
     resp = client.request("DELETE", "/journal/2025/12/31/share")
     assert resp.status_code == 200
     assert resp.json() == {"revoked": False}
+
+
+# app/auth.py error paths
+def test_unsign_session_returns_none_for_bad_token():
+    assert unsign_session("bad.token.value", "secret") is None
+
+
+def test_parse_session_token_returns_none_for_bad_token():
+    assert parse_session_token("bad.token", "test-secret-key-not-for-production") is None
+
+
+def test_parse_session_token_returns_none_for_wrong_part_count():
+    token = sign_session("only:two", "test-secret-key-not-for-production")
+    assert parse_session_token(token, "test-secret-key-not-for-production") is None
+
+
+def test_parse_session_token_returns_none_for_non_integer_parts():
+    token = sign_session("a:b:c", "test-secret-key-not-for-production")
+    assert parse_session_token(token, "test-secret-key-not-for-production") is None
+
+
+# app/main.py gaps
+def test_root_redirects_to_journal(client):
+    today = _dt.date.today()
+    resp = client.get("/")
+    assert resp.status_code in (302, 307)
+    assert f"/journal/{today.year}" in resp.headers["location"]
+
+
+def test_hsts_header_present_with_secure_cookies(client, monkeypatch):
+    mock_settings = MagicMock()
+    mock_settings.secure_cookies = True
+    monkeypatch.setattr(main_module, "get_settings", lambda: mock_settings)
+    resp = client.get("/login")
+    assert "strict-transport-security" in resp.headers
+
+
+def test_http_exception_handler_5xx(client):
+    @app.get("/_test_503")
+    async def _trigger():
+        raise StarletteHTTPException(status_code=503)
+
+    try:
+        resp = client.get("/_test_503")
+        assert resp.status_code == 503
+    finally:
+        app.routes[:] = [r for r in app.routes if getattr(r, "path", None) != "/_test_503"]
+
+
+def test_general_exception_handler():
+    @app.get("/_test_exc")
+    async def _trigger():
+        raise ValueError("unexpected error")
+
+    try:
+        with TestClient(app, raise_server_exceptions=False, follow_redirects=False) as tc:
+            resp = tc.get("/_test_exc")
+            assert resp.status_code == 500
+    finally:
+        app.routes[:] = [r for r in app.routes if getattr(r, "path", None) != "/_test_exc"]
+
+
+# app/routers/upload.py gaps
+def _make_webp() -> bytes:
+    return b"RIFF" + b"\x00" * 4 + b"WEBP" + b"\x00" * 20
+
+
+def _make_gif() -> bytes:
+    return b"GIF89a" + b"\x00" * 100
+
+
+def test_validate_magic_bytes_unknown_type():
+    assert not _validate_magic_bytes("image/tiff", b"\x00" * 100)
+
+
+def test_upload_accepts_valid_webp(client, regular_user):
+    login(client, "testuser", "userpass123")
+    resp = client.post(
+        "/upload",
+        files={"file": ("photo.webp", io.BytesIO(_make_webp()), "image/webp")},
+    )
+    assert resp.status_code == 200
+
+
+def test_upload_accepts_valid_gif(client, regular_user):
+    login(client, "testuser", "userpass123")
+    resp = client.post(
+        "/upload",
+        files={"file": ("photo.gif", io.BytesIO(_make_gif()), "image/gif")},
+    )
+    assert resp.status_code == 200
+
+
+def test_upload_rejects_unsupported_content_type(client, regular_user):
+    login(client, "testuser", "userpass123")
+    resp = client.post(
+        "/upload",
+        files={"file": ("file.tiff", io.BytesIO(b"tiff data"), "image/tiff")},
+    )
+    assert resp.status_code == 400
+
+
+def test_upload_rejects_oversized_file(client, regular_user):
+    login(client, "testuser", "userpass123")
+    large = _make_jpeg() + b"\x00" * (10 * 1024 * 1024 + 1)
+    resp = client.post(
+        "/upload",
+        files={"file": ("big.jpg", io.BytesIO(large), "image/jpeg")},
+    )
+    assert resp.status_code == 413
+
+
+def test_serve_upload_invalid_share_token_returns_403(client, regular_user):
+    login(client, "testuser", "userpass123")
+    resp = client.post(
+        "/upload",
+        files={"file": ("photo.jpg", io.BytesIO(_make_jpeg()), "image/jpeg")},
+    )
+    image_url = resp.json()["url"]
+    client.cookies.clear()
+    resp2 = client.get(f"{image_url}?share_token=nonexistenttoken")
+    assert resp2.status_code == 403
+
+
+def test_serve_upload_nonexistent_file_returns_404(client, regular_user):
+    login(client, "testuser", "userpass123")
+    resp = client.get(f"/uploads/{regular_user.id}/nonexistent_file.jpg")
+    assert resp.status_code == 404
+
+
+def test_serve_upload_path_traversal_returns_403(client, regular_user):
+    login(client, "testuser", "userpass123")
+
+    original_resolve = Path.resolve
+
+    def mock_resolve(self):
+        if self.name == "escape.jpg":
+            return Path("/etc/passwd")
+        return original_resolve(self)
+
+    with (
+        patch.object(Path, "exists", lambda self: True),
+        patch.object(Path, "is_file", lambda self: True),
+        patch.object(Path, "resolve", mock_resolve),
+    ):
+        resp = client.get(f"/uploads/{regular_user.id}/escape.jpg")
+
+    assert resp.status_code == 403

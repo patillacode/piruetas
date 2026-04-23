@@ -30,6 +30,7 @@ def engine_fixture():
     SQLModel.metadata.create_all(engine)
     yield engine
     SQLModel.metadata.drop_all(engine)
+    engine.dispose()
 
 
 @pytest.fixture(name="session")
@@ -51,7 +52,7 @@ def client_fixture(session):
 
 @pytest.fixture(name="admin_user")
 def admin_user_fixture(session):
-    hashed = bcrypt.hashpw(b"adminpass123", bcrypt.gensalt()).decode()
+    hashed = bcrypt.hashpw(b"adminpass123", bcrypt.gensalt(rounds=4)).decode()
     user = User(username="admin", hashed_password=hashed, is_admin=True)
     session.add(user)
     session.commit()
@@ -61,7 +62,7 @@ def admin_user_fixture(session):
 
 @pytest.fixture(name="regular_user")
 def regular_user_fixture(session):
-    hashed = bcrypt.hashpw(b"userpass123", bcrypt.gensalt()).decode()
+    hashed = bcrypt.hashpw(b"userpass123", bcrypt.gensalt(rounds=4)).decode()
     user = User(username="testuser", hashed_password=hashed, is_admin=False)
     session.add(user)
     session.commit()
