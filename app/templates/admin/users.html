@@ -4,9 +4,7 @@
 
 {% block head_extra %}
 <style>
-    .admin-wrap { max-width: 680px; margin: calc(var(--header-height) + 2rem) auto; padding: 0 1.5rem; }
-    .admin-title { font-family: var(--font-reading); font-size: 1.5rem; font-weight: 400; margin-bottom: 2rem; color: var(--text); }
-    .user-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.user-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     .user-table th { text-align: left; font-size: 0.75rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 0 0.75rem; border-bottom: 1px solid var(--border); }
     .user-table td { padding: 0.875rem 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
     .user-table tr:last-child td { border-bottom: none; }
@@ -22,12 +20,11 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="admin-wrap">
+<div class="page-wrap">
     {% if error %}<p class="form__error" style="margin-bottom:1rem">{{ error }}</p>{% endif %}
-    <h1 class="admin-title" style="margin-bottom:1.5rem">Admin</h1>
-    <nav style="display:flex;gap:1.5rem;margin-bottom:2rem;font-size:0.875rem">
-        <a href="/admin" style="color:var(--text);font-weight:500;border-bottom:1px solid var(--text);padding-bottom:1px;text-decoration:none">{{ t.users }}</a>
-        <a href="/admin/tasks" style="color:var(--muted);text-decoration:none">Tasks</a>
+    <nav class="page-tabs">
+        <a href="/admin" class="active">{{ t.users }}</a>
+        <a href="/admin/tasks">Tasks</a>
     </nav>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
         <span style="font-size:0.9375rem;font-weight:500;color:var(--text)">{{ t.users }}</span>
@@ -56,7 +53,7 @@
                 </td>
                 <td>
                     {% if not u.is_admin %}
-                    <button class="btn-sm" onclick="document.getElementById('reset-{{ u.id }}').style.display='block';this.style.display='none'">{{ t.reset_pw }}</button>
+                    <button class="btn-sm" data-reset-for="reset-{{ u.id }}">{{ t.reset_pw }}</button>
                     <div id="reset-{{ u.id }}" class="reset-form">
                         <form method="post" action="/admin/users/{{ u.id }}/reset-password" style="display:flex;gap:0.375rem;align-items:center">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -65,7 +62,7 @@
                         </form>
                     </div>
                     <form method="post" action="/admin/users/{{ u.id }}/delete" class="action-form"
-                          onsubmit="return confirm('{{ t.delete_confirm | replace('{name}', u.username) }}')">
+                          data-confirm="{{ t.delete_confirm | replace('{name}', u.username) }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         <button type="submit" class="btn-sm btn-sm-danger">{{ t.delete }}</button>
                     </form>
@@ -78,4 +75,19 @@
         </tbody>
     </table>
 </div>
+{% block page_scripts %}
+<script nonce="{{ csp_nonce }}">
+document.querySelectorAll('[data-reset-for]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.getElementById(btn.dataset.resetFor).style.display = 'block';
+        btn.style.display = 'none';
+    });
+});
+document.querySelectorAll('form[data-confirm]').forEach(form => {
+    form.addEventListener('submit', e => {
+        if (!confirm(form.dataset.confirm)) e.preventDefault();
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}

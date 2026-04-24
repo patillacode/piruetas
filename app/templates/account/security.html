@@ -1,14 +1,17 @@
 {% extends "layout.html" %}
 
 {% block title %}Account — Piruetas{% endblock %}
-{% block body_class %}login-page{% endblock %}
 
 {% block page_content %}
-<div class="card" style="margin-top:calc(var(--header-height) + 2rem)">
+<div class="page-wrap">
+    <nav class="page-tabs">
+        <a href="/account" {% if active_tab == 'security' %}class="active"{% endif %}>{{ t.security }}</a>
+        <a href="/account/data" {% if active_tab == 'data' %}class="active"{% endif %}>{{ t.data_management }}</a>
+    </nav>
     <h1 class="login__title" style="margin-bottom:1.5rem">{{ t.change_password }}</h1>
     {% if error %}<p class="form__error">{{ error }}</p>{% endif %}
     {% if success %}<p style="color:var(--accent);margin-bottom:1rem">{{ success }}</p>{% endif %}
-    <form method="post" action="/account/password">
+    <form method="post" action="/account/password" style="max-width:400px;margin:0 auto">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <div class="field">
             <label for="current_password">{{ t.current_password }}</label>

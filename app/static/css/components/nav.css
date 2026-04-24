@@ -61,3 +61,26 @@ nav a::after {
 nav a:hover::after {
     transform: scaleX(1);
 }
+
+.app-header nav a,
+.app-header nav .locale-select,
+.app-header nav .theme-toggle,
+.app-header nav .btn-ghost {
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.app-header nav .locale-select {
+    padding: 0 0.375rem;
+    font-size: 0.8125rem;
+    line-height: 1;
+}
+
+.app-header nav a.active {
+    color: var(--accent);
+}
+
+.app-header nav a.active::after {
+    transform: scaleX(1);
+}

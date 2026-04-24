@@ -27,7 +27,7 @@ async def admin_users(
     users = session.exec(select(User).order_by(User.created_at)).all()
     error = request.query_params.get("error")
     return templates.TemplateResponse(
-        request, "admin/users.html", ctx(request, users=users, user=current_admin, error=error)
+        request, "admin/users.html", ctx(request, users=users, user=current_admin, error=error, nav_section="admin")
     )
 
 
@@ -113,7 +113,7 @@ async def admin_tasks(
     current_admin: User = Depends(require_admin),
 ):
     return templates.TemplateResponse(
-        request, "admin/tasks.html", ctx(request, user=current_admin, tasks=get_tasks())
+        request, "admin/tasks.html", ctx(request, user=current_admin, tasks=get_tasks(), nav_section="admin")
     )
 
 

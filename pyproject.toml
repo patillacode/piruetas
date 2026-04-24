@@ -13,6 +13,7 @@ dependencies = [
     "pydantic-settings>=2.6",
     "aiofiles>=24.1",
     "apscheduler>=3.11",
+    "markdownify>=0.9",
 ]
 
 [project.optional-dependencies]

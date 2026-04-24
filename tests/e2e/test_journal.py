@@ -186,14 +186,14 @@ def test_share_button_labels(authenticated_page, live_server, seed_user):
     authenticated_page.wait_for_load_state("networkidle")
 
     share_btn = authenticated_page.locator("#share-btn")
-    assert share_btn.inner_text() == "Share"
+    assert share_btn.get_attribute("aria-label") == "Share"
 
     share_btn.click()
     authenticated_page.wait_for_function(
-        "() => document.getElementById('share-btn')?.textContent === 'Stop sharing'",
+        "() => document.getElementById('share-btn')?.getAttribute('aria-label') === 'Stop sharing'",
         timeout=5000,
     )
-    assert share_btn.inner_text() == "Stop sharing"
+    assert share_btn.get_attribute("aria-label") == "Stop sharing"
 
     authenticated_page.locator("#share-modal-close").click()
     authenticated_page.wait_for_function(
@@ -208,10 +208,10 @@ def test_share_button_labels(authenticated_page, live_server, seed_user):
     )
     authenticated_page.locator("#unshare-modal-confirm").click()
     authenticated_page.wait_for_function(
-        "() => document.getElementById('share-btn')?.textContent === 'Share'",
+        "() => document.getElementById('share-btn')?.getAttribute('aria-label') === 'Share'",
         timeout=5000,
     )
-    assert share_btn.inner_text() == "Share"
+    assert share_btn.get_attribute("aria-label") == "Share"
 
 
 def test_share_legend_label(authenticated_page, live_server, seed_user):

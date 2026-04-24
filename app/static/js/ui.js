@@ -4,12 +4,10 @@
   function applyTheme(theme) {
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
-      if (themeToggle) themeToggle.textContent = '\u263d';
       const sheetLabel = document.getElementById('sheet-theme-label');
       if (sheetLabel) sheetLabel.textContent = 'Light mode';
     } else {
       document.documentElement.removeAttribute('data-theme');
-      if (themeToggle) themeToggle.textContent = '\u2600';
       const sheetLabel = document.getElementById('sheet-theme-label');
       if (sheetLabel) sheetLabel.textContent = 'Dark mode';
     }

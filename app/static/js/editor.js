@@ -31,10 +31,16 @@ function showToast(msg, isError = false) {
   }
 }
 
-// ── delete button ──
+// ── delete/export buttons ──
 function updateDeleteBtn() {
   const btn = document.getElementById('delete-btn');
   if (btn) btn.hidden = !entryExists;
+  const exportBtn = document.getElementById('export-btn');
+  if (exportBtn) exportBtn.hidden = !entryExists;
+  const sheetExportBtn = document.getElementById('sheet-export-btn');
+  if (sheetExportBtn) sheetExportBtn.hidden = !entryExists;
+  const sheetShareBtn = document.getElementById('sheet-share-btn');
+  if (sheetShareBtn) sheetShareBtn.hidden = !entryExists;
 }
 
 // ── auto-save ──
@@ -83,9 +89,7 @@ function handleToolbarClick(e) {
   if (a === 'bold') editor.chain().focus().toggleBold().run();
   else if (a === 'italic') editor.chain().focus().toggleItalic().run();
   else if (a === 'link') {
-    const url = prompt('Enter URL:');
-    if (url) editor.chain().focus().setLink({ href: url }).run();
-    else editor.chain().focus().unsetLink().run();
+    window.openLinkModal();
   } else if (a === 'undo') editor.chain().focus().undo().run();
   else if (a === 'redo') editor.chain().focus().redo().run();
   else if (a === 'image') triggerImageUpload();
@@ -137,6 +141,50 @@ function setupDragDrop(wrapper) {
     editor.commands.focus();
     for (const file of files) await uploadAndInsertImage(file);
   });
+}
+
+// ── link modal ──
+function setupLinkModal() {
+  const modal = document.getElementById('link-modal');
+  const urlInput = document.getElementById('link-modal-url');
+  const cancelBtn = document.getElementById('link-modal-cancel');
+  const removeBtn = document.getElementById('link-modal-remove');
+  const confirmBtn = document.getElementById('link-modal-confirm');
+  if (!modal || !urlInput || !cancelBtn || !confirmBtn) return;
+
+  function openLinkModal() {
+    const href = editor.getAttributes('link').href || '';
+    urlInput.value = href;
+    removeBtn.hidden = !href;
+    modal.hidden = false;
+    urlInput.focus();
+    urlInput.select();
+  }
+
+  function closeLinkModal() {
+    modal.hidden = true;
+    editor.commands.focus();
+  }
+
+  cancelBtn.addEventListener('click', closeLinkModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeLinkModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.hidden) closeLinkModal();
+    if (e.key === 'Enter' && !modal.hidden) confirmBtn.click();
+  });
+
+  removeBtn?.addEventListener('click', () => {
+    editor.chain().focus().unsetLink().run();
+    closeLinkModal();
+  });
+
+  confirmBtn.addEventListener('click', () => {
+    const url = urlInput.value.trim();
+    if (url) editor.chain().focus().setLink({ href: url }).run();
+    closeLinkModal();
+  });
+
+  window.openLinkModal = openLinkModal;
 }
 
 // ── delete ──
@@ -201,7 +249,8 @@ function setupDelete() {
 // ── share ──
 function setupShare() {
   const shareBtn = document.getElementById('share-btn');
-  const shareBtnMobile = document.getElementById('share-btn-mobile');
+  const sheetShareBtn = document.getElementById('sheet-share-btn');
+  const sheetShareLabel = document.getElementById('sheet-share-label');
   const copyLinkBtn = document.getElementById('copy-link-btn');
   const sheetCopyLink = document.getElementById('sheet-copy-link');
   if (!shareBtn) return;
@@ -212,11 +261,12 @@ function setupShare() {
   let shareUrl = isShared ? `${location.origin}/share/${cfg.shareToken}` : null;
 
   function updateUI() {
-    shareBtn.textContent = isShared ? strings.unpublish : strings.publish;
+    shareBtn.title = isShared ? strings.unpublish : strings.publish;
+    shareBtn.setAttribute('aria-label', isShared ? strings.unpublish : strings.publish);
     shareBtn.classList.toggle('tbtn--active', isShared);
     if (copyLinkBtn) copyLinkBtn.hidden = !isShared;
     if (sheetCopyLink) sheetCopyLink.hidden = !isShared;
-    if (shareBtnMobile) shareBtnMobile.textContent = isShared ? strings.unpublish : strings.publish;
+    if (sheetShareLabel) sheetShareLabel.textContent = isShared ? strings.unpublish : strings.publish;
     cfg.shareToken = isShared ? cfg.shareToken : '';
   }
 
@@ -305,7 +355,7 @@ function setupShare() {
 
   copyLinkBtn?.addEventListener('click', copyLink);
   sheetCopyLink?.addEventListener('click', () => { copyLink(); window._closeSheet?.(); });
-  shareBtnMobile?.addEventListener('click', () => shareBtn.click());
+  sheetShareBtn?.addEventListener('click', () => { shareBtn.click(); window._closeSheet?.(); });
 }
 
 // ── init ──
@@ -335,6 +385,7 @@ function init() {
   const wrapper = document.querySelector('.editor-wrapper');
   if (wrapper) setupDragDrop(wrapper);
 
+  setupLinkModal();
   setupDelete();
   setupShare();
 }

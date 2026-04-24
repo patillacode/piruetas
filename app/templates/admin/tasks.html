@@ -4,13 +4,7 @@
 
 {% block head_extra %}
 <style>
-    .admin-wrap { max-width: 680px; margin: calc(var(--header-height) + 2rem) auto; padding: 0 1.5rem; }
-    .admin-title { font-family: var(--font-reading); font-size: 1.5rem; font-weight: 400; margin-bottom: 2rem; color: var(--text); }
-    .admin-nav { display: flex; gap: 1.5rem; margin-bottom: 2rem; font-size: 0.875rem; }
-    .admin-nav a { color: var(--muted); text-decoration: none; }
-    .admin-nav a:hover { color: var(--text); }
-    .admin-nav a.active { color: var(--text); font-weight: 500; border-bottom: 1px solid var(--text); padding-bottom: 1px; }
-    .task-card { border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.task-card { border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
     .task-info { flex: 1; }
     .task-name { font-weight: 500; font-size: 0.9375rem; margin-bottom: 0.25rem; color: var(--text); }
     .task-desc { font-size: 0.8125rem; color: var(--muted); margin-bottom: 0.625rem; }
@@ -22,9 +16,8 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="admin-wrap">
-    <h1 class="admin-title">Admin</h1>
-    <nav class="admin-nav">
+<div class="page-wrap">
+    <nav class="page-tabs">
         <a href="/admin">Users</a>
         <a href="/admin/tasks" class="active">Tasks</a>
     </nav>

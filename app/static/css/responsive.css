@@ -92,7 +92,7 @@
         display: none;
     }
 
-    nav a {
+    .app-header nav a {
         display: none;
     }
 
@@ -103,18 +103,15 @@
         display: none;
     }
 
-    /* Show share button and sheet trigger in header */
-    #share-btn-mobile {
-        display: flex;
-    }
     .mobile-menu-btn {
         display: flex;
     }
 
-    /* Share/copy-link/delete toolbar buttons hidden on mobile */
+    /* Share/copy-link/delete/export toolbar buttons hidden on mobile */
     #share-btn,
     #copy-link-btn,
-    #delete-btn {
+    #delete-btn,
+    #export-btn {
         display: none;
     }
 

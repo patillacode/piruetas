@@ -1,21 +1,23 @@
 .theme-toggle {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
+    background: none;
+    border: none;
+    color: var(--muted);
     cursor: pointer;
-    font-size: 1.25rem;
-    padding: 0.3rem 0.625rem;
-    border-radius: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
     line-height: 1;
-    transition:
-        border-color var(--transition),
-        color var(--transition);
+    display: flex;
+    align-items: center;
+    transition: color var(--transition);
 }
 
 .theme-toggle:hover {
-    border-color: var(--accent);
     color: var(--accent);
 }
+
+.theme-toggle .icon-moon { display: none; }
+[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
 
 .locale-select {
     font-family: var(--font-ui);
