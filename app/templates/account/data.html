@@ -23,8 +23,8 @@
 
     <section style="margin-bottom: 3rem;">
         <div style="max-width:400px;margin:0 auto">
-        <h2>{{ t.export_entries }}</h2>
-        <p>{{ t.export_description }}</p>
+        <h2 class="login__title" style="margin-bottom:0.5rem">{{ t.export_entries }}</h2>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0">{{ t.export_description }}</p>
 
         <form id="export-form" style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -62,8 +62,8 @@
 
     <section style="margin-top: 3rem;">
         <div style="max-width:400px;margin:0 auto">
-        <h2>{{ t.delete_entries }}</h2>
-        <p>{{ t.delete_description }}</p>
+        <h2 class="login__title" style="margin-bottom:0.5rem">{{ t.delete_entries }}</h2>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0">{{ t.delete_description }}</p>
 
         <form id="delete-form" style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">

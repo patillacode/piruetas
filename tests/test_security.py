@@ -373,11 +373,17 @@ def test_parse_session_token_returns_none_for_non_integer_parts():
 
 
 # app/main.py gaps
-def test_root_redirects_to_journal(client):
+def test_root_redirects_to_journal(client, regular_user):
+    login(client, "testuser", "userpass123")
     today = _dt.date.today()
     resp = client.get("/")
     assert resp.status_code in (302, 307)
     assert f"/journal/{today.year}" in resp.headers["location"]
+
+
+def test_root_shows_landing_page_when_unauthenticated(client):
+    resp = client.get("/")
+    assert resp.status_code == 200
 
 
 def test_hsts_header_present_with_secure_cookies(client, monkeypatch):

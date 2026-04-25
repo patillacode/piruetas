@@ -82,6 +82,19 @@ body.login-page {
     color: var(--text);
 }
 
+.login__back {
+    display: block;
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+}
+
+.login__back:hover { color: var(--text); }
+
 .form__error {
     color: #dc2626;
     font-size: 0.875rem;

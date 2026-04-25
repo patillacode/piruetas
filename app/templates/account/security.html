@@ -8,7 +8,7 @@
         <a href="/account" {% if active_tab == 'security' %}class="active"{% endif %}>{{ t.security }}</a>
         <a href="/account/data" {% if active_tab == 'data' %}class="active"{% endif %}>{{ t.data_management }}</a>
     </nav>
-    <h1 class="login__title" style="margin-bottom:1.5rem">{{ t.change_password }}</h1>
+    <h1 class="login__title" style="max-width:400px;margin:0 auto 1.5rem">{{ t.change_password }}</h1>
     {% if error %}<p class="form__error">{{ error }}</p>{% endif %}
     {% if success %}<p style="color:var(--accent);margin-bottom:1rem">{{ success }}</p>{% endif %}
     <form method="post" action="/account/password" style="max-width:400px;margin:0 auto">

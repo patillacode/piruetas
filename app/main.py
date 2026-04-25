@@ -6,7 +6,7 @@ from pathlib import Path
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session
@@ -14,10 +14,11 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import Response
 
 from app.database import delete_demo_user_content, get_engine, init_db, seed_admin, seed_demo
+from app.dependencies import get_current_user_optional
 from app.routers import account, admin, auth, journal, upload
 from app.settings import get_settings
 from app.tasks import scheduled_cleanup_images, scheduled_vacuum_db
-from app.templates_config import templates
+from app.templates_config import ctx, templates
 
 
 async def _demo_cleanup_loop() -> None:
@@ -124,6 +125,8 @@ def health():
 
 
 @app.get("/")
-def root():
-    today = datetime.date.today()
-    return RedirectResponse(url=f"/journal/{today.year}/{today.month:02d}/{today.day:02d}")
+async def root(request: Request, user=Depends(get_current_user_optional)):
+    if user is not None:
+        today = datetime.date.today()
+        return RedirectResponse(url=f"/journal/{today.year}/{today.month:02d}/{today.day:02d}")
+    return templates.TemplateResponse(request, "index.html", ctx(request))
