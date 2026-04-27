@@ -1,3 +1,5 @@
+import datetime
+import re
 from urllib.parse import urlparse
 
 import bcrypt
@@ -34,7 +36,10 @@ def _get_client_ip(request: Request, trust_proxy: bool) -> str:
 @router.get("/login")
 async def login_page(request: Request, user=Depends(get_current_user_optional)):
     if user is not None:
-        return RedirectResponse(url="/", status_code=302)
+        today = datetime.date.today()
+        return RedirectResponse(
+            url=f"/journal/{today.year}/{today.month:02d}/{today.day:02d}", status_code=302
+        )
     login_csrf_token = generate_login_csrf_token()
     settings = get_settings()
     response = templates.TemplateResponse(
@@ -92,7 +97,9 @@ async def login(
         token = make_session_token(
             user.id, user.is_admin, user.session_version, settings.secret_key
         )
-        response = RedirectResponse(url="/", status_code=302)
+        today = datetime.date.today()
+        today_url = f"/journal/{today.year}/{today.month:02d}/{today.day:02d}"
+        response = RedirectResponse(url=today_url, status_code=302)
         response.set_cookie(
             SESSION_COOKIE,
             token,
@@ -120,6 +127,106 @@ async def login(
         max_age=LOGIN_CSRF_MAX_AGE,
     )
     return resp
+
+
+def _signup_response(request: Request, error: str, username: str, csrf: str, status: int):
+    settings = get_settings()
+    resp = templates.TemplateResponse(
+        request,
+        "signup.html",
+        ctx(request, error=error, username=username, login_csrf_token=csrf),
+        status_code=status,
+    )
+    resp.set_cookie(
+        LOGIN_CSRF_COOKIE, csrf, httponly=True, samesite="strict",
+        secure=settings.secure_cookies, max_age=LOGIN_CSRF_MAX_AGE,
+    )
+    return resp
+
+
+@router.get("/signup")
+async def signup_page(request: Request, user=Depends(get_current_user_optional)):
+    if user is not None:
+        today = datetime.date.today()
+        return RedirectResponse(
+            url=f"/journal/{today.year}/{today.month:02d}/{today.day:02d}", status_code=302
+        )
+    settings = get_settings()
+    if not settings.registration_open:
+        return templates.TemplateResponse(request, "signup_closed.html", ctx(request))
+    token = generate_login_csrf_token()
+    response = templates.TemplateResponse(
+        request, "signup.html",
+        ctx(request, error=None, username=None, login_csrf_token=token),
+    )
+    response.set_cookie(
+        LOGIN_CSRF_COOKIE, token, httponly=True, samesite="strict",
+        secure=settings.secure_cookies, max_age=LOGIN_CSRF_MAX_AGE,
+    )
+    return response
+
+
+@router.post("/signup")
+async def signup(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...),
+    login_csrf_token: str = Form(""),
+    session: Session = Depends(get_session),
+):
+    settings = get_settings()
+    if not settings.registration_open:
+        return RedirectResponse(url="/signup", status_code=302)
+    csrf_cookie = request.cookies.get(LOGIN_CSRF_COOKIE, "")
+    if not validate_login_csrf(login_csrf_token, csrf_cookie):
+        raise HTTPException(status_code=403, detail="CSRF validation failed")
+
+    ip = _get_client_ip(request, settings.trust_proxy)
+    if is_rate_limited(ip):
+        new_csrf = generate_login_csrf_token()
+        return _signup_response(
+            request, "Too many requests. Please try again later.", username, new_csrf, 429,
+        )
+
+    record_failed_attempt(ip)
+
+    error = None
+    if not re.match(r"^[a-zA-Z0-9_]{3,32}$", username):
+        error = "Username must be 3-32 characters: letters, numbers, underscore only."
+    elif len(password) < 8:
+        error = "Password must be at least 8 characters."
+    elif password != confirm_password:
+        error = "Passwords do not match."
+    else:
+        existing = session.exec(select(User).where(User.username == username)).first()
+        if existing:
+            error = "Username already taken."
+
+    if error:
+        new_csrf = generate_login_csrf_token()
+        return _signup_response(request, error, username, new_csrf, 400)
+
+    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    user = User(username=username, hashed_password=hashed, is_admin=False)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    clear_attempts(ip)
+    assert user.id is not None
+    token = make_session_token(
+        user.id, user.is_admin, user.session_version, settings.secret_key
+    )
+    today = datetime.date.today()
+    today_url = f"/journal/{today.year}/{today.month:02d}/{today.day:02d}"
+    response = RedirectResponse(url=today_url, status_code=302)
+    response.set_cookie(
+        SESSION_COOKIE, token, httponly=True, samesite="lax",
+        secure=settings.secure_cookies, max_age=SESSION_MAX_AGE,
+    )
+    response.delete_cookie(LOGIN_CSRF_COOKIE)
+    return response
 
 
 @router.get("/locale/{lang}")

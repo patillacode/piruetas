@@ -1,0 +1,22 @@
+.modal__link { color: var(--accent); text-decoration: underline; }
+.modal__link:hover { color: var(--accent-hover); }
+
+.export-download-btn { text-decoration: none; }
+
+.form-container { max-width: 400px; margin: 0 auto; }
+.form-stack { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+.section-title { margin-bottom: 0.5rem; }
+.section-desc { font-size: 0.8rem; color: var(--muted); margin-bottom: 0; }
+.section--mb { margin-bottom: 3rem; }
+.section--mt { margin-top: 3rem; }
+.btn--full { width: 100%; }
+.form-success { color: var(--accent); margin-top: 1rem; text-align: center; }
+
+@media (max-width: 480px) {
+    .export-download-btn, .delete-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+}

@@ -2,18 +2,6 @@
 
 {% block title %}Admin — Tasks — Piruetas{% endblock %}
 
-{% block head_extra %}
-<style>
-.task-card { border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
-    .task-info { flex: 1; }
-    .task-name { font-weight: 500; font-size: 0.9375rem; margin-bottom: 0.25rem; color: var(--text); }
-    .task-desc { font-size: 0.8125rem; color: var(--muted); margin-bottom: 0.625rem; }
-    .task-meta { font-size: 0.75rem; color: var(--muted); }
-    .task-meta span { margin-right: 1rem; }
-    .btn-sm { font-size: 0.75rem; white-space: nowrap; }
-</style>
-{% endblock %}
-
 {% block page_content %}
 <div class="page-wrap">
     <nav class="page-tabs">
@@ -33,7 +21,7 @@
         </div>
         <form method="post" action="/admin/tasks/{{ key | replace('_', '-') }}/run">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <button type="submit" class="btn btn-accent btn-sm">Run now</button>
+            <button type="submit" class="btn btn-accent">Run now</button>
         </form>
     </div>
     {% endfor %}

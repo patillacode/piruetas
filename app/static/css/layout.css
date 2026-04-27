@@ -60,6 +60,25 @@
     text-transform: uppercase;
 }
 
+.sidebar__meta {
+    margin-top: 0.5rem;
+    font-size: 0.625rem;
+    font-family: var(--font-ui);
+    color: var(--muted);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.sidebar__meta-link {
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.sidebar__meta-link:hover {
+    color: var(--text);
+}
+
 /* content-area wraps toolbar + scroll column; carries the page-load animation
    so transform never touches the scroll container (which would break sticky) */
 .content-area {
@@ -124,3 +143,5 @@
     border-bottom-color: var(--accent);
     font-weight: 500;
 }
+
+.form--contents { display: contents; }

@@ -2,33 +2,16 @@
 
 {% block title %}Admin — Piruetas{% endblock %}
 
-{% block head_extra %}
-<style>
-.user-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .user-table th { text-align: left; font-size: 0.75rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 0 0.75rem; border-bottom: 1px solid var(--border); }
-    .user-table td { padding: 0.875rem 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    .user-table tr:last-child td { border-bottom: none; }
-    .badge { display: inline-block; font-size: 0.6875rem; font-weight: 500; padding: 2px 7px; border-radius: 999px; background: var(--surface); color: var(--muted); }
-    .badge-admin { background: var(--accent); color: white; }
-    .action-form { display: inline; }
-    .btn-sm { font-size: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); background: none; color: var(--muted); font-family: var(--font-ui); transition: all 150ms ease; }
-    .btn-sm:hover { color: var(--accent); border-color: var(--accent); }
-    .btn-sm-danger:hover { color: #DC2626; border-color: #DC2626; }
-    .reset-form { display: none; margin-top: 0.5rem; }
-    .reset-form input { padding: 0.25rem 0.5rem; font-size: 0.875rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); margin-right: 0.375rem; }
-</style>
-{% endblock %}
-
 {% block page_content %}
 <div class="page-wrap">
-    {% if error %}<p class="form__error" style="margin-bottom:1rem">{{ error }}</p>{% endif %}
+    {% if error %}<p class="form__error form__error--mb">{{ error }}</p>{% endif %}
     <nav class="page-tabs">
         <a href="/admin" class="active">{{ t.users }}</a>
         <a href="/admin/tasks">Tasks</a>
     </nav>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
-        <span style="font-size:0.9375rem;font-weight:500;color:var(--text)">{{ t.users }}</span>
-        <a href="/admin/users/new" class="btn btn-primary" style="width:auto;padding:0.5rem 1rem;font-size:0.875rem">{{ t.new_user }}</a>
+    <div class="page-actions">
+        <span class="page-actions__title">{{ t.users }}</span>
+        <a href="/admin/users/new" class="btn btn-primary btn--action">{{ t.new_user }}</a>
     </div>
     <table class="user-table">
         <thead>
@@ -42,20 +25,20 @@
         <tbody>
             {% for u in users %}
             <tr>
-                <td style="font-weight:500">{{ u.username }}</td>
+                <td class="td--name">{{ u.username }}</td>
                 <td>
                     <span class="badge {% if u.is_admin %}badge-admin{% endif %}">
                         {{ t.admin_role if u.is_admin else t.user_role }}
                     </span>
                 </td>
-                <td style="color:var(--muted);font-size:0.8125rem">
+                <td class="td--meta">
                     {% if u.created_at %}{{ u.created_at.strftime('%b') }} {{ u.created_at.day }}, {{ u.created_at.year }}{% else %}—{% endif %}
                 </td>
                 <td>
                     {% if not u.is_admin %}
                     <button class="btn-sm" data-reset-for="reset-{{ u.id }}">{{ t.reset_pw }}</button>
                     <div id="reset-{{ u.id }}" class="reset-form">
-                        <form method="post" action="/admin/users/{{ u.id }}/reset-password" style="display:flex;gap:0.375rem;align-items:center">
+                        <form method="post" action="/admin/users/{{ u.id }}/reset-password" class="inline-form">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <input type="password" name="new_password" placeholder="{{ t.new_password }}" minlength="8" required>
                             <button type="submit" class="btn-sm">{{ t.save }}</button>
@@ -67,7 +50,7 @@
                         <button type="submit" class="btn-sm btn-sm-danger">{{ t.delete }}</button>
                     </form>
                     {% else %}
-                    <span style="color:var(--muted);font-size:0.8125rem">—</span>
+                    <span class="td--meta">—</span>
                     {% endif %}
                 </td>
             </tr>
@@ -76,18 +59,6 @@
     </table>
 </div>
 {% block page_scripts %}
-<script nonce="{{ csp_nonce }}">
-document.querySelectorAll('[data-reset-for]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.getElementById(btn.dataset.resetFor).style.display = 'block';
-        btn.style.display = 'none';
-    });
-});
-document.querySelectorAll('form[data-confirm]').forEach(form => {
-    form.addEventListener('submit', e => {
-        if (!confirm(form.dataset.confirm)) e.preventDefault();
-    });
-});
-</script>
+<script src="/static/js/admin-users.js"></script>
 {% endblock %}
 {% endblock %}

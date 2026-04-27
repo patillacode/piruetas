@@ -1,0 +1,12 @@
+.share-wrap { max-width: 660px; margin: 4rem auto; padding: 0 1.5rem 4rem; }
+.share-author { font-family: var(--font-ui); font-size: 0.8125rem; color: var(--muted); margin-bottom: 3rem; }
+.share-entry { margin-bottom: 3rem; }
+.share-entry + .share-entry { padding-top: 3rem; border-top: 1px solid var(--border); }
+.share-date { font-family: var(--font-ui); font-size: 0.8125rem; color: var(--muted); margin-bottom: 1rem; }
+.share-body { font-family: var(--font-reading); font-size: 1.0625rem; line-height: 1.8; color: var(--text); }
+.share-body p { margin-bottom: 0.875em; }
+.share-body p:last-child { margin-bottom: 0; }
+.share-body a { color: var(--accent); }
+.share-body strong { font-weight: 600; }
+.share-body img { max-width: 100%; border-radius: 4px; margin: 0.5em 0; }
+.share-footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--font-ui); font-size: 0.8125rem; color: var(--muted); }

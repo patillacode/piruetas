@@ -124,9 +124,36 @@ def health():
     return JSONResponse({"status": "ok"})
 
 
+def _landing_context(request: Request, user, settings):
+    today = datetime.date.today()
+    today_url = f"/journal/{today.year}/{today.month:02d}/{today.day:02d}"
+    return ctx(
+        request,
+        user=user,
+        today_url=today_url,
+        hosted_price_monthly=settings.hosted_price_monthly,
+        hosted_price_yearly=settings.hosted_price_yearly,
+        registration_open=settings.registration_open,
+    )
+
+
 @app.get("/")
 async def root(request: Request, user=Depends(get_current_user_optional)):
     if user is not None:
         today = datetime.date.today()
-        return RedirectResponse(url=f"/journal/{today.year}/{today.month:02d}/{today.day:02d}")
-    return templates.TemplateResponse(request, "index.html", ctx(request))
+        return RedirectResponse(
+            url=f"/journal/{today.year}/{today.month:02d}/{today.day:02d}",
+            status_code=302,
+        )
+    settings = get_settings()
+    return templates.TemplateResponse(
+        request, "index.html", _landing_context(request, user, settings)
+    )
+
+
+@app.get("/about")
+async def about(request: Request, user=Depends(get_current_user_optional)):
+    settings = get_settings()
+    return templates.TemplateResponse(
+        request, "index.html", _landing_context(request, user, settings)
+    )

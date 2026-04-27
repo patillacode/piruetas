@@ -2,6 +2,7 @@ import base64
 from datetime import date
 
 import httpx
+from playwright.sync_api import expect
 from sqlmodel import Session
 
 from app.auth import SESSION_COOKIE, make_session_token
@@ -185,10 +186,20 @@ def test_share_button_labels(authenticated_page, live_server, seed_user):
     authenticated_page.goto(f"{live_server}/journal/2020/01/15")
     authenticated_page.wait_for_load_state("networkidle")
 
+    is_mobile = (authenticated_page.viewport_size or {}).get("width", 1280) < 768
+
+    def click_share():
+        if is_mobile:
+            authenticated_page.click("#mobile-menu-btn")
+            authenticated_page.wait_for_function("() => !document.getElementById('mobile-sheet').hidden")
+            authenticated_page.click("#sheet-share-btn")
+        else:
+            authenticated_page.locator("#share-btn").click()
+
     share_btn = authenticated_page.locator("#share-btn")
     assert share_btn.get_attribute("aria-label") == "Share"
 
-    share_btn.click()
+    click_share()
     authenticated_page.wait_for_function(
         "() => document.getElementById('share-btn')?.getAttribute('aria-label') === 'Stop sharing'",
         timeout=5000,
@@ -201,7 +212,7 @@ def test_share_button_labels(authenticated_page, live_server, seed_user):
         timeout=5000,
     )
 
-    share_btn.click()
+    click_share()
     authenticated_page.wait_for_function(
         "() => document.getElementById('unshare-modal')?.hidden === false",
         timeout=5000,
@@ -227,6 +238,32 @@ def test_share_legend_label(authenticated_page, live_server, seed_user):
 
     legend_text = authenticated_page.locator(".calendar-legend .is-shared + span").inner_text()
     assert legend_text == "Shared entry"
+
+
+def test_share_page_renders_entry_content(page, live_server, seed_user):
+    entry_text = "My uniquely identifiable journal entry"
+    _seed_entry(seed_user.id, f"<p>{entry_text}</p>")
+
+    resp = httpx.post(
+        f"{live_server}/journal/2020/01/15/share",
+        cookies=_get_auth_cookies(seed_user),
+    )
+    assert resp.status_code == 200
+    share_token = resp.json()["url"].split("/share/")[1]
+
+    page.goto(f"{live_server}/share/{share_token}")
+    page.wait_for_load_state("networkidle")
+    expect(page.locator("body")).to_contain_text(entry_text)
+
+
+def test_journal_mobile_viewport(authenticated_page, live_server, seed_user):
+    _seed_entry(seed_user.id)
+    is_mobile = (authenticated_page.viewport_size or {}).get("width", 1280) < 768
+    if not is_mobile:
+        return  # Only assert on mobile param
+    authenticated_page.goto(f"{live_server}/journal/2020/01/15")
+    authenticated_page.wait_for_load_state("networkidle")
+    expect(authenticated_page.locator(".tiptap, [contenteditable]")).to_be_visible()
 
 
 def _get_auth_cookies(user) -> dict:

@@ -395,4 +395,3 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
-window.addEventListener('beforeunload', () => editor?.destroy());

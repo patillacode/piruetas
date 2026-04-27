@@ -1,3 +1,4 @@
+import datetime
 from pathlib import Path
 
 from fastapi.templating import Jinja2Templates
@@ -26,5 +27,6 @@ def ctx(request: Request, **kwargs) -> dict:
         "weekdays": get_weekday_names(locale),
         "csrf_token": csrf_token,
         "csp_nonce": csp_nonce,
+        "current_year": datetime.date.today().year,
         **kwargs,
     }

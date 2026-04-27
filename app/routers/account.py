@@ -359,7 +359,8 @@ async def change_password(
         return templates.TemplateResponse(
             request,
             "account/security.html",
-            ctx(request, user=user, error=error, success=success, active_tab="security", nav_section="account"),
+            ctx(request, user=user, error=error, success=success,
+                active_tab="security", nav_section="account"),
             status_code=400 if error else 200,
         )
 

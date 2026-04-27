@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Piruetas — Sign up{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block body %}
+<div class="card">
+    <h1 class="login__title">Piruetas</h1>
+    {% if error %}<p class="form__error">{{ error }}</p>{% endif %}
+    <form method="post" action="/signup">
+        <input type="hidden" name="login_csrf_token" value="{{ login_csrf_token }}">
+        <div class="field">
+            <label for="username">{{ t.username if t is defined else 'Username' }}</label>
+            <input type="text" id="username" name="username" value="{{ username or '' }}" required autofocus>
+        </div>
+        <div class="field">
+            <label for="password">{{ t.password if t is defined else 'Password' }}</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="field">
+            <label for="confirm_password">{{ t.signup_confirm_password if t is defined else 'Confirm password' }}</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ t.create_account if t is defined else 'Create account' }}</button>
+    </form>
+    <a href="/login" class="login__back">{{ t.signup_already_have_account if t is defined else 'Already have an account?' }}</a>
+</div>
+{% endblock %}

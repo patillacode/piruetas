@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Piruetas — A minimalistic private journal{% endblock %}
+{% block title %}Piruetas — A minimalist private journal{% endblock %}
 
 {% block body_class %}landing-body{% endblock %}
 
@@ -21,24 +21,10 @@
       <span>Piruetas</span>
     </a>
     <div class="l-nav-controls">
-      <div class="l-access-wrap">
-        <button id="access-toggle" class="l-access-btn" aria-haspopup="true" aria-expanded="false">
-          {{ t.landing_access_btn }}
-          <svg class="caret" width="8" height="8" viewBox="0 0 8 8" aria-hidden="true">
-            <path d="M1 2.5 L4 5.5 L7 2.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <div class="l-access-menu" id="access-menu" aria-hidden="true">
-          <a href="/login">{{ t.landing_login }}</a>
-          <div class="menu-soon">
-            {{ t.landing_register }}
-            <span class="soon-tag">{{ t.landing_register_soon }}</span>
-          </div>
-        </div>
-      </div>
-      <a href="/locale/en" class="l-lang-btn {% if locale == 'en' %}active{% endif %}">EN</a>
-      <span class="l-lang-sep">|</span>
-      <a href="/locale/es" class="l-lang-btn {% if locale == 'es' %}active{% endif %}">ES</a>
+      <select id="lang-select" class="locale-select" aria-label="Language">
+        <option value="en" {% if locale == 'en' %}selected{% endif %}>EN</option>
+        <option value="es" {% if locale == 'es' %}selected{% endif %}>ES</option>
+      </select>
       <button id="theme-toggle" class="l-theme-btn" aria-label="Toggle theme">
         <span class="theme-dot"></span>
         <span id="theme-label">{{ t.landing_theme_light }}</span>
@@ -51,6 +37,18 @@
     <img src="/static/img/logo-alpha-square.png" alt="" class="hero-mark" />
     <h1 id="hero-headline" aria-label="Piruetas"></h1>
     <p class="hero-sub" id="hero-sub"></p>
+    <div class="hero-cta">
+      {% if user %}
+      <a href="{{ today_url }}" class="hero-cta-primary">{{ t.landing_cta_journal }}</a>
+      {% else %}
+      {% if registration_open %}
+      <a href="/signup" class="hero-cta-primary">{{ t.landing_cta_signup }}</a>
+      {% else %}
+      <a href="/signup" class="hero-cta-primary hero-cta-soon">{{ t.landing_cta_signup_soon }}</a>
+      {% endif %}
+      <a href="/login" class="hero-cta-secondary">{{ t.landing_cta_login }}</a>
+      {% endif %}
+    </div>
   </header>
 
   <!-- DIVIDER -->
@@ -131,20 +129,12 @@
           <p>{{ t.landing_more1_p }}</p>
         </li>
         <li>
-          <h4>{{ t.landing_more2_h }}</h4>
-          <p>{{ t.landing_more2_p }}</p>
-        </li>
-        <li>
           <h4>{{ t.landing_more3_h }}</h4>
           <p>{{ t.landing_more3_p }}</p>
         </li>
         <li>
           <h4>{{ t.landing_more4_h }}</h4>
           <p>{{ t.landing_more4_p }}</p>
-        </li>
-        <li>
-          <h4>{{ t.landing_more5_h }}</h4>
-          <p>{{ t.landing_more5_p }}</p>
         </li>
         <li>
           <h4>{{ t.landing_more6_h }}</h4>
@@ -187,8 +177,29 @@
   <section class="section hosted-section">
     <div class="card-block hosted-block">
       <span class="option-tag accent">{{ t.landing_hosted_tag }}</span>
-      <h3>{{ t.landing_hosted_h }}</h3>
-      <p class="coming-soon-tag">{{ t.landing_coming_soon }}</p>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <span class="pricing-tier-tag">{{ t.landing_pricing_free_tag }}</span>
+          <div class="pricing-price">
+            <span class="pricing-amount">{{ t.landing_pricing_free }}</span>
+          </div>
+          <p class="pricing-note">{{ t.landing_pricing_free_note }}</p>
+          <a href="https://github.com/patillacode/piruetas" target="_blank" rel="noopener" class="pricing-cta-secondary">GitHub ↗</a>
+        </div>
+        <div class="pricing-card pricing-card--featured">
+          <span class="pricing-tier-tag pricing-tier-tag--accent">{{ t.landing_pricing_hosted_tag }}</span>
+          <div class="pricing-price">
+            <span class="pricing-amount">€{{ hosted_price_monthly | int }}</span>
+            <span class="pricing-period">{{ t.landing_pricing_monthly }}</span>
+          </div>
+          <div class="pricing-yearly">€{{ hosted_price_yearly | int }} {{ t.landing_pricing_yearly }} &mdash; <span class="pricing-save">{{ t.landing_pricing_yearly_note }}</span></div>
+          {% if registration_open %}
+          {% if not user %}<a href="/signup" class="hero-cta-primary pricing-cta">{{ t.landing_pricing_cta }}</a>{% endif %}
+          {% else %}
+          <span class="pricing-coming-soon">{{ t.landing_coming_soon }}</span>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </section>
 
@@ -209,95 +220,14 @@
 
 {% block scripts %}
 <script nonce="{{ csp_nonce }}">
-(function () {
-  const COPY_LABEL   = {{ t.landing_copy   | tojson }};
-  const COPIED_LABEL = {{ t.landing_copied | tojson }};
-  const THEME_LIGHT  = {{ t.landing_theme_light | tojson }};
-  const THEME_DARK   = {{ t.landing_theme_dark  | tojson }};
-  const HERO_SUB     = {{ t.landing_sub | tojson }};
-  const ACCENT_WORD  = {{ ('yours' if locale == 'en' else 'tuyo') | tojson }};
-
-  // ── Hero: animated letters via DOM (no innerHTML on user data) ─────────────
-  (function () {
-    const el = document.getElementById('hero-headline');
-    'Piruetas'.split('').forEach(function (ch, i) {
-      var span = document.createElement('span');
-      span.className = 'l';
-      span.style.animationDelay = (0.3 + i * 0.08) + 's';
-      span.textContent = ch;
-      el.appendChild(span);
-    });
-
-    // Hero subtitle — accent the last word before the period
-    var subEl = document.getElementById('hero-sub');
-    var accentIdx = HERO_SUB.lastIndexOf(ACCENT_WORD);
-    if (accentIdx !== -1) {
-      subEl.appendChild(document.createTextNode(HERO_SUB.slice(0, accentIdx)));
-      var em = document.createElement('em');
-      em.className = 'accent';
-      em.textContent = ACCENT_WORD;
-      subEl.appendChild(em);
-      subEl.appendChild(document.createTextNode(HERO_SUB.slice(accentIdx + ACCENT_WORD.length)));
-    } else {
-      subEl.textContent = HERO_SUB;
-    }
-  })();
-
-  // ── Theme toggle ───────────────────────────────────────────────────────────
-  function applyTheme(t) {
-    if (t === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
-    var lbl = document.getElementById('theme-label');
-    if (lbl) lbl.textContent = t === 'dark' ? THEME_DARK : THEME_LIGHT;
-  }
-
-  applyTheme(localStorage.getItem('theme') || 'light');
-
-  document.getElementById('theme-toggle').addEventListener('click', function () {
-    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('theme', next);
-    applyTheme(next);
-  });
-
-  // ── Access dropdown ────────────────────────────────────────────────────────
-  (function () {
-    var btn  = document.getElementById('access-toggle');
-    var menu = document.getElementById('access-menu');
-    function setOpen(open) {
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      menu.setAttribute('aria-hidden', open ? 'false' : 'true');
-      menu.classList.toggle('open', open);
-    }
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      setOpen(btn.getAttribute('aria-expanded') !== 'true');
-    });
-    document.addEventListener('click', function () { setOpen(false); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
-  })();
-
-  // ── Copy buttons ───────────────────────────────────────────────────────────
-  document.querySelectorAll('.copy-btn[data-target]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var target = document.getElementById(btn.getAttribute('data-target'));
-      if (!target) return;
-      var text = target.tagName === 'PRE' ? target.textContent : target.textContent.trim();
-      if (navigator.clipboard) navigator.clipboard.writeText(text);
-      btn.textContent = COPIED_LABEL;
-      setTimeout(function () { btn.textContent = COPY_LABEL; }, 1200);
-    });
-  });
-
-  // ── Scroll reveal ──────────────────────────────────────────────────────────
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
-})();
+window.LANDING = {
+  copyLabel:    {{ t.landing_copy         | tojson }},
+  copiedLabel:  {{ t.landing_copied       | tojson }},
+  themeLight:   {{ t.landing_theme_light  | tojson }},
+  themeDark:    {{ t.landing_theme_dark   | tojson }},
+  heroSub:      {{ t.landing_sub          | tojson }},
+  accentWord:   {{ ('yours' if locale == 'en' else 'tuyo') | tojson }},
+};
 </script>
+<script src="/static/js/landing.js"></script>
 {% endblock %}

@@ -12,4 +12,8 @@
 @import "components/modal.css";
 @import "components/editor.css";
 @import "components/calendar.css";
+@import "components/data.css";
+@import "components/admin-users.css";
+@import "components/admin-tasks.css";
+@import "components/share.css";
 @import "responsive.css";

@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     demo_reset_interval: int = 1800  # seconds
     cleanup_schedule: str = "0 3 * * *"  # daily at 3am
     vacuum_schedule: str = "0 3 * * 0"  # weekly on Sunday at 3am
+    hosted_price_monthly: float = 5.0  # EUR
+    hosted_price_yearly: float = 50.0  # EUR
+    registration_open: bool = False
 
     @model_validator(mode="after")
     def validate_settings(self) -> "Settings":

@@ -373,16 +373,21 @@ def test_parse_session_token_returns_none_for_non_integer_parts():
 
 
 # app/main.py gaps
-def test_root_redirects_to_journal(client, regular_user):
+def test_root_redirects_to_journal_when_authenticated(client, regular_user):
     login(client, "testuser", "userpass123")
     today = _dt.date.today()
     resp = client.get("/")
-    assert resp.status_code in (302, 307)
-    assert f"/journal/{today.year}" in resp.headers["location"]
+    assert resp.status_code == 302
+    assert resp.headers["location"] == f"/journal/{today.year}/{today.month:02d}/{today.day:02d}"
 
 
 def test_root_shows_landing_page_when_unauthenticated(client):
     resp = client.get("/")
+    assert resp.status_code == 200
+
+
+def test_about_shows_landing_page(client):
+    resp = client.get("/about")
     assert resp.status_code == 200
 
 

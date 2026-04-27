@@ -22,6 +22,11 @@ TEST_PASSWORD = "testpassword123"
 TEST_ADMIN_USERNAME = "testadmin"
 TEST_ADMIN_PASSWORD = "adminpassword123"
 
+DEVICES = {
+    "desktop": {"width": 1280, "height": 800},
+    "mobile": {"width": 390, "height": 844},
+}
+
 
 def _find_free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -71,6 +76,7 @@ def live_server(tmp_path_factory):
         "SECURE_COOKIES": "false",
         "ADMIN_USERNAME": "sysadmin",
         "ADMIN_PASSWORD": "sysadminpassword",
+        "REGISTRATION_OPEN": "false",
     }
     original_env = {k: os.environ.get(k) for k in env_overrides}
     os.environ.update(env_overrides)
@@ -157,15 +163,22 @@ def _make_auth_cookie(user: User) -> dict:
     }
 
 
+@pytest.fixture(params=["desktop", "mobile"])
+def viewport(request):
+    return DEVICES[request.param]
+
+
 @pytest.fixture()
-def authenticated_page(page, live_server, seed_user):
+def authenticated_page(page, live_server, seed_user, viewport):
+    page.set_viewport_size(viewport)
     page.goto(live_server)
     page.context.add_cookies([_make_auth_cookie(seed_user)])
     yield page
 
 
 @pytest.fixture()
-def admin_page(page, live_server, seed_admin):
+def admin_page(page, live_server, seed_admin, viewport):
+    page.set_viewport_size(viewport)
     page.goto(live_server)
     page.context.add_cookies([_make_auth_cookie(seed_admin)])
     yield page
