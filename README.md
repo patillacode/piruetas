@@ -9,7 +9,7 @@ Piruetas gives each day its own page with a clean writing experience, multi-user
 ## Try it
 
 A live demo is available at [piruetas.patilla.es](https://piruetas.patilla.es).
-Log in with **demo** / **mysupersecretpassword**, content resets every 30 minutes.
+Log in with **demo** / **piruetas**, content resets every 30 minutes.
 
 | Dark | Light |
 |------|-------|
