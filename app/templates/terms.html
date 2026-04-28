@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Piruetas — Terms of Use{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block body %}
+<div class="card legal-card">
+    <h1 class="login__title legal-title">Terms of Use</h1>
+    <p class="legal-date">Effective April 27, 2026</p>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">The service</h2>
+        <p>Piruetas is a free, open-source personal journal app. It is provided as-is, without warranties of any kind. Use it at your own discretion.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Acceptable use</h2>
+        <p>Piruetas is for personal journaling only. Do not use it to store or distribute illegal content. One account per person.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">No guarantees</h2>
+        <p>There is no uptime SLA. Use the export feature in your account settings to maintain your own backups. We are not liable for data loss due to hardware failure, software bugs, or any other cause.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Account termination</h2>
+        <p>We reserve the right to delete accounts that violate these terms or abuse the service. You may delete your own account at any time from account settings.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Recovery codes</h2>
+        <p>You are responsible for keeping your recovery codes safe. If you lose access to your account and your recovery codes, we cannot recover it for you.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Changes to these terms</h2>
+        <p>We may update these terms from time to time. Continued use of Piruetas after changes are posted constitutes acceptance of the new terms.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Contact</h2>
+        <p>Questions? Email <span class="legal-email">patillacode<span>(at)</span>gmail<span>(dot)</span>com</span>.</p>
+    </section>
+
+    <p class="legal-back"><a href="/" class="login__back" style="display:inline">← Back</a></p>
+</div>
+{% endblock %}

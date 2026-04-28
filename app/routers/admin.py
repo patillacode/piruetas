@@ -140,26 +140,3 @@ async def run_task_vacuum_db(
     return RedirectResponse("/admin/tasks", status_code=303)
 
 
-@router.post("/users/{user_id}/reset-password")
-async def reset_password(
-    user_id: int,
-    new_password: str = Form(...),
-    session: Session = Depends(get_session),
-    current_admin: User = Depends(require_admin),
-    _csrf=Depends(require_csrf),
-):
-    if len(new_password) < 8:
-        return RedirectResponse(
-            "/admin?error=Password+must+be+at+least+8+characters",
-            status_code=303,
-        )
-
-    user = session.get(User, user_id)
-    if not user:
-        return RedirectResponse("/admin", status_code=303)
-
-    user.hashed_password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
-    user.session_version += 1
-    session.add(user)
-    session.commit()
-    return RedirectResponse("/admin", status_code=303)

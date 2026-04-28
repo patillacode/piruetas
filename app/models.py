@@ -33,3 +33,11 @@ class Image(SQLModel, table=True):
     filename: str
     original_name: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+class RecoveryCode(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id", index=True)
+    code_hash: str
+    used: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

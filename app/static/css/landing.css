@@ -399,25 +399,25 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border-top: 1px solid var(--rule);
-  padding-top: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 16px 20px;
+  background: var(--bg);
 }
 
 .feature-list h4 {
   font-family: var(--ui);
-  font-style: normal;
-  font-weight: 300;
-  font-size: 20px;
-  margin: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 0 0 4px;
   color: var(--ink);
-  letter-spacing: -0.01em;
 }
 
 .feature-list p {
   font-family: var(--ui);
-  font-size: 15px;
+  font-size: 0.8125rem;
   line-height: 1.5;
-  color: var(--ink-soft);
+  color: var(--muted);
   margin: 0;
 }
 
@@ -437,25 +437,25 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border-top: 1px solid var(--rule);
-  padding-top: 12px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 14px 18px;
+  background: var(--bg);
 }
 
 .more-list h4 {
   font-family: var(--ui);
-  font-style: normal;
-  font-weight: 500;
-  font-size: 18px;
-  margin: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 0 0 4px;
   color: var(--ink);
-  letter-spacing: -0.01em;
 }
 
 .more-list p {
   font-family: var(--ui);
-  font-size: 14px;
-  line-height: 1.45;
-  color: var(--ink-soft);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted);
   margin: 0;
 }
 
@@ -552,6 +552,26 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   margin-top: 8px;
+  list-style: none;
+  padding: 0;
+}
+.pricing-grid li {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 16px 20px;
+  background: var(--bg);
+}
+.pricing-grid li h4 {
+  font-family: var(--ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--ink);
+}
+.pricing-grid li p {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin: 0;
 }
 
 .pricing-card {

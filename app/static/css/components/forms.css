@@ -67,11 +67,83 @@ select:not(.locale-select):focus {
     padding: 2.5rem;
 }
 
+.legal-card {
+    max-width: 620px;
+    text-align: left;
+}
+
+.legal-title {
+    margin-bottom: 0.25rem;
+}
+
+.legal-date {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    letter-spacing: 0.02em;
+}
+
+.legal-section {
+    border-top: 1px solid var(--border);
+    padding: 1.25rem 0;
+}
+
+.legal-h2 {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 0 0 0.6rem;
+}
+
+.legal-section p {
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--text);
+    margin: 0;
+}
+
+.legal-email span {
+    color: var(--text-muted);
+    font-size: 0.85em;
+}
+
+.legal-back {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+}
+
 body.login-page {
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
+}
+
+.card-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    margin-bottom: 1.75rem;
+}
+
+.card-brand__img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.card-brand__name {
+    font-family: var(--font-reading);
+    font-size: 1.375rem;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: -0.01em;
 }
 
 .login__title {
@@ -82,18 +154,39 @@ body.login-page {
     color: var(--text);
 }
 
+.login__subtitle {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
 .login__back {
     display: block;
     margin-top: 1.5rem;
     text-align: center;
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: var(--accent);
     text-decoration: none;
     letter-spacing: 0.04em;
     transition: color 0.2s;
 }
 
-.login__back:hover { color: var(--text); }
+.login__back:hover { color: var(--accent-hover); }
+
+.login__back-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+.login__back-row .login__back {
+    margin-top: 0;
+}
 
 .form__error {
     color: #dc2626;

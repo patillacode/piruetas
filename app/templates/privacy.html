@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Piruetas — Privacy Policy{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block body %}
+<div class="card legal-card">
+    <h1 class="login__title legal-title">Privacy Policy</h1>
+    <p class="legal-date">Effective April 27, 2026</p>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">What we collect</h2>
+        <p>Piruetas stores: your username, your password as a one-way hash (never plaintext), your journal entries (text and dates), any images you upload, and recovery codes stored as one-way hashes only.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">How it's used</h2>
+        <p>Your data is used solely to provide the journal service. It is never sold, shared with third parties, or used for any purpose other than making Piruetas work for you.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Who can access it</h2>
+        <p>Only you, authenticated via your credentials. The server operator has theoretical access to the database files, but there is no admin UI for browsing entries — this is a trust-based model typical of self-hosted software. Your password and recovery codes are hashed and cannot be read even by the operator.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Third parties</h2>
+        <p>Piruetas links to Ko-fi as an external support page. No data is shared with Ko-fi or any other third party. There are no analytics scripts, no ad networks, and no tracking of any kind.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Data retention</h2>
+        <p>Your data is stored for as long as your account exists. Deleting your account removes all your entries, images, and personal data immediately and permanently.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Your rights</h2>
+        <p>You can export all your data at any time from your account settings. You can delete your account and all associated data from account settings as well.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Security</h2>
+        <p>Passwords and recovery codes are stored as one-way cryptographic hashes. Sessions use signed cookies that cannot be forged without the server's secret key.</p>
+    </section>
+
+    <section class="legal-section">
+        <h2 class="legal-h2">Contact</h2>
+        <p>Questions about privacy? Email <span class="legal-email">patillacode<span>(at)</span>gmail<span>(dot)</span>com</span>.</p>
+    </section>
+
+    <p class="legal-back"><a href="/" class="login__back" style="display:inline">← Back</a></p>
+</div>
+{% endblock %}

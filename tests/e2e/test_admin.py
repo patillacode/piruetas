@@ -27,18 +27,6 @@ def test_delete_user(admin_page: Page, live_server: str, seed_admin, seed_user):
     assert admin_page.locator(f"text={seed_user.username}").count() == 0
 
 
-def test_reset_user_password(admin_page: Page, live_server: str, seed_admin, seed_user):
-    user_id = seed_user.id
-    admin_page.goto(f"{live_server}/admin/")
-    admin_page.evaluate(f"document.getElementById('reset-{user_id}').style.display='block'")
-    admin_page.fill(
-        f'form[action="/admin/users/{user_id}/reset-password"] input[name="new_password"]',
-        "newpass456",
-    )
-    admin_page.click(f'form[action="/admin/users/{user_id}/reset-password"] button[type="submit"]')
-    admin_page.wait_for_url(f"{live_server}/admin/")
-
-
 def test_non_admin_blocked(authenticated_page: Page, live_server: str, seed_user):
     response = authenticated_page.request.get(f"{live_server}/admin/")
     assert response.status == 403

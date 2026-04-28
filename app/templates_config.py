@@ -27,6 +27,7 @@ def ctx(request: Request, **kwargs) -> dict:
         "weekdays": get_weekday_names(locale),
         "csrf_token": csrf_token,
         "csp_nonce": csp_nonce,
+        "show_donation_prompts": settings.show_donation_prompts,
         "current_year": datetime.date.today().year,
         **kwargs,
     }

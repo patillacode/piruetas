@@ -79,3 +79,13 @@ async def test_demo_cleanup_loop_executes_body():
             await _demo_cleanup_loop()
 
     assert mock_del.call_count == 1
+
+
+def test_privacy_page(client):
+    resp = client.get("/privacy")
+    assert resp.status_code == 200
+
+
+def test_terms_page(client):
+    resp = client.get("/terms")
+    assert resp.status_code == 200

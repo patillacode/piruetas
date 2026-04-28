@@ -11,15 +11,17 @@ from pathlib import Path
 import bcrypt
 import markdownify  # type: ignore[import-untyped]
 from fastapi import APIRouter, Depends, Form, Query, Request
-from fastapi.responses import JSONResponse, Response
-from sqlmodel import Session, col, select
+from fastapi.responses import JSONResponse, RedirectResponse, Response
+from sqlmodel import Session, col, func, select
 
 from app.auth import SESSION_COOKIE, SESSION_MAX_AGE, make_session_token
 from app.csrf import require_csrf
 from app.database import get_session
 from app.dependencies import get_current_user
 from app.i18n import MONTH_NAMES, TRANSLATIONS, get_locale, get_month_names
-from app.models import Entry, Image, User
+from app.models import Entry, Image, RecoveryCode, User
+from app.recovery import create_codes_for_user
+from app.recovery_flash import RECOVERY_FLASH_COOKIE, pop_recovery_flash, set_recovery_flash
 from app.settings import get_settings
 from app.templates_config import ctx, templates
 
@@ -27,7 +29,18 @@ router = APIRouter(prefix="/account")
 
 
 @router.get("")
-async def account_page(request: Request, user: User = Depends(get_current_user)):
+async def account_page(
+    request: Request,
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    assert user.id is not None
+    recovery_remaining = session.exec(
+        select(func.count(RecoveryCode.id)).where(
+            RecoveryCode.user_id == user.id,
+            RecoveryCode.used == False,  # noqa: E712
+        )
+    ).one()
     return templates.TemplateResponse(
         request,
         "account/security.html",
@@ -38,8 +51,79 @@ async def account_page(request: Request, user: User = Depends(get_current_user))
             success=None,
             active_tab="security",
             nav_section="account",
+            recovery_remaining=recovery_remaining,
         ),
     )
+
+
+@router.get("/recovery-codes")
+async def recovery_codes_page(
+    request: Request,
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    assert user.id is not None
+    settings = get_settings()
+    codes = pop_recovery_flash(dict(request.cookies), settings.secret_key)
+    remaining = session.exec(
+        select(func.count(RecoveryCode.id)).where(
+            RecoveryCode.user_id == user.id,
+            RecoveryCode.used == False,  # noqa: E712
+        )
+    ).one()
+    response = templates.TemplateResponse(
+        request,
+        "account/recovery_codes.html",
+        ctx(
+            request,
+            user=user,
+            codes=codes,
+            remaining=remaining,
+            active_tab="security",
+            nav_section="account",
+        ),
+    )
+    response.delete_cookie(RECOVERY_FLASH_COOKIE)
+    return response
+
+
+@router.post("/recovery-codes/regenerate")
+async def regenerate_recovery_codes(
+    request: Request,
+    current_password: str = Form(...),
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+    _csrf=Depends(require_csrf),
+):
+    assert user.id is not None
+    settings = get_settings()
+
+    if not bcrypt.checkpw(current_password.encode(), user.hashed_password.encode()):
+        remaining = session.exec(
+            select(func.count(RecoveryCode.id)).where(
+                RecoveryCode.user_id == user.id,
+                RecoveryCode.used == False,  # noqa: E712
+            )
+        ).one()
+        return templates.TemplateResponse(
+            request,
+            "account/recovery_codes.html",
+            ctx(
+                request,
+                user=user,
+                codes=None,
+                remaining=remaining,
+                active_tab="security",
+                nav_section="account",
+                error="Current password is incorrect.",
+            ),
+            status_code=400,
+        )
+
+    plaintext_codes = create_codes_for_user(user.id, session)
+    response = RedirectResponse(url="/account/recovery-codes", status_code=302)
+    set_recovery_flash(response, plaintext_codes, settings.secret_key, settings.secure_cookies)
+    return response
 
 
 @router.get("/data")
@@ -356,11 +440,16 @@ async def change_password(
     _csrf=Depends(require_csrf),
 ):
     def render(error=None, success=None):
+        recovery_remaining = session.exec(
+            select(func.count(RecoveryCode.id)).where(
+                RecoveryCode.user_id == user.id,
+                RecoveryCode.used == False,  # noqa: E712
+            )
+        ).one()
         return templates.TemplateResponse(
             request,
             "account/security.html",
-            ctx(request, user=user, error=error, success=success,
-                active_tab="security", nav_section="account"),
+            ctx(request, user=user, error=error, success=success, active_tab="security", nav_section="account", recovery_remaining=recovery_remaining),
             status_code=400 if error else 200,
         )
 

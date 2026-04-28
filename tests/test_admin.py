@@ -9,7 +9,6 @@ from sqlmodel import select
 from app.models import User
 from app.routers import admin as admin_router
 from tests.conftest import get_csrf, login
-from tests.conftest import login as do_login
 
 
 def test_admin_page_accessible_to_admin(client, admin_user):
@@ -108,18 +107,6 @@ def test_create_user_short_password_rejected(client, admin_user):
     assert b"8 characters" in resp.content
 
 
-def test_reset_password(client, session, admin_user, regular_user):
-    login(client, "admin", "adminpass123")
-    resp = client.post(
-        f"/admin/users/{regular_user.id}/reset-password",
-        data={"new_password": "brandnew456", "csrf_token": get_csrf(client)},
-    )
-    assert resp.status_code == 303
-    session.refresh(regular_user)
-
-    assert bcrypt.checkpw(b"brandnew456", regular_user.hashed_password.encode())
-
-
 def test_create_user_form_get(client, admin_user):
     login(client, "admin", "adminpass123")
     resp = client.get("/admin/users/new")
@@ -138,7 +125,7 @@ def test_delete_nonexistent_user_redirects(client, admin_user):
 
 def test_delete_user_with_uploads_images_entries(client, session, admin_user, regular_user):
 
-    do_login(client, "testuser", "userpass123")
+    login(client, "testuser", "userpass123")
     jpeg = b"\xff\xd8\xff\xe0" + b"\x00" * 20
     upload_resp = client.post(
         "/upload",
@@ -148,7 +135,7 @@ def test_delete_user_with_uploads_images_entries(client, session, admin_user, re
     client.post("/journal/2026/01/10", json={"content": f'<img src="{image_url}">'})
     client.post("/logout", data={"csrf_token": get_csrf(client)})
 
-    do_login(client, "admin", "adminpass123")
+    login(client, "admin", "adminpass123")
     resp = client.post(
         f"/admin/users/{regular_user.id}/delete",
         data={"csrf_token": get_csrf(client)},
@@ -201,20 +188,3 @@ def test_run_vacuum_db_task(client, admin_user, monkeypatch):
     assert resp.status_code == 303
 
 
-def test_reset_password_too_short(client, admin_user, regular_user):
-    login(client, "admin", "adminpass123")
-    resp = client.post(
-        f"/admin/users/{regular_user.id}/reset-password",
-        data={"new_password": "short", "csrf_token": get_csrf(client)},
-    )
-    assert resp.status_code == 303
-    assert "Password" in resp.headers["location"]
-
-
-def test_reset_password_nonexistent_user(client, admin_user):
-    login(client, "admin", "adminpass123")
-    resp = client.post(
-        "/admin/users/99999/reset-password",
-        data={"new_password": "validpassword123", "csrf_token": get_csrf(client)},
-    )
-    assert resp.status_code == 303

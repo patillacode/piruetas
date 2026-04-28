@@ -119,18 +119,7 @@ def test_stale_session_version_rejected(client, session, regular_user):
     assert "/login" in resp.headers["location"]
 
 
-# Task 3: session invalidation on password reset/change
-def test_admin_password_reset_increments_session_version(client, session, admin_user, regular_user):
-    login(client, "admin", "adminpass123")
-    csrf = get_csrf(client)
-    client.post(
-        f"/admin/users/{regular_user.id}/reset-password",
-        data={"new_password": "newpassword123", "csrf_token": csrf},
-    )
-    session.refresh(regular_user)
-    assert regular_user.session_version == 1
-
-
+# Task 3: session invalidation on password change
 def test_self_password_change_increments_version_and_reissues_cookie(client, session, regular_user):
     login(client, "testuser", "userpass123")
     old_cookie = client.cookies.get("piruetas_session")

@@ -107,6 +107,12 @@ just test-e2e-headed  # with visible browser (useful for debugging)
 
 See [CONFIGURATION.md](CONFIGURATION.md) for all available environment variables.
 
+## Support
+
+Piruetas is free and open source. If you find it useful, a small donation keeps it alive.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/patillacode)
+
 ## License
 
 Piruetas is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).

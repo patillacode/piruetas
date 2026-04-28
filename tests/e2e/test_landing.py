@@ -19,17 +19,7 @@ def test_landing_hero_ctas_unauthenticated(page: Page, live_server):
 def test_landing_pricing_table_visible(page: Page, live_server):
     page.goto(live_server)
     expect(page.locator(".pricing-grid")).to_be_visible()
-    expect(page.locator(".pricing-card")).to_have_count(2)
-    # Registration closed by default: coming-soon badge instead of CTA
-    expect(page.locator(".pricing-card--featured .pricing-coming-soon")).to_be_visible()
-    expect(page.locator(".pricing-card--featured a.hero-cta-primary")).to_have_count(0)
-
-
-def test_landing_pricing_shows_price(page: Page, live_server):
-    page.goto(live_server)
-    # Default price is €5/month
-    expect(page.locator(".pricing-card--featured .pricing-amount")).to_contain_text("5")
-    expect(page.locator(".pricing-card--featured .pricing-period")).to_be_visible()
+    expect(page.locator(".pricing-grid li")).to_have_count(4)
 
 
 def test_landing_logged_in_shows_journal_cta(authenticated_page: Page, live_server):
@@ -49,9 +39,10 @@ def test_landing_logged_in_journal_cta_links_to_today(authenticated_page: Page, 
 
 # --- Registration closed (default) ---
 
+
 def test_signup_cta_shows_coming_soon(page: Page, live_server):
     page.goto(live_server)
-    cta = page.locator('.hero-cta > a.hero-cta-soon')
+    cta = page.locator(".hero-cta > a.hero-cta-soon")
     expect(cta).to_be_visible()
     expect(cta).to_contain_text("coming soon")
 
@@ -72,13 +63,14 @@ def test_signup_post_redirects_when_closed(live_server):
     assert resp.headers["location"] == "/signup"
 
 
-def test_pricing_paid_shows_coming_soon_badge(page: Page, live_server):
+def test_pricing_section_shows_features(page: Page, live_server):
     page.goto(live_server)
-    expect(page.locator(".pricing-card--featured .pricing-coming-soon")).to_be_visible()
-    expect(page.locator(".pricing-card--featured a.hero-cta-primary")).to_have_count(0)
+    expect(page.locator(".pricing-grid")).to_contain_text("Journal entries")
+    expect(page.locator(".pricing-grid")).to_contain_text("Image uploads")
 
 
 # --- Mobile viewport ---
+
 
 def test_landing_mobile_viewport(page: Page, live_server):
     page.set_viewport_size({"width": 390, "height": 844})

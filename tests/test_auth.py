@@ -95,11 +95,9 @@ def test_signup_page_accessible(client):
 
 
 def test_signup_success_redirects_and_sets_session(client):
-    import datetime
     resp = signup(client, "newuser", "securepass123")
     assert resp.status_code == 302
-    today = datetime.date.today()
-    assert resp.headers["location"] == f"/journal/{today.year}/{today.month:02d}/{today.day:02d}"
+    assert resp.headers["location"] == "/account/recovery-codes"
     assert "piruetas_session" in resp.cookies
 
 
@@ -148,6 +146,32 @@ def test_signup_rate_limited(client):
         resp = signup(client, "validuser", "securepass123")
     assert resp.status_code == 429
     assert b"Too many requests" in resp.content
+
+
+def test_signup_page_closed_registration(client):
+    with patch("app.routers.auth.get_settings") as m:
+        m.return_value.registration_open = False
+        resp = client.get("/signup")
+    assert resp.status_code == 200
+    assert b"Registration is not open" in resp.content
+
+
+def test_signup_post_closed_registration(client):
+    get_resp = client.get("/signup")
+    csrf_cookie = get_resp.cookies.get("piruetas_login_csrf", "")
+    with patch("app.routers.auth.get_settings") as m:
+        m.return_value.registration_open = False
+        resp = client.post(
+            "/signup",
+            data={
+                "username": "newuser",
+                "password": "securepass123",
+                "confirm_password": "securepass123",
+                "login_csrf_token": csrf_cookie,
+            },
+        )
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/signup"
 
 
 def test_protected_route_with_nonexistent_user_token(client):

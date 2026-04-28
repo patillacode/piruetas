@@ -144,4 +144,21 @@
     font-weight: 500;
 }
 
+.app-footer {
+    text-align: center;
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.75rem;
+}
+
+.app-footer a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+.app-footer a:hover {
+    color: var(--accent);
+}
+
 .form--contents { display: contents; }

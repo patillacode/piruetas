@@ -78,7 +78,7 @@ async def security_headers(request: Request, call_next):
         f"default-src 'self'; "
         f"script-src {script_src}; "
         "style-src 'self' 'unsafe-inline'; "
-        "img-src 'self' data: blob:;"
+        "img-src 'self' data: blob: https://storage.ko-fi.com;"
     )
     if settings.secure_cookies:
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
@@ -117,6 +117,16 @@ app.include_router(journal.router)
 app.include_router(upload.router)
 app.include_router(admin.router)
 app.include_router(account.router)
+
+
+@app.get("/privacy")
+async def privacy(request: Request):
+    return templates.TemplateResponse(request, "privacy.html", ctx(request))
+
+
+@app.get("/terms")
+async def terms(request: Request):
+    return templates.TemplateResponse(request, "terms.html", ctx(request))
 
 
 @app.get("/health")
