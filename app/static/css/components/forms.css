@@ -194,3 +194,20 @@ body.login-page {
     margin-bottom: 1rem;
     font-family: var(--font-ui);
 }
+
+.login__consent {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+.login__consent a { color: var(--accent); }
+
+.login__back--inline { display: inline; }
+
+.signup-closed__message {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+}

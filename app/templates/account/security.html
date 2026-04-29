@@ -2,6 +2,10 @@
 
 {% block title %}Account — Piruetas{% endblock %}
 
+{% block head_extra %}
+<link rel="stylesheet" href="/static/css/components/account.css">
+{% endblock %}
+
 {% block page_content %}
 <div class="page-wrap">
     <nav class="page-tabs">
@@ -9,11 +13,11 @@
         <a href="/account/data" {% if active_tab == 'data' %}class="active"{% endif %}>{{ t.data_management }}</a>
     </nav>
 
-    <section style="max-width:400px;margin:0 auto 3rem">
-        <h2 class="login__title" style="margin-bottom:1.5rem">{{ t.change_password }}</h2>
+    <section class="account-section account-section--spaced">
+        <h2 class="login__title account-h">{{ t.change_password }}</h2>
         {% if error %}<p class="form__error">{{ error }}</p>{% endif %}
-        {% if success %}<p style="color:var(--accent);margin-bottom:1rem">{{ success }}</p>{% endif %}
-        <form method="post" action="/account/password" style="display:flex;flex-direction:column;gap:0.75rem">
+        {% if success %}<p class="account-success">{{ success }}</p>{% endif %}
+        <form method="post" action="/account/password" class="account-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <div class="field">
                 <label for="current_password">{{ t.current_password }}</label>
@@ -31,18 +35,14 @@
         </form>
     </section>
 
-    <section style="max-width:400px;margin:0 auto">
-        <h2 class="login__title" style="font-size:1rem;margin-bottom:0.5rem">{{ t.recovery_codes_title }}</h2>
+    <section class="account-section">
+        <h2 class="login__title account-subh">{{ t.recovery_codes_title }}</h2>
         {% if recovery_remaining <= 3 %}
-        <p style="color:var(--warning, #f59e0b);font-weight:600;font-size:0.875rem;margin-bottom:1rem">
-            {{ t.recovery_codes_you_have }} {{ recovery_remaining }} {{ t.recovery_code_singular if recovery_remaining == 1 else t.recovery_codes_remaining }}.
-        </p>
+        <p class="account-warn">{{ t.recovery_codes_you_have }} {{ recovery_remaining }} {{ t.recovery_code_singular if recovery_remaining == 1 else t.recovery_codes_remaining }}.</p>
         {% else %}
-        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem">
-            {{ t.recovery_codes_you_have }} {{ recovery_remaining }} {{ t.recovery_code_singular if recovery_remaining == 1 else t.recovery_codes_remaining }}.
-        </p>
+        <p class="account-meta">{{ t.recovery_codes_you_have }} {{ recovery_remaining }} {{ t.recovery_code_singular if recovery_remaining == 1 else t.recovery_codes_remaining }}.</p>
         {% endif %}
-        <a href="/account/recovery-codes" style="color:var(--accent);font-size:0.875rem">{{ t.recovery_codes_manage }}</a>
+        <a href="/account/recovery-codes" class="account-link">{{ t.recovery_codes_manage }}</a>
     </section>
 </div>
 {% endblock %}

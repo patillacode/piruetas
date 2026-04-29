@@ -27,25 +27,11 @@
         </div>
         <button type="submit" class="btn btn-primary" id="signup-btn">Create account</button>
     </form>
-    <p class="login__back" style="font-size: 0.8rem; color: var(--muted);">{{ t.signup_terms_consent }} <a href="/terms" style="color:var(--accent)">{{ t.terms_of_use }}</a> {{ t.and_ }} <a href="/privacy" style="color:var(--accent)">{{ t.privacy_policy }}</a>.</p>
-    <p class="login__back">{{ t.signup_already_have_account }} <a href="/login" style="color:var(--accent)">{{ t.sign_in }}</a></p>
+    <p class="login__consent">{{ t.signup_terms_consent }} <a href="/terms">{{ t.terms_of_use }}</a> {{ t.and_ }} <a href="/privacy">{{ t.privacy_policy }}</a>.</p>
+    <p class="login__consent">{{ t.signup_already_have_account }} <a href="/login">{{ t.sign_in }}</a></p>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script nonce="{{ csp_nonce }}">
-(function () {
-    const pw = document.getElementById('password');
-    const cpw = document.getElementById('confirm_password');
-    function check() {
-        if (cpw.value && pw.value !== cpw.value) {
-            cpw.setCustomValidity('Passwords do not match');
-        } else {
-            cpw.setCustomValidity('');
-        }
-    }
-    pw.addEventListener('input', check);
-    cpw.addEventListener('input', check);
-})();
-</script>
+<script src="/static/js/auth.js"></script>
 {% endblock %}

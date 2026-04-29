@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     hosted_price_monthly: float = 5.0  # EUR
     hosted_price_yearly: float = 50.0  # EUR
     registration_open: bool = False
+    bcrypt_rounds: int = 12
 
     @model_validator(mode="after")
     def validate_settings(self) -> "Settings":

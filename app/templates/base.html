@@ -12,8 +12,10 @@
     <link rel="manifest" href="/static/img/favicon/site.webmanifest">
     <script nonce="{{ csp_nonce }}">
         /* Must be inline: runs before CSS to prevent flash of unstyled content */
-        const _t = localStorage.getItem('theme');
-        if (_t) document.documentElement.setAttribute('data-theme', _t);
+        try {
+            const _t = localStorage.getItem('theme');
+            if (_t) document.documentElement.setAttribute('data-theme', _t);
+        } catch (e) {}
     </script>
     <link rel="stylesheet" href="/static/css/base.css">
     {% block head_extra %}{% endblock %}

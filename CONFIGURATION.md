@@ -23,6 +23,9 @@ Username for the admin account seeded at startup.
 **`ADMIN_PASSWORD`** (default: `changeme`)
 Password for the admin account. Change this before exposing the app.
 
+**`REGISTRATION_OPEN`** (default: `false`)
+When `true`, any visitor can create an account. When `false`, only the admin can create accounts via the admin panel.
+
 **`PORT`** (default: `8000`)
 Port the server listens on inside the container.
 
@@ -44,7 +47,7 @@ SQLite connection string. Note the **four slashes**, three resolve the path rela
 ## Security
 
 **`SECURE_COOKIES`** (default: `true`)
-Sets the `Secure` flag on session cookies and enables HSTS headers. Set to `false` for local development without HTTPS.
+Sets the `Secure` flag on session cookies and enables HSTS headers. Set to `false` for any plain HTTP access — local development or a Docker deployment not behind TLS.
 
 **`TRUST_PROXY`** (default: `false`)
 When `true`, reads the real client IP from the `X-Forwarded-For` header for rate limiting. Enable this when running behind a reverse proxy (nginx, Caddy, Traefik).

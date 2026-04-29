@@ -3,6 +3,7 @@ import os
 os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production")
 os.environ["SECURE_COOKIES"] = "false"  # must be false so TestClient (HTTP) sends cookies back
 os.environ["REGISTRATION_OPEN"] = "true"  # unit tests exercise signup logic directly
+os.environ["BCRYPT_ROUNDS"] = "4"
 os.environ.setdefault("DATA_DIR", "/tmp/piruetas-test")
 os.environ.setdefault("DATABASE_URL", "sqlite:////tmp/piruetas-test.db")
 

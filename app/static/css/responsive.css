@@ -97,9 +97,9 @@
     }
 
     /* Hide desktop-only controls — they move into the bottom sheet */
-    nav .theme-toggle,
-    nav .locale-select,
-    nav .signout-form {
+    .app-header nav .theme-toggle,
+    .app-header nav .locale-select,
+    .app-header nav .signout-form {
         display: none;
     }
 

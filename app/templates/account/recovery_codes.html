@@ -2,56 +2,14 @@
 
 {% block title %}Recovery codes — Piruetas{% endblock %}
 
+{% block head_extra %}
+<link rel="stylesheet" href="/static/css/components/account.css">
+{% endblock %}
+
 {% block page_content %}
-<style>
-    .recovery-codes-block {
-        position: relative;
-        margin: 1rem 0;
-    }
-    .recovery-codes-pre {
-        background: var(--bg-alt, var(--surface));
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        font-family: monospace;
-        font-size: 0.95rem;
-        letter-spacing: 0.05em;
-        line-height: 1.8;
-        white-space: pre;
-        margin: 0;
-        user-select: all;
-    }
-    .recovery-copy-btn {
-        margin-top: 0.5rem;
-        font-size: 0.8125rem;
-        color: var(--accent);
-        background: none;
-        border: 1px solid var(--accent);
-        border-radius: 4px;
-        padding: 0.25rem 0.75rem;
-        cursor: pointer;
-        transition: background var(--transition), color var(--transition);
-    }
-    .recovery-copy-btn:hover {
-        background: var(--accent);
-        color: white;
-    }
-    .recovery-warning {
-        background: color-mix(in srgb, var(--warning, #f59e0b) 12%, transparent);
-        border: 1px solid color-mix(in srgb, var(--warning, #f59e0b) 40%, transparent);
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        margin-bottom: 1rem;
-        font-size: 0.875rem;
-    }
-    .recovery-count-warn {
-        color: var(--warning, #f59e0b);
-        font-weight: 600;
-    }
-</style>
 <div class="page-wrap">
-    <div style="max-width:440px;margin:0 auto">
-        <h1 class="login__title" style="margin-bottom:1.5rem">{{ t.recovery_codes_title }}</h1>
+    <div class="recovery-codes-wrap">
+        <h1 class="login__title account-h">{{ t.recovery_codes_title }}</h1>
 
         {% if error %}<p class="form__error">{{ error }}</p>{% endif %}
 
@@ -66,14 +24,14 @@
             <button class="recovery-copy-btn" id="copy-codes-btn">{{ t.recovery_codes_copy_all }}</button>
         </div>
 
-        <a href="/account/recovery-codes/download" style="display:inline-block;margin-bottom:1.5rem;color:var(--accent);font-size:0.875rem">{{ t.recovery_codes_download }} ↓</a>
+        <a href="/account/recovery-codes/download" class="recovery-download-link">{{ t.recovery_codes_download }} ↓</a>
 
-        <div class="field" style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:1rem">
-            <input type="checkbox" id="saved-confirm" style="margin-top:3px;flex-shrink:0">
-            <label for="saved-confirm" style="font-size:0.875rem;cursor:pointer">{{ t.recovery_codes_saved_confirm }}</label>
+        <div class="recovery-confirm-row">
+            <input type="checkbox" id="saved-confirm">
+            <label for="saved-confirm">{{ t.recovery_codes_saved_confirm }}</label>
         </div>
 
-        <a id="continue-btn" class="btn btn-primary" style="display:inline-block;text-decoration:none;opacity:0.4" aria-disabled="true">{{ t.recovery_codes_continue }}</a>
+        <a id="continue-btn" class="btn btn-primary recovery-continue-btn" aria-disabled="true">{{ t.recovery_codes_continue }}</a>
 
         {% else %}
 
@@ -83,12 +41,12 @@
         <p>{{ t.recovery_codes_you_have }} {{ remaining }} {{ t.recovery_code_singular if remaining == 1 else t.recovery_codes_remaining }}.</p>
         {% endif %}
 
-        <hr style="margin:1.5rem 0;border:none;border-top:1px solid var(--border)">
+        <hr class="recovery-divider">
 
-        <h2 class="login__title" style="font-size:1rem;margin-bottom:0.75rem">{{ t.recovery_codes_regenerate }}</h2>
-        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">{{ t.recovery_codes_regenerate_hint }}</p>
+        <h2 class="login__title account-subh">{{ t.recovery_codes_regenerate }}</h2>
+        <p class="recovery-regen-hint">{{ t.recovery_codes_regenerate_hint }}</p>
 
-        <form method="post" action="/account/recovery-codes/regenerate" style="display:flex;flex-direction:column;gap:0.75rem">
+        <form method="post" action="/account/recovery-codes/regenerate" class="account-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <div class="field">
                 <label for="current_password">{{ t.current_password }}</label>
@@ -103,32 +61,5 @@
 {% endblock %}
 
 {% block page_scripts %}
-{% if codes is not none %}
-<script nonce="{{ csp_nonce }}">
-(function () {
-    const checkbox = document.getElementById('saved-confirm');
-    const btn = document.getElementById('continue-btn');
-    checkbox.addEventListener('change', function () {
-        if (this.checked) {
-            btn.href = '/';
-            btn.style.opacity = '1';
-            btn.removeAttribute('aria-disabled');
-        } else {
-            btn.removeAttribute('href');
-            btn.style.opacity = '0.4';
-            btn.setAttribute('aria-disabled', 'true');
-        }
-    });
-
-    const copyBtn = document.getElementById('copy-codes-btn');
-    copyBtn.addEventListener('click', function () {
-        const text = document.getElementById('codes-text').textContent;
-        navigator.clipboard.writeText(text).then(function () {
-            copyBtn.textContent = 'Copied!';
-            setTimeout(function () { copyBtn.textContent = 'Copy all'; }, 2000);
-        });
-    });
-})();
-</script>
-{% endif %}
+<script src="/static/js/recovery-codes.js"></script>
 {% endblock %}

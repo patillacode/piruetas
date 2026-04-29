@@ -36,6 +36,7 @@
   <header class="hero">
     <img src="/static/img/logo-alpha-square.png" alt="" class="hero-mark" />
     <h1 id="hero-headline" aria-label="Piruetas"></h1>
+    <span class="hero-rule" aria-hidden="true"></span>
     <p class="hero-sub" id="hero-sub"></p>
     <div class="hero-cta">
       {% if user %}
@@ -49,30 +50,25 @@
       <a href="/login" class="hero-cta-secondary">{{ t.landing_cta_login }}</a>
       {% endif %}
     </div>
-  </header>
-
-  <!-- DIVIDER -->
-  <div class="divider"><span></span></div>
-
-  <!-- SCREENSHOTS -->
-  <section class="section" id="demo">
-    <div class="gallery reveal">
-      <div class="gallery-desktop">
-        <div class="browser-bar">
-          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
-          <span class="url">piruet.app</span>
+    <div class="hero-gallery-wrap">
+      <div class="gallery reveal" id="demo">
+        <div class="gallery-desktop">
+          <div class="browser-bar">
+            <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+            <span class="url">piruet.app</span>
+          </div>
+          <img class="shot-desktop shot-light" src="/static/img/screenshots/desktop-light.png" alt="Piruetas desktop, light theme" />
+          <img class="shot-desktop shot-dark" src="/static/img/screenshots/desktop-dark.png" alt="Piruetas desktop, dark theme" />
         </div>
-        <img class="shot-desktop shot-light" src="/static/img/landing/desktop-light.png" alt="Piruetas desktop, light theme" />
-        <img class="shot-desktop shot-dark" src="/static/img/landing/desktop-dark.png" alt="Piruetas desktop, dark theme" />
-      </div>
-      <div class="gallery-mobile">
-        <div class="phone">
-          <img class="shot-mobile shot-light" src="/static/img/landing/mobile-light.png" alt="Piruetas mobile, light theme" />
-          <img class="shot-mobile shot-dark" src="/static/img/landing/mobile-dark.png" alt="Piruetas mobile, dark theme" />
+        <div class="gallery-mobile">
+          <div class="phone">
+            <img class="shot-mobile shot-light" src="/static/img/screenshots/mobile-light.png" alt="Piruetas mobile, light theme" />
+            <img class="shot-mobile shot-dark" src="/static/img/screenshots/mobile-dark.png" alt="Piruetas mobile, dark theme" />
+          </div>
         </div>
       </div>
     </div>
-  </section>
+  </header>
 
   <!-- TRY IT -->
   <section class="section try-section">
@@ -149,11 +145,6 @@
     <div class="card-block host-block">
         <span class="option-tag accent">{{ t.landing_host_tag }}</span>
         <h3>{{ t.landing_host_h }}</h3>
-        <div class="host-sub">{{ t.landing_host_sub1 }}</div>
-        <div class="code-row">
-          <span id="docker-cmd">docker run -p 8000:8000 -v ./data:/data patillacode/piruetas:latest</span>
-          <button class="copy-btn" id="copy-docker" data-target="docker-cmd">{{ t.landing_copy }}</button>
-        </div>
         <div class="host-sub">{{ t.landing_host_sub2 }}</div>
         <div class="code-row code-block">
 <pre id="compose-cmd">services:
@@ -164,9 +155,13 @@
     volumes:
       - ./data:/data
     environment:
+      # generate with: openssl rand -hex 32
       SECRET_KEY: change-me-to-a-random-string
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: changeme
+      SECURE_COOKIES: "false"        # set to "true" if serving over HTTPS
+      REGISTRATION_OPEN: "false"     # set to "true" to allow self-registration
+      # TRUST_PROXY: "true"          # uncomment if behind a reverse proxy
     restart: unless-stopped</pre>
           <button class="copy-btn" id="copy-compose" data-target="compose-cmd">{{ t.landing_copy }}</button>
         </div>
@@ -176,24 +171,33 @@
   <!-- PRICING -->
   <section class="section thin">
     <div class="card-block">
-      <span class="option-tag accent">Pricing</span>
-      <h3>Free forever</h3>
+      <span class="option-tag accent">{{ t.landing_pricing_tag }}</span>
+      <div class="pricing-header">
+        <h3>{{ t.landing_pricing_h }}</h3>
+        {% if not user %}
+        {% if registration_open %}
+        <a href="/signup" class="hero-cta-primary">{{ t.landing_cta_signup }}</a>
+        {% else %}
+        <a href="/signup" class="hero-cta-primary hero-cta-soon">{{ t.landing_cta_signup_soon }}</a>
+        {% endif %}
+        {% endif %}
+      </div>
       <ul class="pricing-grid">
         <li>
-          <h4>Journal entries</h4>
-          <p>Write as much as you want, every day.</p>
+          <h4>{{ t.landing_pricing_feat1_h }}</h4>
+          <p>{{ t.landing_pricing_feat1_p }}</p>
         </li>
         <li>
-          <h4>Image uploads</h4>
-          <p>Attach images to your entries.</p>
+          <h4>{{ t.landing_pricing_feat2_h }}</h4>
+          <p>{{ t.landing_pricing_feat2_p }}</p>
         </li>
         <li>
-          <h4>Data export</h4>
-          <p>Your data is always yours to take.</p>
+          <h4>{{ t.landing_pricing_feat3_h }}</h4>
+          <p>{{ t.landing_pricing_feat3_p }}</p>
         </li>
         <li>
-          <h4>Public share links</h4>
-          <p>Share individual entries with a private link.</p>
+          <h4>{{ t.landing_pricing_feat4_h }}</h4>
+          <p>{{ t.landing_pricing_feat4_p }}</p>
         </li>
       </ul>
     </div>
@@ -203,10 +207,10 @@
   {% if show_donation_prompts %}
   <section class="section thin">
     <div class="card-block">
-      <span class="option-tag accent">Support</span>
-      <h3>Keep Piruetas alive</h3>
-      <p>Piruetas is free and open source. If it's useful to you, a small donation keeps it alive.</p>
-      <a href='https://ko-fi.com/D1D11YK19T' target='_blank' rel='noopener noreferrer' style='display:inline-block;margin-top:0.5rem'><img height='36' style='border:0;height:36px;display:block;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=6' alt='Buy Me a Coffee at ko-fi.com' /></a>
+      <span class="option-tag accent">{{ t.landing_support_tag }}</span>
+      <h3>{{ t.landing_support_h }}</h3>
+      <p>{{ t.landing_support_p }}</p>
+      <a href='https://ko-fi.com/D1D11YK19T' target='_blank' rel='noopener noreferrer' class='kofi-widget'><img src='https://storage.ko-fi.com/cdn/kofi1.png?v=6' alt='Buy Me a Coffee at ko-fi.com' class='kofi-widget__img' /></a>
     </div>
   </section>
   {% endif %}

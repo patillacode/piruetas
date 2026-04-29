@@ -1,0 +1,5 @@
+.error-page { text-align: center; }
+.error-logo { width: 80px; margin-bottom: 1.5rem; border-radius: 8px; }
+.error-title { font-family: var(--font-reading); font-weight: 400; font-size: 1.5rem; margin-bottom: 0.5rem; }
+.error-message { color: var(--muted); margin-bottom: 1.5rem; }
+.error-btn { width: auto; padding: 0.5rem 1.25rem; }

@@ -1,0 +1,80 @@
+/* Account / security sections */
+.account-section {
+    max-width: 400px;
+    margin: 0 auto;
+}
+.account-section--spaced {
+    max-width: 400px;
+    margin: 0 auto 3rem;
+}
+.account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.account-h    { margin-bottom: 1.5rem; }
+.account-subh { font-size: 1rem; margin-bottom: 0.5rem; }
+.account-success { color: var(--accent); margin-bottom: 1rem; }
+.account-warn {
+    color: var(--warning, #f59e0b);
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+.account-meta { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; }
+.account-link { color: var(--accent); font-size: 0.875rem; }
+
+/* Recovery codes */
+.recovery-codes-wrap  { max-width: 440px; margin: 0 auto; }
+.recovery-codes-block { position: relative; margin: 1rem 0; }
+.recovery-codes-pre {
+    background: var(--bg-alt, var(--surface));
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-family: monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+    white-space: pre;
+    margin: 0;
+    user-select: all;
+}
+.recovery-copy-btn {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--accent);
+    background: none;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition);
+}
+.recovery-copy-btn:hover { background: var(--accent); color: white; }
+.recovery-warning {
+    background: color-mix(in srgb, var(--warning, #f59e0b) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--warning, #f59e0b) 40%, transparent);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+.recovery-count-warn { color: var(--warning, #f59e0b); font-weight: 600; }
+.recovery-download-link {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: var(--accent);
+    font-size: 0.875rem;
+}
+.recovery-confirm-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.recovery-confirm-row input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; }
+.recovery-confirm-row label { font-size: 0.875rem; cursor: pointer; }
+.recovery-continue-btn { display: inline-block; text-decoration: none; opacity: 0.4; }
+.recovery-divider { margin: 1.5rem 0; border: none; border-top: 1px solid var(--border); }
+.recovery-regen-hint { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }

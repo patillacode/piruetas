@@ -53,15 +53,6 @@ def reset_rate_limits():
     clear_attempts("127.0.0.1")
 
 
-@pytest.fixture()
-def cleanup_newuser(live_server):
-    yield
-    with Session(get_engine()) as session:
-        u = session.exec(select(User).where(User.username == "newuser_e2e")).first()
-        if u:
-            session.delete(u)
-            session.commit()
-
 
 @pytest.fixture(scope="session")
 def live_server(tmp_path_factory):

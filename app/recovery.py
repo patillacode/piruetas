@@ -4,6 +4,7 @@ import bcrypt
 from sqlmodel import Session, select
 
 from app.models import RecoveryCode
+from app.settings import get_settings
 
 _ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 
@@ -16,7 +17,7 @@ def generate_recovery_codes(n: int = 12) -> list[str]:
 
 
 def hash_code(code: str) -> str:
-    return bcrypt.hashpw(code.encode(), bcrypt.gensalt()).decode()
+    return bcrypt.hashpw(code.encode(), bcrypt.gensalt(rounds=get_settings().bcrypt_rounds)).decode()
 
 
 def verify_code(code: str, code_hash: str) -> bool:

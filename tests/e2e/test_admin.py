@@ -7,14 +7,6 @@ def test_admin_dashboard_loads(admin_page: Page, live_server: str, seed_admin):
     assert admin_page.locator("text=testadmin").count() >= 1
 
 
-def test_create_user(admin_page: Page, live_server: str, seed_admin, cleanup_newuser):
-    admin_page.goto(f"{live_server}/admin/users/new")
-    admin_page.fill('input[name="username"]', "newuser_e2e")
-    admin_page.fill('input[name="password"]', "newpassword123")
-    admin_page.click('button[type="submit"]')
-    admin_page.wait_for_url(f"{live_server}/admin/")
-    assert admin_page.locator("text=newuser_e2e").count() >= 1
-
 
 def test_delete_user(admin_page: Page, live_server: str, seed_admin, seed_user):
     user_id = seed_user.id

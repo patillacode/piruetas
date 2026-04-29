@@ -10,3 +10,5 @@
 .share-body strong { font-weight: 600; }
 .share-body img { max-width: 100%; border-radius: 4px; margin: 0.5em 0; }
 .share-footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--font-ui); font-size: 0.8125rem; color: var(--muted); }
+.share-footer-link { color: var(--accent); font-weight: 600; text-decoration: none; transition: color var(--transition); }
+.share-footer-link:hover { color: var(--accent-hover); }

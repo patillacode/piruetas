@@ -11,9 +11,11 @@ Piruetas gives each day its own page with a clean writing experience, multi-user
 A live demo is available at [piruet.app](https://piruet.app).
 Log in with **`demo`** / **`piruetas`**, content resets every 30 minutes.
 
-| Dark | Light |
-|------|-------|
-| ![Dark theme](screenshots/dark-theme.png) | ![Light theme](screenshots/light-theme.png) |
+| Editor | Mobile menu | Account |
+|--------|-------------|---------|
+| ![Journal editor](app/static/img/screenshots/feature-editor.png) | ![Mobile navigation](app/static/img/screenshots/feature-mobile-menu.png) | ![Account settings](app/static/img/screenshots/feature-account-security.png) |
+
+[More screenshots →](app/static/img/screenshots/)
 
 ## Features
 
@@ -42,9 +44,13 @@ services:
     volumes:
       - ./data:/data
     environment:
+      # generate with: openssl rand -hex 32
       SECRET_KEY: change-me-to-a-random-string
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: changeme
+      SECURE_COOKIES: "false"        # set to "true" if serving over HTTPS
+      REGISTRATION_OPEN: "false"     # set to "true" to allow self-registration
+      # TRUST_PROXY: "true"          # uncomment if behind a reverse proxy (nginx, Caddy, Traefik)
     restart: unless-stopped
 ```
 
@@ -55,8 +61,6 @@ docker compose up -d
 Open `http://localhost:8000` and log in with your admin credentials.
 
 To update: `docker compose pull && docker compose up -d`
-
-> Running behind a reverse proxy (nginx, Caddy, Traefik)? Set `TRUST_PROXY: "true"` in your environment so rate limiting uses the real client IP.
 
 ## Local development
 

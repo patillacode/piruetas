@@ -1,9 +1,7 @@
-import re
 import shutil
 from pathlib import Path
 
-import bcrypt
-from fastapi import APIRouter, Depends, Form, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
@@ -31,46 +29,6 @@ async def admin_users(
         ctx(request, users=users, user=current_admin, error=error, nav_section="admin")
     )
 
-
-@router.get("/users/new")
-async def create_user_form(
-    request: Request,
-    current_admin: User = Depends(require_admin),
-):
-    return templates.TemplateResponse(
-        request, "admin/create_user.html", ctx(request, error=None, username=None)
-    )
-
-
-@router.post("/users/new")
-async def create_user(
-    request: Request,
-    username: str = Form(...),
-    password: str = Form(...),
-    session: Session = Depends(get_session),
-    current_admin: User = Depends(require_admin),
-    _csrf=Depends(require_csrf),
-):
-    error = None
-    if not re.match(r"^[a-zA-Z0-9_]{3,32}$", username):
-        error = "Username must be 3-32 characters: letters, numbers, underscore only."
-    elif len(password) < 8:
-        error = "Password must be at least 8 characters."
-    else:
-        existing = session.exec(select(User).where(User.username == username)).first()
-        if existing:
-            error = "Username already taken."
-
-    if error:
-        return templates.TemplateResponse(
-            request, "admin/create_user.html", ctx(request, error=error, username=username)
-        )
-
-    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    user = User(username=username, hashed_password=hashed, is_admin=False)
-    session.add(user)
-    session.commit()
-    return RedirectResponse("/admin", status_code=303)
 
 
 @router.post("/users/{user_id}/delete")

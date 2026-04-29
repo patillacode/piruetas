@@ -45,8 +45,8 @@ def test_csrf_rejection_on_logout(client, admin_user):
 def test_csrf_rejection_on_admin_post(client, admin_user):
     login(client, "admin", "adminpass123")
     resp = client.post(
-        "/admin/users/new",
-        data={"username": "x", "password": "y", "csrf_token": "bad"},
+        "/admin/users/99999/delete",
+        data={"csrf_token": "bad"},
     )
     assert resp.status_code == 403
 
