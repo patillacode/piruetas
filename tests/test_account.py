@@ -446,6 +446,24 @@ def test_delete_preview_scope_day_no_entry(client, session, regular_user):
     assert resp.json()["count"] == 0
 
 
+def test_delete_preview_invalid_day_returns_400(client, regular_user):
+    login(client, "testuser", "userpass123")
+    resp = client.post(
+        "/account/delete/preview",
+        data={"scope": "day", "day": "not-a-date", "csrf_token": get_csrf(client)},
+    )
+    assert resp.status_code == 400
+
+
+def test_export_preview_invalid_day_returns_400(client, regular_user):
+    login(client, "testuser", "userpass123")
+    resp = client.post(
+        "/account/export/preview",
+        data={"scope": "day", "day": "not-a-date", "csrf_token": get_csrf(client)},
+    )
+    assert resp.status_code == 400
+
+
 # --- Delete confirm ---
 
 
@@ -492,6 +510,30 @@ def test_delete_confirm_deletes_associated_images(client, session, regular_user)
     assert resp.status_code == 200
     remaining_imgs = list(session.exec(select(Image).where(Image.user_id == regular_user.id)).all())
     assert remaining_imgs == []
+
+
+def test_delete_confirm_unlinks_image_files(client, session, regular_user):
+    login(client, "testuser", "userpass123")
+    entry = _make_entry(session, regular_user.id, date_type(2024, 1, 15))
+    settings = get_settings()
+    upload_dir = os.path.join(settings.data_dir, "uploads", str(regular_user.id))
+    os.makedirs(upload_dir, exist_ok=True)
+    img_filename = "delete_test.jpg"
+    img_path = os.path.join(upload_dir, img_filename)
+    with open(img_path, "wb") as f:
+        f.write(b"\xff\xd8\xff\xe0" + b"\x00" * 10)
+    img = Image(
+        entry_id=entry.id, user_id=regular_user.id, filename=img_filename, original_name="photo.jpg"
+    )
+    session.add(img)
+    session.commit()
+    assert os.path.exists(img_path)
+    resp = client.post(
+        "/account/delete/confirm",
+        data={"scope": "all", "csrf_token": get_csrf(client)},
+    )
+    assert resp.status_code == 200
+    assert not os.path.exists(img_path)
 
 
 def test_delete_confirm_no_entries_returns_zero(client, session, regular_user):

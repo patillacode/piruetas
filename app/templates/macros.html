@@ -1,0 +1,25 @@
+{% macro scope_form(prefix, btn_class, btn_label, csrf_token, months, current_year, first_year) %}
+<form id="{{ prefix }}-form" class="form-stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <select id="{{ prefix }}-scope" name="scope">
+        <option value="all">{{ t.scope_all }}</option>
+        <option value="year">{{ t.scope_year }}</option>
+        <option value="month">{{ t.scope_month }}</option>
+    </select>
+
+    <select id="{{ prefix }}-year" name="year" hidden>
+        {% for y in range(current_year, first_year - 1, -1) %}
+        <option value="{{ y }}">{{ y }}</option>
+        {% endfor %}
+    </select>
+
+    <select id="{{ prefix }}-month" name="month" hidden>
+        {% for i in range(12) %}
+        <option value="{{ i + 1 }}">{{ months[i] }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="btn {{ btn_class }} btn--full">{{ btn_label }}</button>
+</form>
+{% endmacro %}

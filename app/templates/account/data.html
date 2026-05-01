@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros.html" import scope_form with context %}
 
 {% block title %}Account — Piruetas{% endblock %}
 
@@ -13,30 +14,7 @@
         <div class="form-container">
         <h2 class="login__title section-title">{{ t.export_entries }}</h2>
         <p class="section-desc">{{ t.export_description }}</p>
-
-        <form id="export-form" class="form-stack">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-
-            <select id="export-scope" name="scope">
-                <option value="all">{{ t.scope_all }}</option>
-                <option value="year">{{ t.scope_year }}</option>
-                <option value="month">{{ t.scope_month }}</option>
-            </select>
-
-            <select id="export-year" name="year" hidden>
-                {% for y in range(current_year, first_year - 1, -1) %}
-                <option value="{{ y }}">{{ y }}</option>
-                {% endfor %}
-            </select>
-
-            <select id="export-month" name="month" hidden>
-                {% for i in range(12) %}
-                <option value="{{ i + 1 }}">{{ months[i] }}</option>
-                {% endfor %}
-            </select>
-
-            <button type="submit" class="btn btn-primary btn--full">{{ t.preview_export }}</button>
-        </form>
+        {{ scope_form("export", "btn-primary", t.preview_export, csrf_token, months, current_year, first_year) }}
         </div>
     </section>
 
@@ -52,40 +30,17 @@
         <div class="form-container">
         <h2 class="login__title section-title">{{ t.delete_entries }}</h2>
         <p class="section-desc">{{ t.delete_description }}</p>
-
-        <form id="delete-form" class="form-stack">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-
-            <select id="delete-scope" name="scope">
-                <option value="all">{{ t.scope_all }}</option>
-                <option value="year">{{ t.scope_year }}</option>
-                <option value="month">{{ t.scope_month }}</option>
-            </select>
-
-            <select id="delete-year" name="year" hidden>
-                {% for y in range(current_year, first_year - 1, -1) %}
-                <option value="{{ y }}">{{ y }}</option>
-                {% endfor %}
-            </select>
-
-            <select id="delete-month" name="month" hidden>
-                {% for i in range(12) %}
-                <option value="{{ i + 1 }}">{{ months[i] }}</option>
-                {% endfor %}
-            </select>
-
-            <button type="submit" class="btn btn-danger btn--full">{{ t.preview_delete }}</button>
-        </form>
+        {{ scope_form("delete", "btn-danger", t.preview_delete, csrf_token, months, current_year, first_year) }}
         <p id="delete-success" class="form-success" hidden></p>
         </div>
     </section>
 
-    <div id="delete-modal" class="modal-overlay" hidden>
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
-            <h2 class="modal__title" id="delete-modal-title">{{ t.delete_entries }}</h2>
-            <p class="modal__body" id="delete-modal-body"></p>
-            <p class="modal__warning" id="delete-modal-warning"></p>
-            <div class="modal__actions" id="delete-modal-actions"></div>
+    <div id="bulk-delete-modal" class="modal-overlay" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bulk-delete-modal-title">
+            <h2 class="modal__title" id="bulk-delete-modal-title">{{ t.delete_entries }}</h2>
+            <p class="modal__body" id="bulk-delete-modal-body"></p>
+            <p class="modal__warning" id="bulk-delete-modal-warning"></p>
+            <div class="modal__actions" id="bulk-delete-modal-actions"></div>
         </div>
     </div>
 </div>

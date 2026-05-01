@@ -1,0 +1,16 @@
+.git
+.venv
+.ruff_cache
+.coverage
+.pytest_cache
+__pycache__
+*.pyc
+data/
+tests/
+todo/
+.env
+.env.*
+*.md
+justfile
+compose.yml
+pyrightconfig.json

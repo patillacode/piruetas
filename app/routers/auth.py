@@ -4,10 +4,9 @@ from urllib.parse import urlparse
 
 import bcrypt
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from sqlmodel import Session, select
 
-from app.auth import SESSION_COOKIE, SESSION_MAX_AGE, make_session_token
 from app.csrf import (
     LOGIN_CSRF_COOKIE,
     LOGIN_CSRF_MAX_AGE,
@@ -20,11 +19,23 @@ from app.dependencies import get_current_user_optional
 from app.models import User
 from app.rate_limit import clear_attempts, is_rate_limited, record_failed_attempt
 from app.recovery import consume_code, create_codes_for_user
-from app.recovery_flash import RECOVERY_FLASH_COOKIE, pop_recovery_flash, set_recovery_flash
+from app.recovery_flash import set_recovery_flash
+from app.session_token import SESSION_COOKIE, SESSION_MAX_AGE, make_session_token
 from app.settings import get_settings
 from app.templates_config import ctx, templates
 
 router = APIRouter()
+
+
+def _set_login_csrf_cookie(response: Response, token: str, settings) -> None:
+    response.set_cookie(
+        LOGIN_CSRF_COOKIE,
+        token,
+        httponly=True,
+        samesite="strict",
+        secure=settings.secure_cookies,
+        max_age=LOGIN_CSRF_MAX_AGE,
+    )
 
 
 def _get_client_ip(request: Request, trust_proxy: bool) -> str:
@@ -47,14 +58,7 @@ async def login_page(request: Request, user=Depends(get_current_user_optional)):
     response = templates.TemplateResponse(
         request, "login.html", ctx(request, error=None, login_csrf_token=login_csrf_token)
     )
-    response.set_cookie(
-        LOGIN_CSRF_COOKIE,
-        login_csrf_token,
-        httponly=True,
-        samesite="strict",
-        secure=settings.secure_cookies,
-        max_age=LOGIN_CSRF_MAX_AGE,
-    )
+    _set_login_csrf_cookie(response, login_csrf_token, settings)
     return response
 
 
@@ -84,14 +88,7 @@ async def login(
             ),
             status_code=429,
         )
-        resp.set_cookie(
-            LOGIN_CSRF_COOKIE,
-            new_csrf,
-            httponly=True,
-            samesite="strict",
-            secure=settings.secure_cookies,
-            max_age=LOGIN_CSRF_MAX_AGE,
-        )
+        _set_login_csrf_cookie(resp, new_csrf, settings)
         return resp
     user = session.exec(select(User).where(User.username == username)).first()
     if user and bcrypt.checkpw(password.encode(), user.hashed_password.encode()):
@@ -120,14 +117,7 @@ async def login(
         ctx(request, error="Invalid username or password", login_csrf_token=new_csrf),
         status_code=401,
     )
-    resp.set_cookie(
-        LOGIN_CSRF_COOKIE,
-        new_csrf,
-        httponly=True,
-        samesite="strict",
-        secure=settings.secure_cookies,
-        max_age=LOGIN_CSRF_MAX_AGE,
-    )
+    _set_login_csrf_cookie(resp, new_csrf, settings)
     return resp
 
 
@@ -137,7 +127,9 @@ async def set_locale(lang: str, request: Request):
     safe_path = urlparse(referer).path or "/"
     response = RedirectResponse(url=safe_path, status_code=302)
     if lang in ("en", "es"):
-        response.set_cookie("piruetas_locale", lang, max_age=365 * 24 * 3600, samesite="lax")
+        response.set_cookie(
+            "piruetas_locale", lang, max_age=365 * 24 * 3600, samesite="lax", httponly=True
+        )
     return response
 
 
@@ -153,13 +145,11 @@ async def signup_page(request: Request, user=Depends(get_current_user_optional))
         return templates.TemplateResponse(request, "signup_closed.html", ctx(request))
     token = generate_login_csrf_token()
     response = templates.TemplateResponse(
-        request, "auth/signup.html",
+        request,
+        "auth/signup.html",
         ctx(request, error=None, username=None, login_csrf_token=token),
     )
-    response.set_cookie(
-        LOGIN_CSRF_COOKIE, token, httponly=True, samesite="strict",
-        secure=settings.secure_cookies, max_age=LOGIN_CSRF_MAX_AGE,
-    )
+    _set_login_csrf_cookie(response, token, settings)
     return response
 
 
@@ -185,18 +175,19 @@ async def signup(
         resp = templates.TemplateResponse(
             request,
             "auth/signup.html",
-            ctx(request, error="Too many requests. Please try again later.", username=username, login_csrf_token=new_csrf),
+            ctx(
+                request,
+                error="Too many requests. Please try again later.",
+                username=username,
+                login_csrf_token=new_csrf,
+            ),  # noqa: E501
             status_code=429,
         )
-        resp.set_cookie(
-            LOGIN_CSRF_COOKIE, new_csrf, httponly=True, samesite="strict",
-            secure=settings.secure_cookies, max_age=LOGIN_CSRF_MAX_AGE,
-        )
+        _set_login_csrf_cookie(resp, new_csrf, settings)
         return resp
 
-    record_failed_attempt(ip)
-
     def render_error(error: str):
+        record_failed_attempt(ip)
         new_csrf = generate_login_csrf_token()
         resp = templates.TemplateResponse(
             request,
@@ -204,10 +195,7 @@ async def signup(
             ctx(request, error=error, username=username, login_csrf_token=new_csrf),
             status_code=400,
         )
-        resp.set_cookie(
-            LOGIN_CSRF_COOKIE, new_csrf, httponly=True, samesite="strict",
-            secure=settings.secure_cookies, max_age=LOGIN_CSRF_MAX_AGE,
-        )
+        _set_login_csrf_cookie(resp, new_csrf, settings)
         return resp
 
     if not re.match(r"^[a-zA-Z0-9_]{3,32}$", username):
@@ -233,8 +221,12 @@ async def signup(
     token = make_session_token(user.id, user.is_admin, user.session_version, settings.secret_key)
     response = RedirectResponse(url="/account/recovery-codes", status_code=302)
     response.set_cookie(
-        SESSION_COOKIE, token, httponly=True, samesite="lax",
-        secure=settings.secure_cookies, max_age=SESSION_MAX_AGE,
+        SESSION_COOKIE,
+        token,
+        httponly=True,
+        samesite="lax",
+        secure=settings.secure_cookies,
+        max_age=SESSION_MAX_AGE,
     )
     response.delete_cookie(LOGIN_CSRF_COOKIE)
     set_recovery_flash(response, plaintext_codes, settings.secret_key, settings.secure_cookies)
@@ -250,14 +242,7 @@ async def forgot_password_page(request: Request):
         "auth/forgot_password.html",
         ctx(request, error=None, login_csrf_token=login_csrf_token),
     )
-    response.set_cookie(
-        LOGIN_CSRF_COOKIE,
-        login_csrf_token,
-        httponly=True,
-        samesite="strict",
-        secure=settings.secure_cookies,
-        max_age=LOGIN_CSRF_MAX_AGE,
-    )
+    _set_login_csrf_cookie(response, login_csrf_token, settings)
     return response
 
 
@@ -288,14 +273,7 @@ async def forgot_password(
             ),
             status_code=429,
         )
-        resp.set_cookie(
-            LOGIN_CSRF_COOKIE,
-            new_csrf,
-            httponly=True,
-            samesite="strict",
-            secure=settings.secure_cookies,
-            max_age=LOGIN_CSRF_MAX_AGE,
-        )
+        _set_login_csrf_cookie(resp, new_csrf, settings)
         return resp
 
     _INVALID_MSG = "Invalid username or recovery code."
@@ -308,14 +286,7 @@ async def forgot_password(
             ctx(request, error=error, login_csrf_token=new_csrf),
             status_code=400,
         )
-        resp.set_cookie(
-            LOGIN_CSRF_COOKIE,
-            new_csrf,
-            httponly=True,
-            samesite="strict",
-            secure=settings.secure_cookies,
-            max_age=LOGIN_CSRF_MAX_AGE,
-        )
+        _set_login_csrf_cookie(resp, new_csrf, settings)
         return resp
 
     user = session.exec(select(User).where(User.username == username)).first()

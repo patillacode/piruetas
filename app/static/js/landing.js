@@ -27,22 +27,9 @@
   })();
 
   // ── Theme toggle ───────────────────────────────────────────────────────────
-  function applyTheme(t) {
-    if (t === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
+  window.PiruetasTheme.init(function (theme) {
     var lbl = document.getElementById('theme-label');
-    if (lbl) lbl.textContent = t === 'dark' ? themeDark : themeLight;
-  }
-
-  applyTheme(localStorage.getItem('theme') || 'light');
-
-  document.getElementById('theme-toggle').addEventListener('click', function () {
-    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('theme', next);
-    applyTheme(next);
+    if (lbl) lbl.textContent = theme === 'dark' ? themeDark : themeLight;
   });
 
   // ── Copy buttons ───────────────────────────────────────────────────────────

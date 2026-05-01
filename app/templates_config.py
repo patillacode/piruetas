@@ -4,9 +4,9 @@ from pathlib import Path
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 
-from app.auth import SESSION_COOKIE
 from app.csrf import generate_csrf_token
-from app.i18n import get_locale, get_month_names, get_t, get_weekday_names
+from app.i18n import get_locale, get_month_names, get_short_weekday_names, get_t, get_weekday_names
+from app.session_token import SESSION_COOKIE
 from app.settings import get_settings
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
@@ -25,6 +25,7 @@ def ctx(request: Request, **kwargs) -> dict:
         "week_start": week_start,
         "months": get_month_names(locale),
         "weekdays": get_weekday_names(locale),
+        "short_weekdays": get_short_weekday_names(locale),
         "csrf_token": csrf_token,
         "csp_nonce": csp_nonce,
         "show_donation_prompts": settings.show_donation_prompts,

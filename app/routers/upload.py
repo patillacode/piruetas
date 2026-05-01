@@ -90,6 +90,8 @@ async def serve_upload(
         entry = session.exec(stmt).first()
         if not entry:
             raise HTTPException(status_code=403, detail="Forbidden")
+    elif current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
 
     file_path = Path(settings.data_dir) / "uploads" / str(user_id) / filename
     if not file_path.exists() or not file_path.is_file():
@@ -97,5 +99,5 @@ async def serve_upload(
     try:
         file_path.resolve().relative_to((Path(settings.data_dir) / "uploads").resolve())
     except ValueError:
-        raise HTTPException(status_code=403, detail="Forbidden")
+        raise HTTPException(status_code=403, detail="Forbidden") from None
     return FileResponse(file_path)

@@ -41,7 +41,16 @@ line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = [
+    "E", "F", "I",
+    "B",
+    "UP",
+    "S301", "S302", "S303", "S324",
+    "S501", "S502", "S503", "S504",
+    "S506",
+    "S603", "S604", "S605", "S607",
+]
+extend-ignore = ["B008"]
 
 [tool.ruff.lint.per-file-ignores]
 "app/models.py" = ["E501"]
@@ -57,3 +66,4 @@ source = ["app"]
 
 [tool.coverage.report]
 show_missing = true
+fail_under = 99

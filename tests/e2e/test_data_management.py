@@ -5,8 +5,6 @@ from sqlmodel import Session
 from app.database import get_engine
 from app.models import Entry
 
-TEST_SECRET_KEY = "test-secret-key-for-playwright-e2e"
-
 
 def _seed_entry(
     user_id: int,
@@ -122,17 +120,17 @@ def test_delete_preview_and_cancel(authenticated_page, live_server, seed_user):
 
         page.select_option("#delete-scope", "all")
         page.click('#delete-form button[type="submit"]')
-        page.wait_for_function("() => !document.getElementById('delete-modal').hidden")
+        page.wait_for_function("() => !document.getElementById('bulk-delete-modal').hidden")
 
-        modal_body = page.locator("#delete-modal-body")
+        modal_body = page.locator("#bulk-delete-modal-body")
         assert modal_body.is_visible()
         assert "1" in modal_body.inner_text()
 
-        warning = page.locator("#delete-modal-warning")
+        warning = page.locator("#bulk-delete-modal-warning")
         assert warning.is_visible()
 
-        page.locator("#delete-modal-cancel").click()
-        page.wait_for_function("() => document.getElementById('delete-modal').hidden === true")
+        page.locator("#bulk-delete-modal-cancel").click()
+        page.wait_for_function("() => document.getElementById('bulk-delete-modal').hidden === true")
 
         with Session(get_engine()) as session:
             still_there = session.get(Entry, entry.id)
@@ -151,11 +149,11 @@ def test_delete_confirm(authenticated_page, live_server, seed_user):
 
         page.select_option("#delete-scope", "all")
         page.click('#delete-form button[type="submit"]')
-        page.wait_for_function("() => !document.getElementById('delete-modal').hidden")
+        page.wait_for_function("() => !document.getElementById('bulk-delete-modal').hidden")
 
-        confirm_btn = page.locator("#delete-modal-actions .btn-danger")
+        confirm_btn = page.locator("#bulk-delete-modal-actions .btn-danger")
         confirm_btn.click()
-        page.wait_for_function("() => document.getElementById('delete-modal').hidden === true")
+        page.wait_for_function("() => document.getElementById('bulk-delete-modal').hidden === true")
 
         success_el = page.locator("#delete-success")
         assert not success_el.is_hidden()

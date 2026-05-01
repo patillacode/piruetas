@@ -30,7 +30,9 @@ def test_logout(authenticated_page: Page, live_server):
     authenticated_page.goto(f"{live_server}/account")
     if (authenticated_page.viewport_size or {}).get("width", 1280) < 768:
         authenticated_page.click("#mobile-menu-btn")
-        authenticated_page.wait_for_function("() => !document.getElementById('mobile-sheet').hidden")
+        authenticated_page.wait_for_function(
+            "() => !document.getElementById('mobile-sheet').hidden"
+        )  # noqa: E501
         authenticated_page.locator(".form--contents button[type='submit']").click()
     else:
         authenticated_page.click('form.signout-form button[type="submit"]')
@@ -40,7 +42,7 @@ def test_logout(authenticated_page: Page, live_server):
 def test_locale_switch_to_spanish(page: Page, live_server):
     page.goto(live_server)
     expect(page.locator('a.hero-cta-secondary[href="/login"]')).to_contain_text("Log in")
-    page.select_option('#lang-select', 'es')
+    page.select_option("#lang-select", "es")
     page.wait_for_load_state("load")
     expect(page.locator('a.hero-cta-secondary[href="/login"]')).to_contain_text("Iniciar sesión")
     # Reset locale for test isolation

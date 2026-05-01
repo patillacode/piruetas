@@ -7,7 +7,6 @@ def test_admin_dashboard_loads(admin_page: Page, live_server: str, seed_admin):
     assert admin_page.locator("text=testadmin").count() >= 1
 
 
-
 def test_delete_user(admin_page: Page, live_server: str, seed_admin, seed_user):
     user_id = seed_user.id
     admin_page.goto(f"{live_server}/admin/")

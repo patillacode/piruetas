@@ -4,7 +4,7 @@ import secrets
 
 from fastapi import Form, HTTPException, Request
 
-from app.auth import SESSION_COOKIE
+from app.session_token import SESSION_COOKIE
 from app.settings import get_settings
 
 LOGIN_CSRF_COOKIE = "piruetas_login_csrf"

@@ -1,7 +1,7 @@
 import datetime
 from unittest.mock import patch
 
-from app.auth import make_session_token
+from app.session_token import make_session_token
 from app.settings import get_settings
 from tests.conftest import get_csrf, login
 

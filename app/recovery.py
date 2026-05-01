@@ -17,7 +17,9 @@ def generate_recovery_codes(n: int = 12) -> list[str]:
 
 
 def hash_code(code: str) -> str:
-    return bcrypt.hashpw(code.encode(), bcrypt.gensalt(rounds=get_settings().bcrypt_rounds)).decode()
+    return bcrypt.hashpw(
+        code.encode(), bcrypt.gensalt(rounds=get_settings().bcrypt_rounds)
+    ).decode()  # noqa: E501
 
 
 def verify_code(code: str, code_hash: str) -> bool:
@@ -48,6 +50,7 @@ def consume_code(user_id: int, code: str, session: Session) -> bool:
     for row in rows:
         if verify_code(code, row.code_hash):
             matched_row = row
+            break
     if matched_row is not None:
         matched_row.used = True
         session.add(matched_row)

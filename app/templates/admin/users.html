@@ -11,8 +11,8 @@
 <div class="page-wrap">
     {% if error %}<p class="form__error form__error--mb">{{ error }}</p>{% endif %}
     <nav class="page-tabs">
-        <a href="/admin" class="active">{{ t.users }}</a>
-        <a href="/admin/tasks">Tasks</a>
+        <a href="/admin" class="active">{{ t.admin_users_nav }}</a>
+        <a href="/admin/tasks">{{ t.admin_tasks_nav }}</a>
     </nav>
     <div class="page-actions">
         <span class="page-actions__title">{{ t.users }}</span>

@@ -5,12 +5,9 @@ import httpx
 from playwright.sync_api import expect
 from sqlmodel import Session
 
-from app.auth import SESSION_COOKIE, make_session_token
 from app.database import get_engine
 from app.models import Entry
-
-TEST_SECRET_KEY = "test-secret-key-for-playwright-e2e"
-
+from tests.e2e.conftest import _get_auth_cookies
 
 MINIMAL_PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
@@ -61,7 +58,6 @@ def test_create_entry(authenticated_page, live_server):
         "() => !document.getElementById('save-toast')?.classList.contains('show')",
         timeout=10000,
     )
-    authenticated_page.wait_for_load_state("networkidle")
 
     resp = authenticated_page.request.get(f"{live_server}/journal/2021/03/10")
     assert resp.status == 200
@@ -87,7 +83,6 @@ def test_edit_entry(authenticated_page, live_server, seed_user):
         "() => !document.getElementById('save-toast')?.classList.contains('show')",
         timeout=10000,
     )
-    authenticated_page.wait_for_load_state("networkidle")
 
     resp = authenticated_page.request.get(f"{live_server}/journal/2020/01/15")
     assert "Updated" in resp.text()
@@ -152,17 +147,9 @@ def test_share_token_image_access(page, live_server, seed_user):
     content = f'<p>Shared entry</p><img src="{image_url}">'
     _seed_entry(seed_user.id, content)
 
-    assert seed_user.id is not None
-    token = make_session_token(
-        user_id=seed_user.id,
-        is_admin=seed_user.is_admin,
-        session_version=seed_user.session_version,
-        secret_key=TEST_SECRET_KEY,
-    )
-
     resp_share = httpx.post(
         f"{live_server}/journal/2020/01/15/share",
-        cookies={SESSION_COOKIE: token},
+        cookies=_get_auth_cookies(seed_user),
     )
     assert resp_share.status_code == 200
     share_token = resp_share.json()["url"].split("/share/")[1]
@@ -191,7 +178,9 @@ def test_share_button_labels(authenticated_page, live_server, seed_user):
     def click_share():
         if is_mobile:
             authenticated_page.click("#mobile-menu-btn")
-            authenticated_page.wait_for_function("() => !document.getElementById('mobile-sheet').hidden")
+            authenticated_page.wait_for_function(
+                "() => !document.getElementById('mobile-sheet').hidden"
+            )  # noqa: E501
             authenticated_page.click("#sheet-share-btn")
         else:
             authenticated_page.locator("#share-btn").click()
@@ -264,14 +253,3 @@ def test_journal_mobile_viewport(authenticated_page, live_server, seed_user):
     authenticated_page.goto(f"{live_server}/journal/2020/01/15")
     authenticated_page.wait_for_load_state("networkidle")
     expect(authenticated_page.locator(".tiptap, [contenteditable]")).to_be_visible()
-
-
-def _get_auth_cookies(user) -> dict:
-    assert user.id is not None
-    token = make_session_token(
-        user_id=user.id,
-        is_admin=user.is_admin,
-        session_version=user.session_version,
-        secret_key=TEST_SECRET_KEY,
-    )
-    return {SESSION_COOKIE: token}

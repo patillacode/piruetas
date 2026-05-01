@@ -23,6 +23,14 @@ def compute_word_count(html_content: str) -> int:
     return len(text.split())
 
 
+def _get_entry(session: Session, user_id: int, date: datetime.date) -> Entry | None:
+    return (
+        session.execute(select(Entry).where(Entry.user_id == user_id, Entry.date == date))
+        .scalars()
+        .first()
+    )
+
+
 def _link_images_to_entry(session: Session, content: str, user_id: int, entry_id: int) -> None:
     filenames = re.findall(r"/uploads/\d+/([a-f0-9]+\.\w+)", content)
     for filename in filenames:
@@ -49,10 +57,9 @@ async def journal_day(
     try:
         date = datetime.date(year, month, day)
     except ValueError:
-        raise HTTPException(status_code=404, detail="Invalid date")
+        raise HTTPException(status_code=404, detail="Invalid date") from None
 
-    stmt = select(Entry).where(Entry.user_id == user.id, Entry.date == date)
-    entry = session.execute(stmt).scalars().first()
+    entry = _get_entry(session, user.id, date)
 
     return templates.TemplateResponse(
         request, "journal.html", ctx(request, entry=entry, date=date, user=user)
@@ -71,10 +78,9 @@ async def journal_save(
     try:
         date = datetime.date(year, month, day)
     except ValueError:
-        raise HTTPException(status_code=404, detail="Invalid date")
+        raise HTTPException(status_code=404, detail="Invalid date") from None
 
-    stmt = select(Entry).where(Entry.user_id == user.id, Entry.date == date)
-    entry = session.execute(stmt).scalars().first()
+    entry = _get_entry(session, user.id, date)
 
     now = datetime.datetime.now(datetime.UTC)
 
@@ -115,10 +121,9 @@ async def journal_delete(
     try:
         date = datetime.date(year, month, day)
     except ValueError:
-        raise HTTPException(status_code=404, detail="Invalid date")
+        raise HTTPException(status_code=404, detail="Invalid date") from None
 
-    stmt = select(Entry).where(Entry.user_id == user.id, Entry.date == date)
-    entry = session.execute(stmt).scalars().first()
+    entry = _get_entry(session, user.id, date)
 
     if entry:
         settings = get_settings()
@@ -158,7 +163,7 @@ async def journal_stats(
     all_entries = session.execute(select(Entry).where(Entry.user_id == user.id)).scalars().all()
     entry_dates = {e.date for e in all_entries}
     streak = 0
-    current = today
+    current = today if today in entry_dates else today - datetime.timedelta(days=1)
     while current in entry_dates:
         streak += 1
         current -= datetime.timedelta(days=1)
@@ -182,7 +187,7 @@ async def calendar_month(
     try:
         datetime.date(year, month, 1)
     except ValueError:
-        raise HTTPException(status_code=404, detail="Invalid year/month")
+        raise HTTPException(status_code=404, detail="Invalid year/month") from None
 
     next_month_start = (
         datetime.date(year, month + 1, 1) if month < 12 else datetime.date(year + 1, 1, 1)
@@ -213,10 +218,9 @@ async def journal_share(
     try:
         date = datetime.date(year, month, day)
     except ValueError:
-        raise HTTPException(status_code=404, detail="Invalid date")
+        raise HTTPException(status_code=404, detail="Invalid date") from None
 
-    stmt = select(Entry).where(Entry.user_id == user.id, Entry.date == date)
-    entry = session.execute(stmt).scalars().first()
+    entry = _get_entry(session, user.id, date)
     if not entry:
         raise HTTPException(status_code=404, detail="No entry for this date")
 
@@ -240,10 +244,9 @@ async def journal_revoke_share(
     try:
         date = datetime.date(year, month, day)
     except ValueError:
-        raise HTTPException(status_code=404, detail="Invalid date")
+        raise HTTPException(status_code=404, detail="Invalid date") from None
 
-    stmt = select(Entry).where(Entry.user_id == user.id, Entry.date == date)
-    entry = session.execute(stmt).scalars().first()
+    entry = _get_entry(session, user.id, date)
     if not entry or not entry.share_token:
         return JSONResponse({"revoked": False})
 
@@ -266,6 +269,8 @@ async def public_share(
 
     author = session.get(User, entry.user_id)
 
+    # Broadly rewrites all /uploads/ srcs — ownership is enforced by serve_upload,
+    # which validates the share_token against the entry that owns the image.
     shared_content = re.sub(
         r'(src="/uploads/[^"?]+)"',
         rf'\1?share_token={token}"',

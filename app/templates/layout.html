@@ -19,7 +19,7 @@
         </button>
         <form method="post" action="/logout" class="signout-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <button class="btn-ghost" type="submit" aria-label="{{ t.sign_out if t is defined else 'Sign out' }}" title="{{ t.sign_out if t is defined else 'Sign out' }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+            <button class="btn-ghost" type="submit" aria-label="{{ t.sign_out }}" title="{{ t.sign_out }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
         </form>
         <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -31,7 +31,7 @@
 {% block page_content %}{% endblock %}
 
 <div id="mobile-sheet-overlay" hidden></div>
-<div id="mobile-sheet" hidden>
+<div id="mobile-sheet" role="dialog" aria-modal="true" hidden>
     <div class="sheet-handle"></div>
     {% block mobile_sheet_items %}{% endblock %}
     <button class="sheet-item" id="sheet-theme-toggle" type="button">
@@ -45,7 +45,7 @@
     <div class="sheet-sep"></div>
     <a href="/account" class="sheet-item">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        {{ t.account if t is defined else 'Account' }}
+        {{ t.account }}
     </a>
     {% if user is defined and user and user.is_admin %}
     <a href="/admin" class="sheet-item">
@@ -58,7 +58,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <button class="sheet-item" type="submit">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            {{ t.sign_out if t is defined else 'Sign out' }}
+            {{ t.sign_out }}
         </button>
     </form>
 </div>
@@ -73,6 +73,7 @@
 </footer>
 
 {% block scripts %}
+<script src="/static/js/theme.js"></script>
 <script src="/static/js/ui.js"></script>
 {% block page_scripts %}{% endblock %}
 {% endblock %}

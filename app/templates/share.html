@@ -15,6 +15,6 @@
         <p class="share-date">{{ entry.date.strftime('%A, %B') }} {{ entry.date.day }}, {{ entry.date.year }}</p>
         <div class="share-body">{{ shared_content | safe }}</div>
     </article>
-    <div class="share-footer">{{ t.written_with_prefix if t is defined else 'Written with' }} <a href="https://piruet.app" class="share-footer-link" target="_blank" rel="noopener noreferrer">Piruetas</a></div>
+    <div class="share-footer">{{ t.written_with_prefix }} <a href="https://piruet.app" class="share-footer-link" target="_blank" rel="noopener noreferrer">Piruetas</a></div>
 </div>
 {% endblock %}

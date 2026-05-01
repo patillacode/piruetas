@@ -14,18 +14,18 @@
     <form method="post" action="/signup">
         <input type="hidden" name="login_csrf_token" value="{{ login_csrf_token }}">
         <div class="field">
-            <label for="username">Username</label>
+            <label for="username">{{ t.username }}</label>
             <input type="text" id="username" name="username" required autofocus autocomplete="username">
         </div>
         <div class="field">
-            <label for="password">Password</label>
+            <label for="password">{{ t.password }}</label>
             <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
         </div>
         <div class="field">
-            <label for="confirm_password">Confirm password</label>
+            <label for="confirm_password">{{ t.signup_confirm_password }}</label>
             <input type="password" id="confirm_password" name="confirm_password" required minlength="8" autocomplete="new-password">
         </div>
-        <button type="submit" class="btn btn-primary" id="signup-btn">Create account</button>
+        <button type="submit" class="btn btn-primary" id="signup-btn">{{ t.create_account }}</button>
     </form>
     <p class="login__consent">{{ t.signup_terms_consent }} <a href="/terms">{{ t.terms_of_use }}</a> {{ t.and_ }} <a href="/privacy">{{ t.privacy_policy }}</a>.</p>
     <p class="login__consent">{{ t.signup_already_have_account }} <a href="/login">{{ t.sign_in }}</a></p>

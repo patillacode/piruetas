@@ -2,9 +2,9 @@ from fastapi import Depends, HTTPException, Request
 from sqlmodel import Session
 from starlette.status import HTTP_302_FOUND
 
-from app.auth import SESSION_COOKIE, parse_session_token
 from app.database import get_session
 from app.models import User
+from app.session_token import SESSION_COOKIE, parse_session_token
 from app.settings import get_settings
 
 

@@ -5,8 +5,8 @@
 {% block page_content %}
 <div class="page-wrap">
     <nav class="page-tabs">
-        <a href="/admin">Users</a>
-        <a href="/admin/tasks" class="active">Tasks</a>
+        <a href="/admin">{{ t.admin_users_nav }}</a>
+        <a href="/admin/tasks" class="active">{{ t.admin_tasks_nav }}</a>
     </nav>
 
     {% for key, task in tasks.items() %}
@@ -15,13 +15,13 @@
             <div class="task-name">{{ task.name }}</div>
             <div class="task-desc">{{ task.description }}</div>
             <div class="task-meta">
-                <span>Last run: {% if task.last_run %}{{ task.last_run.strftime('%b %d, %Y %H:%M UTC') }}{% else %}Never{% endif %}</span>
-                {% if task.last_result %}<span>Result: {{ task.last_result }}</span>{% endif %}
+                <span>{{ t.task_last_run }}: {% if task.last_run %}{{ task.last_run.strftime('%b %d, %Y %H:%M UTC') }}{% else %}{{ t.task_never }}{% endif %}</span>
+                {% if task.last_result %}<span>{{ t.task_result }}: {{ task.last_result }}</span>{% endif %}
             </div>
         </div>
         <form method="post" action="/admin/tasks/{{ key | replace('_', '-') }}/run">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <button type="submit" class="btn btn-accent">Run now</button>
+            <button type="submit" class="btn btn-accent">{{ t.task_run_now }}</button>
         </form>
     </div>
     {% endfor %}

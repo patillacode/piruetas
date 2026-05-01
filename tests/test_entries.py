@@ -1,6 +1,7 @@
 import datetime
 import io
 
+from app.models import Entry
 from tests.conftest import get_csrf, login
 
 
@@ -128,6 +129,46 @@ def test_journal_stats(client, admin_user):
     assert data["streak"] >= 1
     assert "month_entries" in data
     assert "month_words" in data
+
+
+def test_streak_no_entry_today_carries_from_yesterday(client, session, regular_user):
+    login(client, "testuser", "userpass123")
+    today = datetime.date.today()
+    for delta in range(1, 4):
+        d = today - datetime.timedelta(days=delta)
+        session.add(Entry(user_id=regular_user.id, date=d, content="<p>x</p>", word_count=1))
+    session.commit()
+    resp = client.get("/journal/stats")
+    assert resp.status_code == 200
+    assert resp.json()["streak"] == 3
+
+
+def test_streak_today_only_is_one(client, session, regular_user):
+    login(client, "testuser", "userpass123")
+    today = datetime.date.today()
+    session.add(Entry(user_id=regular_user.id, date=today, content="<p>x</p>", word_count=1))
+    session.commit()
+    resp = client.get("/journal/stats")
+    assert resp.json()["streak"] == 1
+
+
+def test_streak_today_and_yesterday_is_two(client, session, regular_user):
+    login(client, "testuser", "userpass123")
+    today = datetime.date.today()
+    for d in [today, today - datetime.timedelta(days=1)]:
+        session.add(Entry(user_id=regular_user.id, date=d, content="<p>x</p>", word_count=1))
+    session.commit()
+    resp = client.get("/journal/stats")
+    assert resp.json()["streak"] == 2
+
+
+def test_streak_no_recent_entries_is_zero(client, session, regular_user):
+    login(client, "testuser", "userpass123")
+    two_days_ago = datetime.date.today() - datetime.timedelta(days=2)
+    session.add(Entry(user_id=regular_user.id, date=two_days_ago, content="<p>x</p>", word_count=1))
+    session.commit()
+    resp = client.get("/journal/stats")
+    assert resp.json()["streak"] == 0
 
 
 def test_calendar_invalid_date_returns_404(client, admin_user):

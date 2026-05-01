@@ -1,3 +1,4 @@
+import logging
 import shutil
 from pathlib import Path
 
@@ -13,6 +14,8 @@ from app.settings import get_settings
 from app.tasks import get_tasks, run_cleanup_images, run_vacuum_db
 from app.templates_config import ctx, templates
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/admin")
 
 
@@ -25,10 +28,10 @@ async def admin_users(
     users = session.exec(select(User).order_by(User.created_at)).all()
     error = request.query_params.get("error")
     return templates.TemplateResponse(
-        request, "admin/users.html",
-        ctx(request, users=users, user=current_admin, error=error, nav_section="admin")
+        request,
+        "admin/users.html",
+        ctx(request, users=users, user=current_admin, error=error, nav_section="admin"),
     )
-
 
 
 @router.post("/users/{user_id}/delete")
@@ -51,7 +54,7 @@ async def delete_user(
         if uploads_dir.exists():
             shutil.rmtree(uploads_dir)
     except Exception:
-        pass
+        logger.exception("Failed to delete uploads directory for user %d", user.id)
 
     images = session.exec(select(Image).where(Image.user_id == user_id)).all()
     for image in images:
@@ -72,8 +75,9 @@ async def admin_tasks(
     current_admin: User = Depends(require_admin),
 ):
     return templates.TemplateResponse(
-        request, "admin/tasks.html",
-        ctx(request, user=current_admin, tasks=get_tasks(), nav_section="admin")
+        request,
+        "admin/tasks.html",
+        ctx(request, user=current_admin, tasks=get_tasks(), nav_section="admin"),
     )
 
 
@@ -96,5 +100,3 @@ async def run_task_vacuum_db(
 ):
     run_vacuum_db()
     return RedirectResponse("/admin/tasks", status_code=303)
-
-

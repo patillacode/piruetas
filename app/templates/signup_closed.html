@@ -9,7 +9,7 @@
         <img src="/static/img/logo-alpha-square.png" alt="Piruetas" class="card-brand__img">
         <span class="card-brand__name">Piruetas</span>
     </a>
-    <p class="signup-closed__message">{{ t.signup_closed_message if t is defined else 'Registration is not open yet.' }}</p>
-    <a href="/login" class="login__back">{{ t.signup_closed_back if t is defined else 'Back to login' }}</a>
+    <p class="signup-closed__message">{{ t.signup_closed_message }}</p>
+    <a href="/login" class="login__back">{{ t.signup_closed_back }}</a>
 </div>
 {% endblock %}

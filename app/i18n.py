@@ -37,6 +37,12 @@ WEEKDAY_NAMES: dict[str, list[str]] = {
     "es": ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"],
 }
 
+SHORT_WEEKDAY_NAMES: dict[str, list[str]] = {
+    # Monday-first, 2-letter abbreviations; JS rotates based on weekStart
+    "en": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+    "es": ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"],
+}
+
 TRANSLATIONS: dict[str, dict[str, str]] = {
     "en": {
         "sign_in": "Sign in",
@@ -49,8 +55,6 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "undo": "Undo",
         "redo": "Redo",
         "image": "Image",
-        "share": "Share",
-        "copy_btn": "Copy",
         "copied": "Copied!",
         "write_anything": "Write anything...",
         "word": "word",
@@ -66,11 +70,14 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "actions": "Actions",
         "reset_pw": "Reset pw",
         "delete": "Delete",
-        "save": "Save",
-        "written_with": "Written with Piruetas",
         "written_with_prefix": "Written with",
-        "more_entries": "More entries",
         "admin_back": "← Admin",
+        "admin_users_nav": "Users",
+        "admin_tasks_nav": "Tasks",
+        "task_last_run": "Last run",
+        "task_never": "Never",
+        "task_result": "Result",
+        "task_run_now": "Run now",
         "change_password": "Change password",
         "current_password": "Current password",
         "confirm_password": "Confirm new password",
@@ -154,14 +161,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "landing_more_h": "Quietly useful.",
         "landing_more1_h": "Share a day.",
         "landing_more1_p": "Share with whoever you want, in one link.",
-        "landing_more2_h": "Bold & italic.",
-        "landing_more2_p": "The formatting you reach for, one shortcut away.",
         "landing_more3_h": "Export your entries.",
         "landing_more3_p": "Take your words with you.",
         "landing_more4_h": "Images.",
         "landing_more4_p": "Drop a photo in your entry.",
-        "landing_more5_h": "Undo & redo.",
-        "landing_more5_p": "The two buttons a notebook never had, but always needed.",
         "landing_more6_h": "Light & dark.",
         "landing_more6_p": "Two warm themes. Pick one.",
         "landing_try_tag": "Feel it",
@@ -174,17 +177,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "landing_host_sub2": "A docker-compose.yml:",
         "landing_copy": "Copy",
         "landing_copied": "✓",
-        "landing_hosted_tag": "Pricing",
-        "landing_hosted_h": "Or let me.",
-        "landing_coming_soon": "Coming soon.",
         "landing_pricing_free_tag": "Self-hosted",
         "landing_pricing_free": "Free",
         "landing_pricing_free_note": "Open source. Docker-ready. Yours to keep.",
-        "landing_pricing_hosted_tag": "Hosted",
-        "landing_pricing_monthly": "/ month",
-        "landing_pricing_yearly": "/ year",
-        "landing_pricing_yearly_note": "save ~17%",
-        "landing_pricing_cta": "Get started",
         "landing_pricing_tag": "Pricing",
         "landing_pricing_h": "Free forever",
         "landing_pricing_feat1_h": "Journal entries",
@@ -197,9 +192,14 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "landing_pricing_feat4_p": "Share individual entries with a private link.",
         "landing_support_tag": "Support",
         "landing_support_h": "If you like it, you can chip in.",
-        "landing_support_p": "Piruetas is free and open source. If it's useful to you, a small donation keeps it alive.",
+        "landing_support_p": (
+            "Piruetas is free and open source. "
+            "If it's useful to you, a small donation keeps it alive."
+        ),
         "recovery_codes_title": "Recovery codes",
-        "recovery_codes_save_warning": "Save these recovery codes somewhere safe. They will not be shown again.",
+        "recovery_codes_save_warning": (
+            "Save these recovery codes somewhere safe. They will not be shown again."
+        ),
         "recovery_codes_saved_confirm": "I have saved my recovery codes",
         "recovery_codes_continue": "Continue to journal",
         "recovery_codes_you_have": "You have",
@@ -207,7 +207,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "recovery_codes_remaining": "recovery codes remaining",
         "recovery_codes_manage": "Manage recovery codes ↗",
         "recovery_codes_regenerate": "Regenerate recovery codes",
-        "recovery_codes_regenerate_hint": "Generating new codes will invalidate all existing ones. Enter your current password to confirm.",
+        "recovery_codes_regenerate_hint": (
+            "Generating new codes will invalidate all existing ones. "
+            "Enter your current password to confirm."
+        ),
         "recovery_codes_generate_btn": "Generate new codes",
         "recovery_codes_copy_all": "Copy all",
         "recovery_codes_download": "Download as .txt",
@@ -233,8 +236,6 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "undo": "Deshacer",
         "redo": "Rehacer",
         "image": "Imagen",
-        "share": "Compartir",
-        "copy_btn": "Copiar",
         "copied": "¡Copiado!",
         "write_anything": "Escribe algo...",
         "word": "palabra",
@@ -250,11 +251,14 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "actions": "Acciones",
         "reset_pw": "Cambiar contraseña",
         "delete": "Eliminar",
-        "save": "Guardar",
-        "written_with": "Escrito con Piruetas",
         "written_with_prefix": "Escrito con",
-        "more_entries": "Más entradas",
         "admin_back": "← Admin",
+        "admin_users_nav": "Usuarios",
+        "admin_tasks_nav": "Tareas",
+        "task_last_run": "Última ejecución",
+        "task_never": "Nunca",
+        "task_result": "Resultado",
+        "task_run_now": "Ejecutar ahora",
         "change_password": "Cambiar contraseña",
         "current_password": "Contraseña actual",
         "confirm_password": "Confirmar nueva contraseña",
@@ -343,14 +347,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "landing_more_h": "Discretamente útil.",
         "landing_more1_h": "Comparte un día.",
         "landing_more1_p": "Con quien quieras en un enlace.",
-        "landing_more2_h": "Negrita y cursiva.",
-        "landing_more2_p": "El formato de siempre, a un atajo de distancia.",
         "landing_more3_h": "Exporta tus entradas.",
         "landing_more3_p": "Llévate tus palabras cuando quieras.",
         "landing_more4_h": "Imágenes.",
         "landing_more4_p": "Añade fotos a tus entradas.",
-        "landing_more5_h": "Deshacer y rehacer.",
-        "landing_more5_p": "Los dos botones que un cuaderno nunca tuvo, y siempre necesitó.",
         "landing_more6_h": "Claro y oscuro.",
         "landing_more6_p": "Dos temas cálidos. Elige uno.",
         "landing_try_tag": "Siéntelo",
@@ -363,17 +363,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "landing_host_sub2": "Un docker-compose.yml:",
         "landing_copy": "Copiar",
         "landing_copied": "✓",
-        "landing_hosted_tag": "Precios",
-        "landing_hosted_h": "O déjame a mí.",
-        "landing_coming_soon": "Próximamente.",
         "landing_pricing_free_tag": "Autoalojado",
         "landing_pricing_free": "Gratis",
         "landing_pricing_free_note": "Código abierto. Listo para Docker. Tuyo para siempre.",
-        "landing_pricing_hosted_tag": "Hospedado",
-        "landing_pricing_monthly": "/ mes",
-        "landing_pricing_yearly": "/ año",
-        "landing_pricing_yearly_note": "ahorra ~17%",
-        "landing_pricing_cta": "Empezar",
         "landing_pricing_tag": "Precio",
         "landing_pricing_h": "Gratis para siempre",
         "landing_pricing_feat1_h": "Entradas del diario",
@@ -386,9 +378,14 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "landing_pricing_feat4_p": "Comparte entradas individuales con un enlace privado.",
         "landing_support_tag": "Apoya el proyecto",
         "landing_support_h": "Si te gusta, puedes colaborar.",
-        "landing_support_p": "Piruetas es gratuito y de código abierto. Si te resulta útil, una pequeña donación lo mantiene activo.",
+        "landing_support_p": (
+            "Piruetas es gratuito y de código abierto. "
+            "Si te resulta útil, una pequeña donación lo mantiene activo."
+        ),
         "recovery_codes_title": "Códigos de recuperación",
-        "recovery_codes_save_warning": "Guarda estos códigos de recuperación en un lugar seguro. No se mostrarán de nuevo.",
+        "recovery_codes_save_warning": (
+            "Guarda estos códigos de recuperación en un lugar seguro. No se mostrarán de nuevo."
+        ),
         "recovery_codes_saved_confirm": "He guardado mis códigos de recuperación",
         "recovery_codes_continue": "Ir al diario",
         "recovery_codes_you_have": "Tienes",
@@ -396,7 +393,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "recovery_codes_remaining": "códigos de recuperación restantes",
         "recovery_codes_manage": "Gestionar códigos de recuperación ↗",
         "recovery_codes_regenerate": "Regenerar códigos de recuperación",
-        "recovery_codes_regenerate_hint": "Generar nuevos códigos invalidará todos los existentes. Introduce tu contraseña actual para confirmar.",
+        "recovery_codes_regenerate_hint": (
+            "Generar nuevos códigos invalidará todos los existentes. "
+            "Introduce tu contraseña actual para confirmar."
+        ),
         "recovery_codes_generate_btn": "Generar nuevos códigos",
         "recovery_codes_copy_all": "Copiar todos",
         "recovery_codes_download": "Descargar como .txt",
@@ -428,3 +428,7 @@ def get_month_names(locale: str) -> list[str]:
 
 def get_weekday_names(locale: str) -> list[str]:
     return WEEKDAY_NAMES.get(locale, WEEKDAY_NAMES["en"])
+
+
+def get_short_weekday_names(locale: str) -> list[str]:
+    return SHORT_WEEKDAY_NAMES.get(locale, SHORT_WEEKDAY_NAMES["en"])

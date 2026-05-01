@@ -78,9 +78,9 @@ function updateDeleteVisibility() {
 deleteScopeEl.addEventListener('change', updateDeleteVisibility);
 updateDeleteVisibility();
 
-const deleteModal = document.getElementById('delete-modal');
+const deleteModal = document.getElementById('bulk-delete-modal');
 deleteModal.addEventListener('click', (ev) => {
-    if (ev.target === deleteModal || ev.target.closest('#delete-modal-cancel')) {
+    if (ev.target === deleteModal || ev.target.closest('#bulk-delete-modal-cancel')) {
         deleteModal.hidden = true;
     }
 });
@@ -92,9 +92,9 @@ document.getElementById('delete-form').addEventListener('submit', async (e) => {
     const count = json.count;
     const entries = count === 1 ? strings.entrySingular : strings.entryPlural;
 
-    const body = document.getElementById('delete-modal-body');
-    const warning = document.getElementById('delete-modal-warning');
-    const actions = document.getElementById('delete-modal-actions');
+    const body = document.getElementById('bulk-delete-modal-body');
+    const warning = document.getElementById('bulk-delete-modal-warning');
+    const actions = document.getElementById('bulk-delete-modal-actions');
 
     body.textContent = strings.deleteConfirmMsg
         .replace('{count}', count)
@@ -105,7 +105,7 @@ document.getElementById('delete-form').addEventListener('submit', async (e) => {
     actions.textContent = '';
     const cancelBtn = document.createElement('button');
     cancelBtn.className = 'btn-ghost';
-    cancelBtn.id = 'delete-modal-cancel';
+    cancelBtn.id = 'bulk-delete-modal-cancel';
     cancelBtn.textContent = strings.cancel;
     actions.appendChild(cancelBtn);
 

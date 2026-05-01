@@ -9,12 +9,12 @@ from sqlmodel import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import app.main as main_module
-from app.auth import make_session_token, parse_session_token, sign_session, unsign_session
 from app.main import app
 from app.models import Entry, Image
 from app.rate_limit import _attempts
 from app.routers.auth import _get_client_ip
 from app.routers.upload import _validate_magic_bytes
+from app.session_token import make_session_token, parse_session_token, sign_session, unsign_session
 from tests.conftest import get_csrf, login
 
 
@@ -499,3 +499,33 @@ def test_serve_upload_path_traversal_returns_403(client, regular_user):
         resp = client.get(f"/uploads/{regular_user.id}/escape.jpg")
 
     assert resp.status_code == 403
+
+
+def test_serve_upload_cross_user_returns_403(client, regular_user, admin_user):
+    # admin uploads a file
+    login(client, "admin", "adminpass123")
+    resp = client.post(
+        "/upload",
+        files={"file": ("photo.jpg", io.BytesIO(_make_jpeg()), "image/jpeg")},
+    )
+    assert resp.status_code == 200
+    admin_image_url = resp.json()["url"]
+
+    # regular user tries to access admin's file
+    client.cookies.clear()
+    login(client, "testuser", "userpass123")
+    resp2 = client.get(admin_image_url)
+    assert resp2.status_code == 403
+
+
+def test_serve_upload_own_file_returns_200(client, regular_user):
+    login(client, "testuser", "userpass123")
+    resp = client.post(
+        "/upload",
+        files={"file": ("photo.jpg", io.BytesIO(_make_jpeg()), "image/jpeg")},
+    )
+    assert resp.status_code == 200
+    image_url = resp.json()["url"]
+
+    resp2 = client.get(image_url)
+    assert resp2.status_code == 200

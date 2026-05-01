@@ -10,10 +10,10 @@ import uvicorn
 from sqlmodel import Session, select
 
 import app.database as db_module
-from app.auth import SESSION_COOKIE, make_session_token
 from app.database import get_engine
 from app.models import Entry, Image, User
 from app.rate_limit import clear_attempts
+from app.session_token import SESSION_COOKIE, make_session_token
 from app.settings import get_settings
 
 TEST_SECRET_KEY = "test-secret-key-for-playwright-e2e"
@@ -53,7 +53,6 @@ def reset_rate_limits():
     clear_attempts("127.0.0.1")
 
 
-
 @pytest.fixture(scope="session")
 def live_server(tmp_path_factory):
     tmp_path = tmp_path_factory.mktemp("e2e")
@@ -86,32 +85,34 @@ def live_server(tmp_path_factory):
     thread = threading.Thread(target=server.run, daemon=True)
     thread.start()
 
-    base_url = f"http://127.0.0.1:{port}"
-    for _ in range(100):
-        try:
-            if httpx.get(f"{base_url}/health", timeout=0.5).status_code == 200:
-                break
-        except Exception:
-            pass
-        time.sleep(0.1)
-    else:
-        raise RuntimeError("Test server did not start in time")
-
-    yield base_url
-
-    server.should_exit = True
-    thread.join(timeout=5)
-
-    get_settings.cache_clear()
-    if db_module._engine is not None:
-        db_module._engine.dispose()
-    db_module._engine = None
-
-    for k, v in original_env.items():
-        if v is None:
-            os.environ.pop(k, None)
+    try:
+        base_url = f"http://127.0.0.1:{port}"
+        for _ in range(100):
+            try:
+                if httpx.get(f"{base_url}/health", timeout=0.5).status_code == 200:
+                    break
+            except Exception:
+                pass
+            time.sleep(0.1)
         else:
-            os.environ[k] = v
+            raise RuntimeError("Test server did not start in time")
+
+        yield base_url
+
+    finally:
+        server.should_exit = True
+        thread.join(timeout=5)
+
+        get_settings.cache_clear()
+        if db_module._engine is not None:
+            db_module._engine.dispose()
+        db_module._engine = None
+
+        for k, v in original_env.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
 
 
 @pytest.fixture()
@@ -152,6 +153,17 @@ def _make_auth_cookie(user: User) -> dict:
         "domain": "127.0.0.1",
         "path": "/",
     }
+
+
+def _get_auth_cookies(user: User) -> dict:
+    assert user.id is not None
+    token = make_session_token(
+        user_id=user.id,
+        is_admin=user.is_admin,
+        session_version=user.session_version,
+        secret_key=TEST_SECRET_KEY,
+    )
+    return {SESSION_COOKIE: token}
 
 
 @pytest.fixture(params=["desktop", "mobile"])

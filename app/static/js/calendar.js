@@ -1,27 +1,13 @@
 (function () {
-  const NAMES = {
-    en: {
-      daysSun: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-      daysMon: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
-      months: ['January','February','March','April','May','June',
-               'July','August','September','October','November','December'],
-    },
-    es: {
-      daysSun: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-      daysMon: ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'],
-      months: ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-    },
-  };
-
   const cfg = window.PIRUETAS || {};
-  const locale = (cfg.locale && NAMES[cfg.locale]) ? cfg.locale : 'en';
-  const names = NAMES[locale];
 
   // weekStart: 0 = Sunday, 1 = Monday
   const weekStart = cfg.weekStart !== undefined ? cfg.weekStart : 1;
-  const DAY_NAMES = weekStart === 1 ? names.daysMon : names.daysSun;
-  const MONTH_NAMES = names.months;
+  // short_weekdays is Monday-first; rotate one position for Sunday-first
+  const shortWeekdays = cfg.shortWeekdays || ['Mo','Tu','We','Th','Fr','Sa','Su'];
+  const DAY_NAMES = weekStart === 1 ? shortWeekdays : [...shortWeekdays.slice(6), ...shortWeekdays.slice(0, 6)];
+  const MONTH_NAMES = cfg.months || ['January','February','March','April','May','June',
+                                     'July','August','September','October','November','December'];
 
   let activeDate = null;
   let displayYear = null;
@@ -196,8 +182,7 @@
 
     const mobileBtn = document.getElementById('mobile-date-btn');
     if (mobileBtn) {
-      const months = cfg.months || ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      mobileBtn.textContent = `${months[m-1]} ${d}, ${y}`;
+      mobileBtn.textContent = `${MONTH_NAMES[m-1]} ${d}, ${y}`;
     }
 
     const overlay = document.getElementById('mobile-cal-overlay');
@@ -218,7 +203,18 @@
     const prev = document.getElementById('mobile-prev');
     const next = document.getElementById('mobile-next');
     if (prev) { const p = offsetDate(y, m, d, -1); prev.href = dateUrl(p.year, p.month, p.day); }
-    if (next) { const n = offsetDate(y, m, d, 1); next.href = dateUrl(n.year, n.month, n.day); }
+    if (next) {
+      const n = offsetDate(y, m, d, 1);
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const nDate = new Date(n.year, n.month - 1, n.day);
+      if (nDate > today) {
+        next.removeAttribute('href');
+        next.setAttribute('aria-disabled', 'true');
+      } else {
+        next.href = dateUrl(n.year, n.month, n.day);
+        next.removeAttribute('aria-disabled');
+      }
+    }
   }
 
   window.calendarRemoveEntry = function(day) {

@@ -1,5 +1,3 @@
-import json
-
 from itsdangerous import BadSignature, URLSafeSerializer
 from starlette.responses import Response
 
@@ -11,9 +9,7 @@ def _signer(secret_key: str) -> URLSafeSerializer:
     return URLSafeSerializer(secret_key, salt="recovery-flash")
 
 
-def set_recovery_flash(
-    response: Response, codes: list[str], secret_key: str, secure: bool
-) -> None:
+def set_recovery_flash(response: Response, codes: list[str], secret_key: str, secure: bool) -> None:
     serializer = _signer(secret_key)
     value = serializer.dumps(codes)
     response.set_cookie(

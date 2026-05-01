@@ -9,23 +9,23 @@
         <img src="/static/img/logo-alpha-square.png" alt="Piruetas" class="card-brand__img">
         <span class="card-brand__name">Piruetas</span>
     </a>
-    <p class="login__subtitle">{{ t.sign_in if t is defined else 'Sign in' }}</p>
+    <p class="login__subtitle">{{ t.sign_in }}</p>
     {% if error %}<p class="form__error">{{ error }}</p>{% endif %}
     <form method="post" action="/login">
         <input type="hidden" name="login_csrf_token" value="{{ login_csrf_token }}">
         <div class="field">
-            <label for="username">{{ t.username if t is defined else 'Username' }}</label>
+            <label for="username">{{ t.username }}</label>
             <input type="text" id="username" name="username" required autofocus>
         </div>
         <div class="field">
-            <label for="password">{{ t.password if t is defined else 'Password' }}</label>
+            <label for="password">{{ t.password }}</label>
             <input type="password" id="password" name="password" required>
         </div>
-        <button type="submit" class="btn btn-primary">{{ t.sign_in if t is defined else 'Sign in' }}</button>
+        <button type="submit" class="btn btn-primary">{{ t.sign_in }}</button>
     </form>
     <div class="login__back-row">
-        <a href="/forgot-password" class="login__back">{{ t.forgot_password_link if t is defined else 'Forgot password?' }}</a>
-        <a href="/signup" class="login__back">{{ t.sign_up if t is defined else 'Register' }}</a>
+        <a href="/forgot-password" class="login__back">{{ t.forgot_password_link }}</a>
+        <a href="/signup" class="login__back">{{ t.sign_up }}</a>
     </div>
 </div>
 {% endblock %}

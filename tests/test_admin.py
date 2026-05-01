@@ -23,7 +23,6 @@ def test_admin_page_forbidden_to_regular_user(client, regular_user):
     assert resp.status_code in (302, 403)
 
 
-
 def test_delete_user(client, session, admin_user, regular_user):
     login(client, "admin", "adminpass123")
     resp = client.post(
@@ -49,7 +48,6 @@ def test_cannot_delete_self(client, admin_user):
     assert resp.status_code == 303
     resp2 = client.get("/admin/")
     assert resp2.status_code == 200
-
 
 
 def test_delete_nonexistent_user_redirects(client, admin_user):
@@ -124,5 +122,3 @@ def test_run_vacuum_db_task(client, admin_user, monkeypatch):
         data={"csrf_token": get_csrf(client)},
     )
     assert resp.status_code == 303
-
-

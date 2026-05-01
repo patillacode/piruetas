@@ -1,29 +1,10 @@
 (function () {
-  const themeToggle = document.getElementById('theme-toggle');
-
-  function applyTheme(theme) {
-    if (theme === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      const sheetLabel = document.getElementById('sheet-theme-label');
-      if (sheetLabel) sheetLabel.textContent = 'Light mode';
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-      const sheetLabel = document.getElementById('sheet-theme-label');
-      if (sheetLabel) sheetLabel.textContent = 'Dark mode';
-    }
+  function onThemeApply(theme) {
+    const sheetLabel = document.getElementById('sheet-theme-label');
+    if (sheetLabel) sheetLabel.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
   }
 
-  const savedTheme = localStorage.getItem('theme') || '';
-  applyTheme(savedTheme);
-
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? '' : 'dark';
-      localStorage.setItem('theme', next);
-      applyTheme(next);
-    });
-  }
+  window.PiruetasTheme.init(onThemeApply);
 
   const localePicker = document.getElementById('language-picker-select');
   if (localePicker) {
@@ -69,10 +50,7 @@
   const sheetThemeBtn = document.getElementById('sheet-theme-toggle');
   if (sheetThemeBtn) {
     sheetThemeBtn.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? '' : 'dark';
-      localStorage.setItem('theme', next);
-      applyTheme(next);
+      window.PiruetasTheme.toggle(onThemeApply);
       closeSheet();
     });
   }

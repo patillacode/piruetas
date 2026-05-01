@@ -43,9 +43,8 @@ def _record(key: str, result: str) -> None:
 def run_cleanup_images(data_dir: str) -> str:
     uploads_dir = Path(data_dir) / "uploads"
     with Session(get_engine()) as session:
-        db_filenames = set(session.exec(select(Image.filename)).all())
-
         all_images = session.exec(select(Image)).all()
+        db_filenames = {(img.user_id, img.filename) for img in all_images}
         orphaned: list[Image] = []
         for img in all_images:
             if img.entry_id is None:
@@ -67,7 +66,7 @@ def run_cleanup_images(data_dir: str) -> str:
         disk_only = 0
         if uploads_dir.exists():
             for f in uploads_dir.rglob("*"):
-                if f.is_file() and f.name not in db_filenames:
+                if f.is_file() and (int(f.parent.name), f.name) not in db_filenames:
                     try:
                         f.unlink()
                         disk_only += 1

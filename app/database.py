@@ -1,7 +1,7 @@
 import shutil
 import warnings
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import bcrypt
 from sqlalchemy.exc import IntegrityError

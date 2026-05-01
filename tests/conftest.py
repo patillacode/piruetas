@@ -13,13 +13,20 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 
-from app.auth import SESSION_COOKIE
 from app.csrf import generate_csrf_token
 from app.database import get_session
 from app.main import app
 from app.models import User
+from app.session_token import SESSION_COOKIE
+from app.settings import get_settings
 
 TEST_DB_URL = "sqlite://"  # in-memory
+
+
+@pytest.fixture(autouse=True)
+def clear_settings_cache():
+    yield
+    get_settings.cache_clear()
 
 
 @pytest.fixture(name="engine")

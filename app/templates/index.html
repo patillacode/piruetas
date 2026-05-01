@@ -78,7 +78,7 @@
       <div class="try-grid">
         <div class="try-field">
           <label>{{ t.landing_try_url }}</label>
-          <a href="https://piruet.app" target="_blank" rel="noopener">piruet.app ↗</a>
+          <a href="https://piruet.app" target="_blank" rel="noopener noreferrer">piruet.app ↗</a>
         </div>
         <div class="try-field">
           <label>{{ t.landing_try_user }}</label>
@@ -222,7 +222,7 @@
       <span class="footer-word">Piruetas</span>
     </div>
     <div class="footer-right">
-      <a href="https://github.com/patillacode/piruetas" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="https://github.com/patillacode/piruetas" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
       <a href="https://ko-fi.com/patillacode" target="_blank" rel="noopener noreferrer">Ko-fi ↗</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -243,5 +243,6 @@ window.LANDING = {
   accentWord:   {{ ('yours' if locale == 'en' else 'tuyo') | tojson }},
 };
 </script>
+<script src="/static/js/theme.js"></script>
 <script src="/static/js/landing.js"></script>
 {% endblock %}

@@ -32,7 +32,7 @@
 <div class="mobile-nav" id="mobile-date-nav">
     <a class="mobile-nav__arrow" id="mobile-prev" href="#">&#8249;</a>
     <button class="mobile-nav__current" id="mobile-date-btn">Loading...</button>
-    <a class="mobile-nav__arrow" id="mobile-next" href="#">&#8250;</a>
+    <a class="mobile-nav__arrow" id="mobile-next" href="#" aria-disabled="true">&#8250;</a>
 </div>
 <div class="app-layout">
     <aside class="sidebar">
@@ -96,7 +96,7 @@
         </div>
     </div>
 </div>
-<div id="mobile-cal-overlay" class="mobile-cal" hidden>
+<div id="mobile-cal-overlay" class="mobile-cal" role="dialog" aria-modal="true" hidden>
     <div class="mobile-cal__sheet">
         <div class="mobile-cal__handle"></div>
         <div id="mobile-calendar" class="calendar"></div>
@@ -156,6 +156,7 @@
         weekStart: {{ week_start }},
         locale: "{{ locale }}",
         months: {{ months | tojson }},
+        shortWeekdays: {{ short_weekdays | tojson }},
         entryContent: {{ (entry.content if entry else '') | tojson }},
         entryExists: {{ (entry is not none) | tojson }},
         shareToken: {{ (entry.share_token if entry and entry.share_token else '') | tojson }},

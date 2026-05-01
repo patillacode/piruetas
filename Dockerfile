@@ -7,9 +7,9 @@ RUN node scripts/build-tiptap.mjs
 
 FROM python:3.12-slim
 
-WORKDIR /app
+COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /uvx /usr/local/bin/
 
-RUN pip install uv --no-cache-dir
+WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev

@@ -31,7 +31,7 @@
             <label for="saved-confirm">{{ t.recovery_codes_saved_confirm }}</label>
         </div>
 
-        <a id="continue-btn" class="btn btn-primary recovery-continue-btn" aria-disabled="true">{{ t.recovery_codes_continue }}</a>
+        <button id="continue-btn" class="btn btn-primary recovery-continue-btn" disabled>{{ t.recovery_codes_continue }}</button>
 
         {% else %}
 
@@ -61,5 +61,11 @@
 {% endblock %}
 
 {% block page_scripts %}
+<script nonce="{{ csp_nonce }}">
+window.RECOVERY = {
+    copyAll: {{ t.recovery_codes_copy_all | tojson }},
+    copied: {{ t.copied | tojson }},
+};
+</script>
 <script src="/static/js/recovery-codes.js"></script>
 {% endblock %}
