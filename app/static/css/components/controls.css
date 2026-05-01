@@ -1,7 +1,7 @@
 .theme-toggle {
     background: none;
     border: none;
-    color: var(--muted);
+    color: var(--text-secondary);
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
@@ -23,7 +23,7 @@
     font-family: var(--font-ui);
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--muted);
+    color: var(--text-secondary);
     background: transparent;
     border: none;
     cursor: pointer;

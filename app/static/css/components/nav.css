@@ -34,7 +34,7 @@ nav a {
     position: relative;
     font-family: var(--font-ui);
     font-size: 0.8125rem;
-    color: var(--muted);
+    color: var(--text-secondary);
     text-decoration: none;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
@@ -78,7 +78,7 @@ nav a:hover::after {
 }
 
 .app-header nav a.active {
-    color: var(--accent);
+    color: var(--accent-text);
 }
 
 .app-header nav a.active::after {

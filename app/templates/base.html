@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ locale | default('en') }}">
 
 <head>
     <meta charset="utf-8">
@@ -22,6 +22,7 @@
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     {% block body %}{% endblock %}
     {% block scripts %}{% endblock %}
 </body>

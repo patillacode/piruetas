@@ -7,6 +7,14 @@
     --accent-hover: #a06450;
     --muted: #9e9189;
 
+    --accent-btn: #a96248;
+    --accent-text: #8a5240;
+    --text-secondary: #6b6259;
+
+    --color-error: #dc2626;
+    --color-danger: #c0392b;
+    --color-warning: #f59e0b;
+
     --font-ui: "Inter", system-ui, sans-serif;
     --font-reading: "Lora", Georgia, serif;
     --font-display: "Cormorant Garamond", Georgia, serif;
@@ -25,4 +33,12 @@
     --accent: #c4856a;
     --accent-hover: #b5735a;
     --muted: #a89e93;
+
+    --accent-btn: #a96248;
+    --accent-text: #c4856a;
+    --text-secondary: #a89e93;
+
+    --color-error: #f87171;
+    --color-danger: #e53e3e;
+    --color-warning: #fbbf24;
 }

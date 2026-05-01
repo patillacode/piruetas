@@ -6,7 +6,7 @@
 .form-container { max-width: 400px; margin: 0 auto; }
 .form-stack { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
 .section-title { margin-bottom: 0.5rem; }
-.section-desc { font-size: 0.8rem; color: var(--muted); margin-bottom: 0; }
+.section-desc { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0; }
 .section--mb { margin-bottom: 3rem; }
 .section--mt { margin-top: 3rem; }
 .btn--full { width: 100%; }

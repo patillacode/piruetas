@@ -152,18 +152,24 @@ function setupLinkModal() {
   const confirmBtn = document.getElementById('link-modal-confirm');
   if (!modal || !urlInput || !cancelBtn || !confirmBtn) return;
 
+  let _linkTrigger = null;
+  let _linkTrap = null;
   function openLinkModal() {
     const href = editor.getAttributes('link').href || '';
     urlInput.value = href;
     removeBtn.hidden = !href;
+    _linkTrigger = document.activeElement;
     modal.hidden = false;
+    _linkTrap = trapFocus(modal);
     urlInput.focus();
     urlInput.select();
   }
 
   function closeLinkModal() {
+    _linkTrap?.();
+    _linkTrap = null;
     modal.hidden = true;
-    editor.commands.focus();
+    _linkTrigger?.focus();
   }
 
   cancelBtn.addEventListener('click', closeLinkModal);
@@ -199,21 +205,28 @@ function setupDelete() {
 
   const cfg = window.PIRUETAS;
 
-  function openModal() {
+  let _deleteTrigger = null;
+  let _deleteTrap = null;
+  function openModal(trigger) {
     const isShared = !!(cfg.shareToken);
     warning.hidden = !isShared;
+    _deleteTrigger = trigger || document.activeElement;
     modal.hidden = false;
+    _deleteTrap = trapFocus(modal);
     cancelBtn.focus();
   }
 
   function closeModal() {
+    _deleteTrap?.();
+    _deleteTrap = null;
     modal.hidden = true;
+    _deleteTrigger?.focus();
   }
 
-  deleteBtn?.addEventListener('click', openModal);
+  deleteBtn?.addEventListener('click', () => openModal(deleteBtn));
   sheetDeleteBtn?.addEventListener('click', () => {
     window._closeSheet?.();
-    setTimeout(openModal, 290);
+    setTimeout(() => openModal(sheetDeleteBtn), 290);
   });
   cancelBtn?.addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
@@ -278,12 +291,20 @@ function setupShare() {
   const shareModalCopy = document.getElementById('share-modal-copy');
   const shareModalClose = document.getElementById('share-modal-close');
 
+  let _shareTrap = null;
   function openShareModal(url) {
     if (shareModalUrl) shareModalUrl.value = url;
-    if (shareModal) shareModal.hidden = false;
+    if (shareModal) {
+      shareModal.hidden = false;
+      _shareTrap = trapFocus(shareModal);
+      shareModalClose?.focus();
+    }
   }
   function closeShareModal() {
+    _shareTrap?.();
+    _shareTrap = null;
     if (shareModal) shareModal.hidden = true;
+    shareBtn?.focus();
   }
 
   shareModalCopy?.addEventListener('click', async () => {
@@ -299,11 +320,19 @@ function setupShare() {
   const unshareCancel = document.getElementById('unshare-modal-cancel');
   const unshareConfirm = document.getElementById('unshare-modal-confirm');
 
+  let _unshareTrap = null;
   function openUnshareModal() {
-    if (unshareModal) unshareModal.hidden = false;
+    if (unshareModal) {
+      unshareModal.hidden = false;
+      _unshareTrap = trapFocus(unshareModal);
+      unshareCancel?.focus();
+    }
   }
   function closeUnshareModal() {
+    _unshareTrap?.();
+    _unshareTrap = null;
     if (unshareModal) unshareModal.hidden = true;
+    shareBtn?.focus();
   }
 
   unshareCancel?.addEventListener('click', closeUnshareModal);

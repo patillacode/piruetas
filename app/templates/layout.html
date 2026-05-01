@@ -28,7 +28,9 @@
         </button>
     </nav>
 </header>
+<main id="main-content">
 {% block page_content %}{% endblock %}
+</main>
 
 <div id="mobile-sheet-overlay" hidden></div>
 <div id="mobile-sheet" role="dialog" aria-modal="true" hidden>
@@ -74,6 +76,7 @@
 
 {% block scripts %}
 <script src="/static/js/theme.js"></script>
+<script src="/static/js/focus-trap.js"></script>
 <script src="/static/js/ui.js"></script>
 {% block page_scripts %}{% endblock %}
 {% endblock %}

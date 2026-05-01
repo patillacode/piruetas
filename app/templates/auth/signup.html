@@ -4,6 +4,7 @@
 {% block body_class %}login-page{% endblock %}
 
 {% block body %}
+<main id="main-content">
 <div class="card">
     <a href="/" class="card-brand">
         <img src="/static/img/logo-alpha-square.png" alt="Piruetas" class="card-brand__img">
@@ -29,6 +30,7 @@
     <p class="login__consent">{{ t.signup_terms_consent }} <a href="/terms">{{ t.terms_of_use }}</a> {{ t.and_ }} <a href="/privacy">{{ t.privacy_policy }}</a>.</p>
     <p class="login__consent">{{ t.signup_already_have_account }} <a href="/login">{{ t.sign_in }}</a></p>
 </div>
+</main>
 {% endblock %}
 
 {% block scripts %}

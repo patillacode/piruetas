@@ -16,13 +16,13 @@
 .account-subh { font-size: 1rem; margin-bottom: 0.5rem; }
 .account-success { color: var(--accent); margin-bottom: 1rem; }
 .account-warn {
-    color: var(--warning, #f59e0b);
+    color: var(--color-warning);
     font-weight: 600;
     font-size: 0.875rem;
     margin-bottom: 1rem;
 }
-.account-meta { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; }
-.account-link { color: var(--accent); font-size: 0.875rem; }
+.account-meta { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem; }
+.account-link { color: var(--accent-text); font-size: 0.875rem; }
 
 /* Recovery codes */
 .recovery-codes-wrap  { max-width: 440px; margin: 0 auto; }
@@ -43,24 +43,24 @@
 .recovery-copy-btn {
     margin-top: 0.5rem;
     font-size: 0.8125rem;
-    color: var(--accent);
+    color: var(--accent-text);
     background: none;
-    border: 1px solid var(--accent);
+    border: 1px solid var(--accent-text);
     border-radius: 4px;
     padding: 0.25rem 0.75rem;
     cursor: pointer;
     transition: background var(--transition), color var(--transition);
 }
-.recovery-copy-btn:hover { background: var(--accent); color: white; }
+.recovery-copy-btn:hover { background: var(--accent-text); color: white; }
 .recovery-warning {
-    background: color-mix(in srgb, var(--warning, #f59e0b) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--warning, #f59e0b) 40%, transparent);
+    background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-warning) 40%, transparent);
     border-radius: 6px;
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
     font-size: 0.875rem;
 }
-.recovery-count-warn { color: var(--warning, #f59e0b); font-weight: 600; }
+.recovery-count-warn { color: var(--color-warning); font-weight: 600; }
 .recovery-download-link {
     display: inline-block;
     margin-bottom: 1.5rem;
@@ -78,4 +78,4 @@
 .recovery-continue-btn { display: inline-block; text-decoration: none; }
 .recovery-continue-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .recovery-divider { margin: 1.5rem 0; border: none; border-top: 1px solid var(--border); }
-.recovery-regen-hint { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
+.recovery-regen-hint { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; }

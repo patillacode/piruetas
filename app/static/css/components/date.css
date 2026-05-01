@@ -9,7 +9,7 @@
     font-weight: 300;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--text-secondary);
     margin-bottom: 0.1em;
 }
 

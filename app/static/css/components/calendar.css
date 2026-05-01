@@ -19,7 +19,7 @@
 .calendar__nav {
     background: none;
     border: none;
-    color: var(--muted);
+    color: var(--text-secondary);
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
@@ -38,7 +38,7 @@
 
 .calendar__day-name {
     font-size: 0.6875rem;
-    color: var(--muted);
+    color: var(--text-secondary);
     text-align: center;
     padding: 4px 0;
     font-weight: 500;
@@ -107,7 +107,7 @@
 }
 
 .calendar__day.is-other-month {
-    color: var(--muted);
+    color: var(--text-secondary);
     opacity: 0.4;
 }
 .calendar__day.is-empty {
@@ -118,7 +118,7 @@
     margin-top: 1rem;
     font-family: var(--font-ui);
     font-size: 0.75rem;
-    color: var(--muted);
+    color: var(--text-secondary);
     line-height: 1.6;
 }
 
@@ -140,7 +140,7 @@
 .calendar__legend-btn {
     background: none;
     border: none;
-    color: var(--muted);
+    color: var(--text-secondary);
     cursor: pointer;
     font-size: 0.6875rem;
     font-family: var(--font-ui);
@@ -166,7 +166,7 @@
     border-radius: 8px;
     font-family: var(--font-ui);
     font-size: 0.75rem;
-    color: var(--muted);
+    color: var(--text-secondary);
 }
 
 .calendar-legend__item {

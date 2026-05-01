@@ -55,7 +55,7 @@
 .sidebar__username {
     font-size: 0.6875rem;
     font-family: var(--font-ui);
-    color: var(--muted);
+    color: var(--text-secondary);
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
@@ -64,14 +64,14 @@
     margin-top: 0.5rem;
     font-size: 0.625rem;
     font-family: var(--font-ui);
-    color: var(--muted);
+    color: var(--text-secondary);
     display: flex;
     gap: 0.5rem;
     align-items: center;
 }
 
 .sidebar__meta-link {
-    color: var(--muted);
+    color: var(--text-secondary);
     text-decoration: none;
 }
 
@@ -122,7 +122,7 @@
     padding: 0.5rem 1rem 0.625rem;
     font-size: 0.875rem;
     font-family: var(--font-ui);
-    color: var(--muted);
+    color: var(--text-secondary);
     text-decoration: none;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
@@ -139,8 +139,8 @@
 }
 
 .page-tabs a.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+    color: var(--accent-text);
+    border-bottom-color: var(--accent-text);
     font-weight: 500;
 }
 
@@ -152,7 +152,7 @@
 }
 
 .app-footer a {
-    color: var(--muted);
+    color: var(--text-secondary);
     text-decoration: none;
     transition: color var(--transition);
 }
@@ -162,3 +162,21 @@
 }
 
 .form--contents { display: contents; }
+
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    background: var(--accent-btn);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0 0 6px 6px;
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    text-decoration: none;
+    z-index: 9999;
+    transition: top 0.1s;
+}
+.skip-link:focus {
+    top: 0;
+}

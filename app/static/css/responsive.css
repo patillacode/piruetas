@@ -11,7 +11,7 @@
 
     .mobile-nav__arrow {
         font-size: 1.5rem;
-        color: var(--muted);
+        color: var(--text-secondary);
         text-decoration: none;
         padding: 0.25rem 0.5rem;
         line-height: 1;

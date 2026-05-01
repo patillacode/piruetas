@@ -459,7 +459,7 @@
   font-family: var(--ui);
   font-size: 0.8125rem;
   line-height: 1.5;
-  color: var(--muted);
+  color: var(--ink-soft);
   margin: 0;
 }
 
@@ -497,7 +497,7 @@
   font-family: var(--ui);
   font-size: 0.8125rem;
   line-height: 1.5;
-  color: var(--muted);
+  color: var(--ink-soft);
   margin: 0;
 }
 
@@ -623,7 +623,7 @@
 }
 .pricing-grid li p {
   font-size: 0.8125rem;
-  color: var(--muted);
+  color: var(--ink-soft);
   margin: 0;
 }
 
@@ -794,4 +794,29 @@
 
 @media (max-width: 480px) {
   .more-list { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-mark {
+    opacity: 0.9;
+    animation: none;
+  }
+  .hero h1 .l {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    animation: none;
+  }
+  .hero-sub,
+  .hero-rule,
+  .hero-cta {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

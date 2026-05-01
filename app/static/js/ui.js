@@ -18,6 +18,7 @@
   const sheet = document.getElementById('mobile-sheet');
   const menuBtn = document.getElementById('mobile-menu-btn');
 
+  let _sheetTrap = null;
   function openSheet() {
     if (!sheet || !overlay) return;
     overlay.removeAttribute('hidden');
@@ -25,17 +26,21 @@
     requestAnimationFrame(() => {
       overlay.classList.add('open');
       sheet.classList.add('open');
+      _sheetTrap = trapFocus(sheet);
     });
   }
 
   function closeSheet() {
     if (!sheet || !overlay) return;
+    _sheetTrap?.();
+    _sheetTrap = null;
     overlay.classList.remove('open');
     sheet.classList.remove('open');
     sheet.addEventListener('transitionend', () => {
       overlay.setAttribute('hidden', '');
       sheet.setAttribute('hidden', '');
     }, { once: true });
+    menuBtn?.focus();
   }
 
   window._closeSheet = closeSheet;

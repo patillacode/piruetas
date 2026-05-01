@@ -42,7 +42,7 @@
     display: none;
     background: none;
     border: none;
-    color: var(--muted);
+    color: var(--text-secondary);
     cursor: pointer;
     padding: 0.25rem 0.375rem;
     border-radius: 4px;
@@ -109,7 +109,7 @@
 }
 .sheet-item:hover { background: rgba(0, 0, 0, 0.04); }
 [data-theme="dark"] .sheet-item:hover { background: rgba(255, 255, 255, 0.05); }
-.sheet-item.danger { color: #DC2626; }
+.sheet-item.danger { color: var(--color-error); }
 .sheet-item[hidden] { display: none; }
 
 .sheet-sep {

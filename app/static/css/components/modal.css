@@ -33,7 +33,7 @@
 
 .modal__body {
     font-size: 0.9rem;
-    color: var(--muted);
+    color: var(--text-secondary);
     line-height: 1.6;
     margin: 0 0 0.5rem;
 }
@@ -52,7 +52,7 @@
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--surface-alt, var(--surface));
-    color: var(--muted);
+    color: var(--text-secondary);
     font-family: var(--font-ui);
     font-size: 0.85rem;
     box-sizing: border-box;
@@ -66,10 +66,15 @@
 }
 
 .btn-danger {
-    background: #c0392b;
+    background: var(--color-danger);
     color: white;
 }
 
 .btn-danger:hover {
     background: #a93226;
+}
+
+.btn-danger:focus-visible {
+    outline-color: white;
+    outline-offset: 2px;
 }

@@ -42,7 +42,7 @@
 .ProseMirror p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
     float: left;
-    color: var(--muted);
+    color: var(--text-secondary);
     pointer-events: none;
     height: 0;
 }
@@ -73,7 +73,7 @@
 .tbtn {
     background: none;
     border: none;
-    color: var(--muted);
+    color: var(--text-secondary);
     padding: 4px 10px;
     border-radius: 4px;
     cursor: pointer;
@@ -133,14 +133,14 @@
     align-items: center;
     padding-top: 1rem;
     font-size: 0.75rem;
-    color: var(--muted);
+    color: var(--text-secondary);
     font-family: var(--font-ui);
     border-top: 1px solid var(--border);
     margin-top: 1rem;
 }
 
 .tbtn--share {
-    color: var(--muted);
+    color: var(--text-secondary);
 }
 .tbtn--share:hover {
     color: var(--text);
@@ -157,13 +157,13 @@
 .tbtn--share.tbtn--active .icon-share { display: none; }
 .tbtn--share.tbtn--active .icon-ban { display: block; }
 .tbtn--copy-link {
-    color: var(--muted);
+    color: var(--text-secondary);
 }
 .tbtn--delete {
-    color: var(--muted);
+    color: var(--text-secondary);
 }
 .tbtn--delete:hover {
-    color: #dc2626;
+    color: var(--color-error);
     background: var(--surface);
 }
 
@@ -190,7 +190,7 @@
     transform: translateY(0);
 }
 .save-toast.error {
-    background: #dc2626;
+    background: var(--color-danger);
     color: white;
 }
 

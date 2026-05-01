@@ -1,6 +1,6 @@
 .task-card { border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
 .task-info { flex: 1; }
 .task-name { font-weight: 500; font-size: 0.9375rem; margin-bottom: 0.25rem; color: var(--text); }
-.task-desc { font-size: 0.8125rem; color: var(--muted); margin-bottom: 0.625rem; }
-.task-meta { font-size: 0.75rem; color: var(--muted); }
+.task-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.625rem; }
+.task-meta { font-size: 0.75rem; color: var(--text-secondary); }
 .task-meta span { margin-right: 1rem; }
