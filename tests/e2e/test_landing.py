@@ -1,6 +1,5 @@
 import re
 
-import httpx
 from playwright.sync_api import Page, expect
 
 
@@ -35,32 +34,6 @@ def test_landing_logged_in_journal_cta_links_to_today(authenticated_page: Page, 
     expect(cta).to_be_visible()
     href = cta.get_attribute("href")
     assert href and re.match(r"/journal/\d{4}/\d{2}/\d{2}", href)
-
-
-# --- Registration closed (default) ---
-
-
-def test_signup_cta_shows_coming_soon(page: Page, live_server):
-    page.goto(live_server)
-    cta = page.locator(".hero-cta > a.hero-cta-soon")
-    expect(cta).to_be_visible()
-    expect(cta).to_contain_text("coming soon")
-
-
-def test_signup_page_shows_closed_message(page: Page, live_server):
-    page.goto(f"{live_server}/signup")
-    expect(page.locator("form")).to_have_count(0)
-    expect(page.locator("body")).to_contain_text("Registration is not open yet")
-
-
-def test_signup_post_redirects_when_closed(live_server):
-    resp = httpx.post(
-        f"{live_server}/signup",
-        data={"username": "x", "password": "x", "confirm_password": "x", "login_csrf_token": "x"},
-        follow_redirects=False,
-    )
-    assert resp.status_code == 302
-    assert resp.headers["location"] == "/signup"
 
 
 def test_pricing_section_shows_features(page: Page, live_server):

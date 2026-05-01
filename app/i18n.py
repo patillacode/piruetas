@@ -136,6 +136,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         # Signup
         "sign_up": "Sign up",
         "create_account": "Create account",
+        "signup_creating": "Creating account…",
         "signup_confirm_password": "Confirm password",
         "signup_already_have_account": "Already have an account?",
         "signup_cta": "Sign up free",
@@ -322,6 +323,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         # Signup
         "sign_up": "Registrarse",
         "create_account": "Crear cuenta",
+        "signup_creating": "Creando cuenta…",
         "signup_confirm_password": "Confirmar contraseña",
         "signup_already_have_account": "¿Ya tienes una cuenta?",
         "signup_cta": "Regístrate gratis",

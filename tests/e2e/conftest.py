@@ -11,8 +11,9 @@ from sqlmodel import Session, select
 
 import app.database as db_module
 from app.database import get_engine
-from app.models import Entry, Image, User
+from app.models import Entry, Image, RecoveryCode, User
 from app.rate_limit import clear_attempts
+from app.recovery import create_codes_for_user
 from app.session_token import SESSION_COOKIE, make_session_token
 from app.settings import get_settings
 
@@ -40,6 +41,8 @@ def _delete_user(user_id: int) -> None:
             session.delete(entry)
         for image in session.exec(select(Image).where(Image.user_id == user_id)).all():
             session.delete(image)
+        for code in session.exec(select(RecoveryCode).where(RecoveryCode.user_id == user_id)).all():
+            session.delete(code)
         u = session.get(User, user_id)
         if u:
             session.delete(u)
@@ -67,6 +70,7 @@ def live_server(tmp_path_factory):
         "ADMIN_USERNAME": "sysadmin",
         "ADMIN_PASSWORD": "sysadminpassword",
         "REGISTRATION_OPEN": "false",
+        "BCRYPT_ROUNDS": "4",
     }
     original_env = {k: os.environ.get(k) for k in env_overrides}
     os.environ.update(env_overrides)
@@ -185,3 +189,23 @@ def admin_page(page, live_server, seed_admin, viewport):
     page.goto(live_server)
     page.context.add_cookies([_make_auth_cookie(seed_admin)])
     yield page
+
+
+@pytest.fixture()
+def registration_enabled(live_server):
+    old_val = os.environ.get("REGISTRATION_OPEN")
+    os.environ["REGISTRATION_OPEN"] = "true"
+    get_settings.cache_clear()
+    yield live_server
+    if old_val is None:
+        os.environ.pop("REGISTRATION_OPEN", None)
+    else:
+        os.environ["REGISTRATION_OPEN"] = old_val
+    get_settings.cache_clear()
+
+
+@pytest.fixture()
+def seed_recovery_codes(seed_user):
+    with Session(get_engine()) as session:
+        codes = create_codes_for_user(seed_user.id, session)
+    return codes

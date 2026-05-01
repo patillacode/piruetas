@@ -87,6 +87,7 @@
         padding: 0 1rem;
     }
 
+
     /* Hide logo text on mobile, show image only to save header space */
     .logo__text {
         display: none;

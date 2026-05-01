@@ -75,6 +75,7 @@
 }
 .recovery-confirm-row input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; }
 .recovery-confirm-row label { font-size: 0.875rem; cursor: pointer; }
-.recovery-continue-btn { display: inline-block; text-decoration: none; opacity: 0.4; }
+.recovery-continue-btn { display: inline-block; text-decoration: none; }
+.recovery-continue-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .recovery-divider { margin: 1.5rem 0; border: none; border-top: 1px solid var(--border); }
 .recovery-regen-hint { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }

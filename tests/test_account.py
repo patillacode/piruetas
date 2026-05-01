@@ -5,8 +5,11 @@ import zipfile
 from datetime import date as date_type
 
 import bcrypt
+import pytest
+from fastapi import HTTPException
 from sqlmodel import select
 
+from app.export import scope_label
 from app.models import Entry, Image
 from app.settings import get_settings
 from tests.conftest import get_csrf, login
@@ -544,3 +547,9 @@ def test_delete_confirm_no_entries_returns_zero(client, session, regular_user):
     )
     assert resp.status_code == 200
     assert resp.json()["deleted"] == 0
+
+
+def test_scope_label_invalid_day_raises():
+    with pytest.raises(HTTPException) as exc_info:
+        scope_label("day", None, None, "not-a-date")
+    assert exc_info.value.status_code == 400

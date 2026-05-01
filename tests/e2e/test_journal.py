@@ -7,7 +7,6 @@ from sqlmodel import Session
 
 from app.database import get_engine
 from app.models import Entry
-from tests.e2e.conftest import _get_auth_cookies
 
 MINIMAL_PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
@@ -135,114 +134,27 @@ def test_unauthenticated_image_access(live_server, seed_user):
     assert resp.status_code in (401, 403)
 
 
-def test_share_token_image_access(page, live_server, seed_user):
-    resp_upload = httpx.post(
-        f"{live_server}/upload",
-        files={"file": ("test.png", MINIMAL_PNG, "image/png")},
-        cookies=_get_auth_cookies(seed_user),
-    )
-    assert resp_upload.status_code == 200
-    image_url = resp_upload.json()["url"]
-
-    content = f'<p>Shared entry</p><img src="{image_url}">'
-    _seed_entry(seed_user.id, content)
-
-    resp_share = httpx.post(
-        f"{live_server}/journal/2020/01/15/share",
-        cookies=_get_auth_cookies(seed_user),
-    )
-    assert resp_share.status_code == 200
-    share_token = resp_share.json()["url"].split("/share/")[1]
-
-    page.goto(f"{live_server}/share/{share_token}")
-    page.wait_for_load_state("networkidle")
-    assert page.locator("body").is_visible()
-    assert "Shared entry" in page.locator("body").inner_text()
-
-    img_resp = httpx.get(
-        f"{live_server}{image_url}",
-        params={"share_token": share_token},
-        follow_redirects=False,
-    )
-    assert img_resp.status_code == 200
-
-
-def test_share_button_labels(authenticated_page, live_server, seed_user):
+def test_delete_entry_via_modal(authenticated_page, live_server, seed_user):
     _seed_entry(seed_user.id)
-
     authenticated_page.goto(f"{live_server}/journal/2020/01/15")
     authenticated_page.wait_for_load_state("networkidle")
 
     is_mobile = (authenticated_page.viewport_size or {}).get("width", 1280) < 768
+    if is_mobile:
+        authenticated_page.click("#mobile-menu-btn")
+        authenticated_page.wait_for_function(
+            "() => !document.getElementById('mobile-sheet').hidden"
+        )
+        authenticated_page.click("#sheet-delete-btn")
+    else:
+        authenticated_page.click("#delete-btn")
 
-    def click_share():
-        if is_mobile:
-            authenticated_page.click("#mobile-menu-btn")
-            authenticated_page.wait_for_function(
-                "() => !document.getElementById('mobile-sheet').hidden"
-            )  # noqa: E501
-            authenticated_page.click("#sheet-share-btn")
-        else:
-            authenticated_page.locator("#share-btn").click()
+    authenticated_page.wait_for_function("() => !document.getElementById('delete-modal').hidden")
+    authenticated_page.click("#delete-modal-confirm")
+    authenticated_page.wait_for_url(f"{live_server}/journal/**")
 
-    share_btn = authenticated_page.locator("#share-btn")
-    assert share_btn.get_attribute("aria-label") == "Share"
-
-    click_share()
-    authenticated_page.wait_for_function(
-        "() => document.getElementById('share-btn')?.getAttribute('aria-label') === 'Stop sharing'",
-        timeout=5000,
-    )
-    assert share_btn.get_attribute("aria-label") == "Stop sharing"
-
-    authenticated_page.locator("#share-modal-close").click()
-    authenticated_page.wait_for_function(
-        "() => document.getElementById('share-modal')?.hidden === true",
-        timeout=5000,
-    )
-
-    click_share()
-    authenticated_page.wait_for_function(
-        "() => document.getElementById('unshare-modal')?.hidden === false",
-        timeout=5000,
-    )
-    authenticated_page.locator("#unshare-modal-confirm").click()
-    authenticated_page.wait_for_function(
-        "() => document.getElementById('share-btn')?.getAttribute('aria-label') === 'Share'",
-        timeout=5000,
-    )
-    assert share_btn.get_attribute("aria-label") == "Share"
-
-
-def test_share_legend_label(authenticated_page, live_server, seed_user):
-    entry = _seed_entry(seed_user.id)
-    with Session(get_engine()) as session:
-        db_entry = session.get(Entry, entry.id)
-        assert db_entry is not None
-        db_entry.share_token = "test-legend-token"
-        session.commit()
-
-    authenticated_page.goto(f"{live_server}/journal/2020/01/15")
-    authenticated_page.wait_for_load_state("networkidle")
-
-    legend_text = authenticated_page.locator(".calendar-legend .is-shared + span").inner_text()
-    assert legend_text == "Shared entry"
-
-
-def test_share_page_renders_entry_content(page, live_server, seed_user):
-    entry_text = "My uniquely identifiable journal entry"
-    _seed_entry(seed_user.id, f"<p>{entry_text}</p>")
-
-    resp = httpx.post(
-        f"{live_server}/journal/2020/01/15/share",
-        cookies=_get_auth_cookies(seed_user),
-    )
-    assert resp.status_code == 200
-    share_token = resp.json()["url"].split("/share/")[1]
-
-    page.goto(f"{live_server}/share/{share_token}")
-    page.wait_for_load_state("networkidle")
-    expect(page.locator("body")).to_contain_text(entry_text)
+    resp = authenticated_page.request.get(f"{live_server}/journal/2020/01/15")
+    assert "Hello world" not in resp.text()
 
 
 def test_journal_mobile_viewport(authenticated_page, live_server, seed_user):

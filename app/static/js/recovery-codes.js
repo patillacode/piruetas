@@ -12,6 +12,21 @@
 
     var copyBtn = document.getElementById('copy-codes-btn');
     var codesText = document.getElementById('codes-text');
+
+    var downloadLink = document.getElementById('download-codes-link');
+    if (downloadLink && codesText) {
+        downloadLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            var blob = new Blob([codesText.textContent], { type: 'text/plain' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'piruetas-recovery-codes.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    }
+
     if (copyBtn && codesText) {
         var strings = window.RECOVERY || {};
         copyBtn.addEventListener('click', function () {
