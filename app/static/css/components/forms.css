@@ -201,8 +201,8 @@ body.login-page {
     font-size: 0.8rem;
     color: var(--text-secondary);
 }
-.login__consent a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
-.login__consent a:hover { color: var(--accent); text-decoration: underline; }
+.login__consent a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; transition: color 0.2s; }
+.login__consent a:hover { color: var(--accent); opacity: 0.8; }
 
 .login__back--inline { display: inline; }
 
