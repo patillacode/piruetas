@@ -21,10 +21,19 @@ from app.tasks import scheduled_cleanup_images, scheduled_vacuum_db
 from app.templates_config import ctx, templates
 
 
+def _seconds_until_next_half_hour() -> float:
+    now = datetime.datetime.now()
+    if now.minute < 30:
+        next_reset = now.replace(minute=30, second=0, microsecond=0)
+    else:
+        next_reset = (now + datetime.timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+    delta = (next_reset - now).total_seconds()
+    return delta if delta > 0 else 1800.0
+
+
 async def _demo_cleanup_loop() -> None:
-    settings = get_settings()
     while True:
-        await asyncio.sleep(settings.demo_reset_interval)
+        await asyncio.sleep(_seconds_until_next_half_hour())
         with Session(get_engine()) as session:
             delete_demo_user_content(session)
 
