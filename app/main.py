@@ -23,12 +23,13 @@ from app.templates_config import ctx, templates
 
 def _seconds_until_next_half_hour() -> float:
     now = datetime.datetime.now()
+    if now.second == 0 and now.microsecond == 0 and now.minute in (0, 30):
+        return 1800.0
     if now.minute < 30:
         next_reset = now.replace(minute=30, second=0, microsecond=0)
     else:
         next_reset = (now + datetime.timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
-    delta = (next_reset - now).total_seconds()
-    return delta if delta > 0 else 1800.0
+    return (next_reset - now).total_seconds()
 
 
 async def _demo_cleanup_loop() -> None:
