@@ -1,8 +1,9 @@
 from unittest.mock import patch
 
+import bcrypt
 from sqlmodel import select
 
-from app.models import RecoveryCode
+from app.models import RecoveryCode, User
 from app.recovery import create_codes_for_user
 from app.recovery_flash import RECOVERY_FLASH_COOKIE
 from tests.conftest import get_csrf, login
@@ -153,3 +154,39 @@ def test_forgot_password_short_password(client, regular_user, session):
     resp = _forgot_password(client, "testuser", codes[0], "short")
     assert resp.status_code == 400
     assert b"8 characters" in resp.content
+
+
+def _make_demo_user(session):
+    hashed = bcrypt.hashpw(b"demo", bcrypt.gensalt(rounds=4)).decode()
+    user = User(username="demo", hashed_password=hashed, is_admin=False)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+def test_demo_user_cannot_view_recovery_codes(client, session):
+    _make_demo_user(session)
+    login(client, "demo", "demo")
+    resp = client.get("/account/recovery-codes")
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/account"
+
+
+def test_demo_user_cannot_regenerate_recovery_codes(client, session):
+    _make_demo_user(session)
+    login(client, "demo", "demo")
+    resp = client.post(
+        "/account/recovery-codes/regenerate",
+        data={"current_password": "demo", "csrf_token": get_csrf(client)},
+    )
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/account"
+
+
+def test_demo_user_cannot_use_forgot_password(client, session):
+    demo = _make_demo_user(session)
+    create_codes_for_user(demo.id, session)
+    codes = session.exec(select(RecoveryCode).where(RecoveryCode.user_id == demo.id)).all()
+    resp = _forgot_password(client, "demo", codes[0].code_hash, "newpassword123")
+    assert resp.status_code == 400

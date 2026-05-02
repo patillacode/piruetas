@@ -75,6 +75,10 @@ compose-logs:
 seed-admin:
     uv run python scripts/seed_admin.py
 
+# Reset demo user password to the configured value (idempotent)
+reset-demo:
+    uv run python scripts/reset_demo_password.py
+
 # Open SQLite shell on the data file
 db-shell:
     sqlite3 ${DATABASE_URL#sqlite:////}

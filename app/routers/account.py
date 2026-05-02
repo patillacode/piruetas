@@ -71,6 +71,8 @@ async def recovery_codes_page(
 ):
     assert user.id is not None
     settings = get_settings()
+    if user.username == settings.demo_username:
+        return RedirectResponse(url="/account", status_code=302)
     codes = pop_recovery_flash(dict(request.cookies), settings.secret_key)
     remaining = _count_unused_recovery_codes(session, user.id)
     response = templates.TemplateResponse(
@@ -99,6 +101,9 @@ async def regenerate_recovery_codes(
 ):
     assert user.id is not None
     settings = get_settings()
+
+    if user.username == settings.demo_username:
+        return RedirectResponse(url="/account", status_code=302)
 
     if not bcrypt.checkpw(current_password.encode(), user.hashed_password.encode()):
         remaining = _count_unused_recovery_codes(session, user.id)
@@ -319,6 +324,9 @@ async def change_password(
             ),
             status_code=400 if error else 200,
         )
+
+    if user.username == get_settings().demo_username:
+        return render(error="Password change is disabled for the demo account.")
 
     if not bcrypt.checkpw(current_password.encode(), user.hashed_password.encode()):
         return render(error="Current password is incorrect.")

@@ -76,9 +76,14 @@ def seed_demo(session: Session) -> None:
     settings = get_settings()
     if not settings.demo_enabled:
         return
+    hashed = bcrypt.hashpw(settings.demo_password.encode(), bcrypt.gensalt()).decode()
     existing = session.exec(select(User).where(User.username == settings.demo_username)).first()
-    if not existing:
-        hashed = bcrypt.hashpw(settings.demo_password.encode(), bcrypt.gensalt()).decode()
+    if existing:
+        existing.hashed_password = hashed
+        existing.session_version += 1
+        session.add(existing)
+        session.commit()
+    else:
         demo = User(username=settings.demo_username, hashed_password=hashed, is_admin=False)
         try:
             session.add(demo)

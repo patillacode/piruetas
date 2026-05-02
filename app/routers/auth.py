@@ -294,6 +294,9 @@ async def forgot_password(
         record_failed_attempt(ip)
         return render_error(_INVALID_MSG)
 
+    if user.username == settings.demo_username:
+        return render_error(_INVALID_MSG)
+
     if len(new_password) < 8:
         return render_error("New password must be at least 8 characters.")
 

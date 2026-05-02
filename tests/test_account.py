@@ -10,7 +10,7 @@ from fastapi import HTTPException
 from sqlmodel import select
 
 from app.export import scope_label
-from app.models import Entry, Image
+from app.models import Entry, Image, User
 from app.settings import get_settings
 from tests.conftest import get_csrf, login
 
@@ -88,6 +88,25 @@ def test_password_change_too_short(client, regular_user):
     )
     assert resp.status_code == 400
     assert b"8 characters" in resp.content
+
+
+def test_password_change_blocked_for_demo_user(client, session):
+    hashed = bcrypt.hashpw(b"demo", bcrypt.gensalt(rounds=4)).decode()
+    demo = User(username="demo", hashed_password=hashed, is_admin=False)
+    session.add(demo)
+    session.commit()
+    login(client, "demo", "demo")
+    resp = client.post(
+        "/account/password",
+        data={
+            "current_password": "demo",
+            "new_password": "newpassword99",
+            "confirm_password": "newpassword99",
+            "csrf_token": get_csrf(client),
+        },
+    )
+    assert resp.status_code == 400
+    assert b"disabled for the demo account" in resp.content
 
 
 def test_password_change_csrf_rejected(client, regular_user):

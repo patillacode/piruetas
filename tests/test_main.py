@@ -58,6 +58,8 @@ def test_lifespan_with_demo_enabled(lifespan_env):
             assert resp.status_code == 200
     finally:
         os.environ["DEMO_ENABLED"] = "false"
+        os.environ.pop("DEMO_USERNAME", None)
+        os.environ.pop("DEMO_PASSWORD", None)
         get_settings.cache_clear()
 
 
