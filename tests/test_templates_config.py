@@ -1,8 +1,6 @@
 import datetime as dt
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from app.templates_config import _next_half_hour_ts
 
 

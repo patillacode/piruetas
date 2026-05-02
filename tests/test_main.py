@@ -1,5 +1,6 @@
 # tests for app/main.py lifespan and demo cleanup loop
 import asyncio
+import datetime as dt
 import os
 from unittest.mock import MagicMock, patch
 
@@ -7,8 +8,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 import app.database as db_module
-import datetime as dt
-
 from app.main import _demo_cleanup_loop, _seconds_until_next_half_hour, app
 from app.settings import get_settings
 
@@ -85,6 +84,7 @@ async def test_demo_cleanup_loop_executes_body():
 
 def _mock_dt(fixed: dt.datetime):
     from unittest.mock import MagicMock
+
     m = MagicMock()
     m.datetime.now.return_value = fixed
     m.timedelta = dt.timedelta
