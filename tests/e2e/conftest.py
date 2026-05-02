@@ -71,6 +71,9 @@ def live_server(tmp_path_factory):
         "ADMIN_PASSWORD": "sysadminpassword",
         "REGISTRATION_OPEN": "false",
         "BCRYPT_ROUNDS": "4",
+        "DEMO_ENABLED": "true",
+        "DEMO_USERNAME": "testdemo",
+        "DEMO_PASSWORD": "demopassword123",
     }
     original_env = {k: os.environ.get(k) for k in env_overrides}
     os.environ.update(env_overrides)
@@ -202,6 +205,16 @@ def registration_enabled(live_server):
     else:
         os.environ["REGISTRATION_OPEN"] = old_val
     get_settings.cache_clear()
+
+
+@pytest.fixture()
+def demo_page(page, live_server, viewport):
+    page.set_viewport_size(viewport)
+    page.goto(live_server)
+    with Session(get_engine()) as session:
+        demo_user = session.exec(select(User).where(User.username == "testdemo")).first()
+    page.context.add_cookies([_make_auth_cookie(demo_user)])
+    yield page
 
 
 @pytest.fixture()
