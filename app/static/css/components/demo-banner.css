@@ -1,0 +1,9 @@
+.demo-banner {
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  padding: 0.375rem 1rem;
+  text-align: center;
+}

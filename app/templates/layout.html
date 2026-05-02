@@ -28,6 +28,11 @@
         </button>
     </nav>
 </header>
+{% if is_demo %}
+<div class="demo-banner" data-reset-ts="{{ demo_next_reset_ts }}">
+  This is a demo account. All data resets every 30 min — next reset in <span class="demo-banner__countdown"></span>
+</div>
+{% endif %}
 <main id="main-content">
 {% block page_content %}{% endblock %}
 </main>
@@ -79,4 +84,7 @@
 <script src="/static/js/focus-trap.js"></script>
 <script src="/static/js/ui.js"></script>
 {% block page_scripts %}{% endblock %}
+{% if is_demo %}
+<script src="/static/js/demo-banner.js" nonce="{{ csp_nonce }}"></script>
+{% endif %}
 {% endblock %}
