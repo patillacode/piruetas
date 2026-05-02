@@ -44,6 +44,6 @@ def ctx(request: Request, **kwargs) -> dict:
         "show_donation_prompts": settings.show_donation_prompts,
         "current_year": datetime.date.today().year,
         "is_demo": is_demo,
-        "demo_next_reset_ts": _next_half_hour_ts(),
+        "demo_next_reset_ts": _next_half_hour_ts() if is_demo else None,
         **kwargs,
     }
