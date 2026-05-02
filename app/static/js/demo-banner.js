@@ -3,11 +3,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!banner) return;
 
   const resetTs = parseInt(banner.dataset.resetTs, 10);
+  if (isNaN(resetTs)) return;
+
   const countdown = banner.querySelector(".demo-banner__countdown");
 
-  const tick = () => {
+  const intervalId = setInterval(tick, 1000);
+
+  function tick() {
     const remaining = resetTs * 1000 - Date.now();
     if (remaining <= 0) {
+      clearInterval(intervalId);
       location.reload();
       return;
     }
@@ -19,8 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       countdown.textContent = `${secs}s`;
     }
-  };
+  }
 
   tick();
-  setInterval(tick, 1000);
 });
