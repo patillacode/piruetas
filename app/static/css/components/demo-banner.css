@@ -1,0 +1,18 @@
+.demo-banner {
+  margin-top: var(--header-height);
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  padding: 0.375rem 1rem;
+  text-align: center;
+}
+
+.demo-banner + main .app-layout {
+  margin-top: 0;
+}
+
+.demo-banner + main .page-wrap {
+  margin-top: 2rem;
+}

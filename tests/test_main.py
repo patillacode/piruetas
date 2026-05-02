@@ -1,5 +1,6 @@
 # tests for app/main.py lifespan and demo cleanup loop
 import asyncio
+import datetime as dt
 import os
 from unittest.mock import MagicMock, patch
 
@@ -7,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import app.database as db_module
-from app.main import _demo_cleanup_loop, app
+from app.main import _demo_cleanup_loop, _seconds_until_next_half_hour, app
 from app.settings import get_settings
 
 
@@ -79,6 +80,39 @@ async def test_demo_cleanup_loop_executes_body():
             await _demo_cleanup_loop()
 
     assert mock_del.call_count == 1
+
+
+def _mock_dt(fixed: dt.datetime):
+    from unittest.mock import MagicMock
+
+    m = MagicMock()
+    m.datetime.now.return_value = fixed
+    m.timedelta = dt.timedelta
+    return m
+
+
+def test_seconds_until_next_half_hour_on_hour_boundary():
+    fixed = dt.datetime(2024, 1, 1, 10, 0, 0, 0)
+    with patch("app.main.datetime", _mock_dt(fixed)):
+        assert _seconds_until_next_half_hour() == 1800.0
+
+
+def test_seconds_until_next_half_hour_on_half_boundary():
+    fixed = dt.datetime(2024, 1, 1, 10, 30, 0, 0)
+    with patch("app.main.datetime", _mock_dt(fixed)):
+        assert _seconds_until_next_half_hour() == 1800.0
+
+
+def test_seconds_until_next_half_hour_before_half():
+    fixed = dt.datetime(2024, 1, 1, 10, 15, 0, 0)
+    with patch("app.main.datetime", _mock_dt(fixed)):
+        assert _seconds_until_next_half_hour() == pytest.approx(900.0)
+
+
+def test_seconds_until_next_half_hour_past_half():
+    fixed = dt.datetime(2024, 1, 1, 10, 45, 0, 0)
+    with patch("app.main.datetime", _mock_dt(fixed)):
+        assert _seconds_until_next_half_hour() == pytest.approx(900.0)
 
 
 def test_privacy_page(client):

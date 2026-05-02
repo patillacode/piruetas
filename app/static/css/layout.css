@@ -164,9 +164,10 @@
 .form--contents { display: contents; }
 
 .skip-link {
-    position: absolute;
-    top: -100%;
+    position: fixed;
+    top: 0;
     left: 1rem;
+    transform: translateY(-100%);
     background: var(--accent-btn);
     color: white;
     padding: 0.5rem 1rem;
@@ -175,8 +176,8 @@
     font-size: 0.875rem;
     text-decoration: none;
     z-index: 9999;
-    transition: top 0.1s;
+    transition: transform 0.1s;
 }
 .skip-link:focus {
-    top: 0;
+    transform: translateY(0);
 }

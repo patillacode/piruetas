@@ -91,7 +91,7 @@
 
 /* Ko-fi widget */
 .kofi-widget { display: inline-block; margin-top: 0.5rem; }
-.kofi-widget__img { border: 0; height: 36px; display: block; }
+.kofi-widget__img { border: 0; height: 36px; width: auto; display: inline-block; }
 
 /* Lang select */
 

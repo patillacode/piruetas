@@ -154,8 +154,12 @@ function setupLinkModal() {
 
   let _linkTrigger = null;
   let _linkTrap = null;
+  let _savedFrom = null;
+  let _savedTo = null;
   function openLinkModal() {
     const href = editor.getAttributes('link').href || '';
+    _savedFrom = editor.state.selection.from;
+    _savedTo = editor.state.selection.to;
     urlInput.value = href;
     removeBtn.hidden = !href;
     _linkTrigger = document.activeElement;
@@ -176,7 +180,9 @@ function setupLinkModal() {
   modal.addEventListener('click', (e) => { if (e.target === modal) closeLinkModal(); });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !modal.hidden) closeLinkModal();
-    if (e.key === 'Enter' && !modal.hidden) confirmBtn.click();
+  });
+  urlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); confirmBtn.click(); }
   });
 
   removeBtn?.addEventListener('click', () => {
@@ -186,7 +192,13 @@ function setupLinkModal() {
 
   confirmBtn.addEventListener('click', () => {
     const url = urlInput.value.trim();
-    if (url) editor.chain().focus().setLink({ href: url }).run();
+    if (url) {
+      editor.chain()
+        .focus()
+        .setTextSelection({ from: _savedFrom, to: _savedTo })
+        .setLink({ href: url })
+        .run();
+    }
     closeLinkModal();
   });
 
