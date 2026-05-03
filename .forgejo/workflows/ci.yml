@@ -1,11 +1,6 @@
-name: Test and publish Docker image
+name: CI
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - "v*"
   pull_request:
 
 jobs:
@@ -68,48 +63,3 @@ jobs:
         with:
           name: playwright-traces
           path: test-results/
-
-  build:
-    needs: test
-    if: startsWith(github.ref, 'refs/tags/')
-    permissions:
-      packages: write
-    runs-on: docker
-    container:
-      image: catthehacker/ubuntu:act-22.04
-      options: --volume /var/run/docker.sock:/var/run/docker.sock
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Derive image tags
-        id: meta
-        shell: bash
-        run: |
-          echo "GITHUB_REF=${GITHUB_REF}"
-          IMAGE=forgejo.patilla.es/patillacode/piruetas
-          TAGS="${IMAGE}:latest"
-          # If this is a version tag (v1.2.3), also tag with the version number
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            VERSION="${GITHUB_REF#refs/tags/}"
-            TAGS="${TAGS},${IMAGE}:${VERSION}"
-          fi
-          echo "Final tags: ${TAGS}"
-          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to registry
-        uses: docker/login-action@v3
-        with:
-          registry: forgejo.patilla.es
-          username: ${{ github.actor }}
-          password: ${{ secrets.REGISTRY_TOKEN }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
