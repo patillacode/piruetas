@@ -25,6 +25,18 @@ For local dev: `cp .env.example .env`, set `SECRET_KEY` to any string, `SECURE_C
 
 Feature worktrees live in `.worktrees/` (gitignored). Note: `CLAUDE.md` is also gitignored — it won't be present in new worktrees, create it manually if needed.
 
+## Repository
+
+Primary repo: `ssh://git@forgejo.patilla.es:2223/patillacode/piruetas.git` (source of truth).
+GitHub (`github.com/patillacode/piruetas`) is a server-side push mirror — read-only; do not use it for code or PRs.
+
+**Issue workflow**: Forgejo registration is closed; the public can only reach the project via GitHub.
+Public bug reports and issues arrive on GitHub — read and respond to them there.
+All code fixes and PRs go through Forgejo. Pushes propagate automatically to the GitHub mirror.
+
+**`gh` CLI**: only appropriate for interacting with GitHub issues (reading, commenting, closing).
+Never use `gh` for creating PRs, pushing code, or any Forgejo operations.
+
 ## Architecture
 
 FastAPI + SQLModel + Jinja2 SSR app. Frontend JS is vanilla. Tiptap editor is bundled via esbuild into `app/static/js/vendor/tiptap.bundle.js` (committed as a vendored asset; rebuild with `just build-js`).

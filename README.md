@@ -33,12 +33,19 @@ Log in with **`demo`** / **`piruetas`**, content resets every 30 minutes.
 
 ## Quick start (Docker)
 
+Images are published for **amd64** (standard servers/desktops) and **arm64** (Raspberry Pi 4/5, Apple Silicon).
+
+| Registry | Image |
+|---|---|
+| GitHub (GHCR) | `ghcr.io/patillacode/piruetas:latest` |
+| Forgejo | `forgejo.patilla.es/patillacode/piruetas:latest` |
+
 Create a `compose.yml`:
 
 ```yaml
 services:
   piruetas:
-    image: forgejo.patilla.es/patillacode/piruetas:latest
+    image: ghcr.io/patillacode/piruetas:latest
     ports:
       - "8000:8000"
     volumes:

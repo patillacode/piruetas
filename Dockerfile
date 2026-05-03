@@ -22,6 +22,8 @@ RUN addgroup --system --gid 1000 appuser && \
     mkdir -p /data/uploads && \
     chown -R appuser:appuser /app /data
 
+LABEL org.opencontainers.image.source=https://github.com/patillacode/piruetas
+
 USER appuser
 
 ENV UV_NO_CACHE=1
