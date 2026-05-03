@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import Response
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.database import delete_demo_user_content, get_engine, init_db, seed_admin, seed_demo
 from app.dependencies import get_current_user_optional
@@ -72,6 +73,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Piruetas", lifespan=lifespan)
+
+if get_settings().trust_proxy:
+    app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 
 @app.middleware("http")
@@ -142,6 +146,22 @@ async def terms(request: Request):
 @app.get("/health")
 def health():
     return JSONResponse({"status": "ok"})
+
+
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    return Response(
+        "User-agent: *\n"
+        "Allow: /$\n"
+        "Allow: /about$\n"
+        "Allow: /terms$\n"
+        "Allow: /privacy$\n"
+        "Allow: /login$\n"
+        "Allow: /signup$\n"
+        "Allow: /forgot-password$\n"
+        "Disallow: /\n",
+        media_type="text/plain",
+    )
 
 
 def _landing_context(request: Request, user, settings):
