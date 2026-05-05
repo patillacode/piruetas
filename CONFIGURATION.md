@@ -69,3 +69,15 @@ Password for the demo account.
 
 **`DEMO_RESET_INTERVAL`** (default: `1800`)
 Seconds between automatic demo content wipes.
+
+---
+
+## Scheduled Tasks
+
+| Setting | Default | Description |
+|---|---|---|
+| `CLEANUP_SCHEDULE` | `0 3 * * *` | Orphaned image cleanup — daily at 3am |
+| `VACUUM_SCHEDULE` | `0 3 * * 0` | SQLite VACUUM — weekly Sunday at 3am |
+| `STORAGE_SCHEDULE` | `0 4 * * *` | Per-user storage recalculation — daily at 4am |
+
+All values are standard cron expressions.

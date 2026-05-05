@@ -8,13 +8,31 @@
 .btn-sm { font-size: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); background: none; color: var(--text-secondary); font-family: var(--font-ui); transition: all 150ms ease; white-space: nowrap; }
 .btn-sm:hover { color: var(--accent); border-color: var(--accent); }
 .btn-sm-danger:hover { color: var(--color-error); border-color: var(--color-error); }
-.reset-form { display: none; margin-top: 0.5rem; }
-.reset-form input { padding: 0.25rem 0.5rem; font-size: 0.875rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); margin-right: 0.375rem; }
 
 .page-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
 .page-actions__title { font-size: 0.9375rem; font-weight: 500; color: var(--text); }
-.btn--action { width: auto; padding: 0.5rem 1rem; font-size: 0.875rem; }
 .td--name { font-weight: 500; }
 .td--meta { color: var(--text-secondary); font-size: 0.8125rem; }
-.inline-form { display: flex; gap: 0.375rem; align-items: center; }
+.td--pct { color: var(--text-secondary); font-size: 0.75rem; }
 .form__error--mb { margin-bottom: 1rem; }
+
+.modal--user { max-width: 480px; }
+.modal--user .modal__title { font-family: var(--font-ui); font-size: 1.125rem; font-weight: 600; }
+.modal__section { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+.modal__section:first-of-type { margin-top: 0.5rem; padding-top: 0; border-top: none; }
+.modal__section-title { font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.75rem; }
+.modal__section-title--danger { color: var(--color-error); }
+.modal__section--danger { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+
+.stat-list { margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.375rem; }
+.stat-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.875rem; }
+.stat-row dt { color: var(--text-secondary); }
+.stat-row dd { margin: 0; font-weight: 500; color: var(--text); }
+
+.modal__textarea { width: 100%; box-sizing: border-box; padding: 0.5rem 0.625rem; font-size: 0.875rem; font-family: var(--font-ui); border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); resize: vertical; }
+.modal__textarea:focus { outline: none; border-color: var(--accent); }
+.modal__banner-actions { display: flex; gap: 0.5rem; margin-top: 0.625rem; }
+.modal__delete-warning { font-size: 0.875rem; color: var(--text-secondary); margin: 0 0 0.75rem; }
+.modal__feedback { font-size: 0.8125rem; margin: 0.5rem 0 0; }
+.modal__feedback--ok { color: var(--color-success, var(--accent)); }
+.modal__feedback--error { color: var(--color-error); }

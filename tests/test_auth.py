@@ -1,6 +1,9 @@
 import datetime
 from unittest.mock import patch
 
+from sqlmodel import select
+
+from app.models import User
 from app.session_token import make_session_token
 from app.settings import get_settings
 from tests.conftest import get_csrf, login
@@ -20,12 +23,14 @@ def signup(client, username, password, confirm_password=None):
     )
 
 
-def test_login_success(client, admin_user):
+def test_login_success(client, admin_user, session):
     resp = login(client, "admin", "adminpass123")
     assert resp.status_code == 302
     today = datetime.date.today()
     assert resp.headers["location"] == f"/journal/{today.year}/{today.month:02d}/{today.day:02d}"
     assert "piruetas_session" in resp.cookies
+    session.refresh(admin_user)
+    assert admin_user.last_login is not None
 
 
 def test_login_wrong_password(client, admin_user):
@@ -94,11 +99,14 @@ def test_signup_page_accessible(client):
     assert b"Create account" in resp.content
 
 
-def test_signup_success_redirects_and_sets_session(client):
+def test_signup_success_redirects_and_sets_session(client, session):
     resp = signup(client, "newuser", "securepass123")
     assert resp.status_code == 302
     assert resp.headers["location"] == "/account/recovery-codes"
     assert "piruetas_session" in resp.cookies
+    user = session.exec(select(User).where(User.username == "newuser")).first()
+    assert user is not None
+    assert user.last_login is not None
 
 
 def test_signup_page_redirects_when_authenticated(client, admin_user):

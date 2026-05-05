@@ -10,11 +10,15 @@ from app.routers import admin as admin_router
 from tests.conftest import get_csrf, login
 
 
-def test_admin_page_accessible_to_admin(client, admin_user):
+def test_admin_page_accessible_to_admin(client, admin_user, regular_user):
     login(client, "admin", "adminpass123")
     resp = client.get("/admin/")
     assert resp.status_code == 200
     assert b"Users" in resp.content
+    assert b"admin" in resp.content
+    assert b"testuser" in resp.content
+    assert b"Never" in resp.content
+    assert b"0 B" in resp.content
 
 
 def test_admin_page_forbidden_to_regular_user(client, regular_user):
@@ -122,3 +126,89 @@ def test_run_vacuum_db_task(client, admin_user, monkeypatch):
         data={"csrf_token": get_csrf(client)},
     )
     assert resp.status_code == 303
+
+
+def test_run_recalculate_storage_task(client, admin_user, monkeypatch):
+
+    monkeypatch.setattr(admin_router, "run_recalculate_storage", lambda data_dir: "ok")
+    login(client, "admin", "adminpass123")
+    resp = client.post(
+        "/admin/tasks/recalculate-storage/run",
+        data={"csrf_token": get_csrf(client)},
+    )
+    assert resp.status_code == 303
+
+
+def test_set_banner(client, session, admin_user, regular_user):
+    login(client, "admin", "adminpass123")
+    resp = client.post(
+        f"/admin/users/{regular_user.id}/set-banner",
+        data={"csrf_token": get_csrf(client), "banner_message": "Hello user!"},
+    )
+    assert resp.status_code == 200
+    assert resp.json() == {"ok": True}
+    session.refresh(regular_user)
+    assert regular_user.banner_message == "Hello user!"
+
+
+def test_set_banner_strips_whitespace(client, session, admin_user, regular_user):
+    login(client, "admin", "adminpass123")
+    client.post(
+        f"/admin/users/{regular_user.id}/set-banner",
+        data={"csrf_token": get_csrf(client), "banner_message": "  trimmed  "},
+    )
+    session.refresh(regular_user)
+    assert regular_user.banner_message == "trimmed"
+
+
+def test_set_banner_empty_clears(client, session, admin_user, regular_user):
+    login(client, "admin", "adminpass123")
+    client.post(
+        f"/admin/users/{regular_user.id}/set-banner",
+        data={"csrf_token": get_csrf(client), "banner_message": "  "},
+    )
+    session.refresh(regular_user)
+    assert regular_user.banner_message is None
+
+
+def test_set_banner_too_long(client, admin_user, regular_user):
+    login(client, "admin", "adminpass123")
+    resp = client.post(
+        f"/admin/users/{regular_user.id}/set-banner",
+        data={"csrf_token": get_csrf(client), "banner_message": "x" * 301},
+    )
+    assert resp.status_code == 400
+
+
+def test_set_banner_user_not_found(client, admin_user):
+    login(client, "admin", "adminpass123")
+    resp = client.post(
+        "/admin/users/99999/set-banner",
+        data={"csrf_token": get_csrf(client), "banner_message": "hi"},
+    )
+    assert resp.status_code == 404
+
+
+def test_clear_banner(client, session, admin_user, regular_user):
+    regular_user.banner_message = "existing"
+    session.add(regular_user)
+    session.commit()
+
+    login(client, "admin", "adminpass123")
+    resp = client.post(
+        f"/admin/users/{regular_user.id}/clear-banner",
+        data={"csrf_token": get_csrf(client)},
+    )
+    assert resp.status_code == 200
+    assert resp.json() == {"ok": True}
+    session.refresh(regular_user)
+    assert regular_user.banner_message is None
+
+
+def test_clear_banner_user_not_found(client, admin_user):
+    login(client, "admin", "adminpass123")
+    resp = client.post(
+        "/admin/users/99999/clear-banner",
+        data={"csrf_token": get_csrf(client)},
+    )
+    assert resp.status_code == 404

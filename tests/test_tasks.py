@@ -1,7 +1,7 @@
 # tests for app/tasks.py
 import os
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import bcrypt
 import pytest
@@ -13,8 +13,10 @@ from app.settings import get_settings
 from app.tasks import (
     get_tasks,
     run_cleanup_images,
+    run_recalculate_storage,
     run_vacuum_db,
     scheduled_cleanup_images,
+    scheduled_recalculate_storage,
     scheduled_vacuum_db,
 )
 
@@ -52,6 +54,7 @@ def test_get_tasks_returns_registry(task_env):
     tasks = get_tasks()
     assert "cleanup_images" in tasks
     assert "vacuum_db" in tasks
+    assert "recalculate_storage" in tasks
 
 
 def test_run_cleanup_images_no_uploads_dir(task_env, tmp_path):
@@ -152,6 +155,57 @@ def test_run_cleanup_orphaned_unlink_exception_is_swallowed(task_env, tmp_path):
     with patch.object(Path, "unlink", fail_unlink):
         result = run_cleanup_images(str(tmp_path))
     assert "Removed" in result
+
+
+def test_run_recalculate_storage_no_uploads_dir(task_env, tmp_path):
+    with Session(db_module.get_engine()) as s:
+        user = _seed_user(s, "st0")
+        uid = user.id
+
+    result = run_recalculate_storage(str(tmp_path))
+    assert "Updated storage for" in result
+
+    with Session(db_module.get_engine()) as s:
+        user = s.get(User, uid)
+        assert user.storage_bytes == 0
+
+
+def test_run_recalculate_storage_counts_files(task_env, tmp_path):
+    with Session(db_module.get_engine()) as s:
+        user = _seed_user(s, "st1")
+        uid = user.id
+
+    uploads = tmp_path / "uploads" / str(uid)
+    uploads.mkdir(parents=True, exist_ok=True)
+    (uploads / "a.jpg").write_bytes(b"\xff" * 100)
+    (uploads / "b.jpg").write_bytes(b"\xff" * 200)
+
+    run_recalculate_storage(str(tmp_path))
+
+    with Session(db_module.get_engine()) as s:
+        user = s.get(User, uid)
+        assert user.storage_bytes == 300
+
+
+def test_run_recalculate_storage_stat_exception_is_swallowed(task_env, tmp_path):
+    with Session(db_module.get_engine()) as s:
+        user = _seed_user(s, "st2")
+        uid = user.id
+
+    uploads = tmp_path / "uploads" / str(uid)
+    uploads.mkdir(parents=True, exist_ok=True)
+
+    ghost = MagicMock(spec=Path)
+    ghost.is_file.return_value = True
+    ghost.stat.side_effect = OSError("simulated disappearance")
+
+    with patch.object(Path, "rglob", return_value=iter([ghost])):
+        result = run_recalculate_storage(str(tmp_path))
+    assert "Updated storage for" in result
+
+
+def test_scheduled_recalculate_storage_delegates(task_env, tmp_path):
+    assert scheduled_recalculate_storage(str(tmp_path)) is None
 
 
 def test_run_cleanup_disk_only_unlink_exception_is_swallowed(task_env, tmp_path):

@@ -6,7 +6,7 @@ from pathlib import Path
 from sqlmodel import Session, select
 
 from app.database import get_engine
-from app.models import Entry, Image
+from app.models import Entry, Image, User
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,10 @@ _registry: dict[str, TaskState] = {
     "vacuum_db": TaskState(
         name="Database VACUUM",
         description="Reclaims unused disk space in the SQLite database.",
+    ),
+    "recalculate_storage": TaskState(
+        name="Recalculate storage",
+        description="Recalculates disk usage per user from their uploads directory.",
     ),
 }
 
@@ -93,9 +97,38 @@ def run_vacuum_db() -> str:
     return result
 
 
+def _dir_size(directory: Path) -> int:
+    total = 0
+    for f in directory.rglob("*"):
+        if f.is_file():
+            try:
+                total += f.stat().st_size
+            except OSError:
+                logger.exception("Failed to stat file %s", f)
+    return total
+
+
+def run_recalculate_storage(data_dir: str) -> str:
+    uploads_dir = Path(data_dir) / "uploads"
+    with Session(get_engine()) as session:
+        users = session.exec(select(User)).all()
+        for user in users:
+            user_dir = uploads_dir / str(user.id)
+            user.storage_bytes = _dir_size(user_dir) if user_dir.exists() else 0
+        session.commit()
+    result = f"Updated storage for {len(users)} users."
+    logger.info("recalculate_storage: %s", result)
+    _record("recalculate_storage", result)
+    return result
+
+
 def scheduled_cleanup_images(data_dir: str) -> None:
     run_cleanup_images(data_dir)
 
 
 def scheduled_vacuum_db() -> None:
     run_vacuum_db()
+
+
+def scheduled_recalculate_storage(data_dir: str) -> None:
+    run_recalculate_storage(data_dir)

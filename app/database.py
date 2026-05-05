@@ -56,6 +56,20 @@ def _run_migrations(engine) -> None:
             )
         except OperationalError:
             pass
+        try:
+            conn.execute(text("ALTER TABLE user ADD COLUMN last_login DATETIME"))
+        except OperationalError:
+            pass
+        try:
+            conn.execute(
+                text("ALTER TABLE user ADD COLUMN storage_bytes INTEGER NOT NULL DEFAULT 0")
+            )
+        except OperationalError:
+            pass
+        try:
+            conn.execute(text("ALTER TABLE user ADD COLUMN banner_message TEXT"))
+        except OperationalError:
+            pass
         conn.commit()
 
 
@@ -77,14 +91,21 @@ def seed_demo(session: Session) -> None:
     if not settings.demo_enabled:
         return
     hashed = bcrypt.hashpw(settings.demo_password.encode(), bcrypt.gensalt()).decode()
+    _demo_banner = "This is a demo account. All data resets at :00 and :30 of every hour."
     existing = session.exec(select(User).where(User.username == settings.demo_username)).first()
     if existing:
         existing.hashed_password = hashed
         existing.session_version += 1
+        existing.banner_message = _demo_banner
         session.add(existing)
         session.commit()
     else:
-        demo = User(username=settings.demo_username, hashed_password=hashed, is_admin=False)
+        demo = User(
+            username=settings.demo_username,
+            hashed_password=hashed,
+            is_admin=False,
+            banner_message=_demo_banner,
+        )
         try:
             session.add(demo)
             session.commit()

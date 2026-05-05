@@ -1,9 +1,12 @@
 import logging
 import shutil
+from datetime import date
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.responses import JSONResponse, RedirectResponse
+from sqlalchemy import func
+from sqlalchemy import select as sa_select
 from sqlmodel import Session, select
 
 from app.csrf import require_csrf
@@ -11,7 +14,7 @@ from app.database import get_session
 from app.dependencies import require_admin
 from app.models import Entry, Image, User
 from app.settings import get_settings
-from app.tasks import get_tasks, run_cleanup_images, run_vacuum_db
+from app.tasks import get_tasks, run_cleanup_images, run_recalculate_storage, run_vacuum_db
 from app.templates_config import ctx, templates
 
 logger = logging.getLogger(__name__)
@@ -25,12 +28,24 @@ async def admin_users(
     session: Session = Depends(get_session),
     current_admin: User = Depends(require_admin),
 ):
-    users = session.exec(select(User).order_by(User.created_at)).all()
+    stmt = (
+        sa_select(User, func.count(Entry.id).label("entry_count"))
+        .outerjoin(Entry, Entry.user_id == User.id)
+        .group_by(User.id)
+        .order_by(User.created_at)
+    )
+    rows = session.execute(stmt).all()
+    today = date.today()
+    user_stats = []
+    for user, entry_count in rows:
+        days = max((today - user.created_at.date()).days, 1)
+        pct_days = round(entry_count / days * 100)
+        user_stats.append({"user": user, "entry_count": entry_count, "pct_days": pct_days})
     error = request.query_params.get("error")
     return templates.TemplateResponse(
         request,
         "admin/users.html",
-        ctx(request, users=users, user=current_admin, error=error, nav_section="admin"),
+        ctx(request, user_stats=user_stats, user=current_admin, error=error, nav_section="admin"),
     )
 
 
@@ -99,4 +114,50 @@ async def run_task_vacuum_db(
     _csrf=Depends(require_csrf),
 ):
     run_vacuum_db()
+    return RedirectResponse("/admin/tasks", status_code=303)
+
+
+@router.post("/users/{user_id}/set-banner")
+async def set_user_banner(
+    user_id: int,
+    banner_message: str = Form(...),
+    session: Session = Depends(get_session),
+    current_admin: User = Depends(require_admin),
+    _csrf=Depends(require_csrf),
+):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if len(banner_message.strip()) > 300:
+        raise HTTPException(status_code=400, detail="Banner message exceeds 300 characters")
+    user.banner_message = banner_message.strip() or None
+    session.add(user)
+    session.commit()
+    return JSONResponse({"ok": True})
+
+
+@router.post("/users/{user_id}/clear-banner")
+async def clear_user_banner(
+    user_id: int,
+    session: Session = Depends(get_session),
+    current_admin: User = Depends(require_admin),
+    _csrf=Depends(require_csrf),
+):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.banner_message = None
+    session.add(user)
+    session.commit()
+    return JSONResponse({"ok": True})
+
+
+@router.post("/tasks/recalculate-storage/run")
+async def run_task_recalculate_storage(
+    request: Request,
+    current_admin: User = Depends(require_admin),
+    _csrf=Depends(require_csrf),
+):
+    settings = get_settings()
+    run_recalculate_storage(settings.data_dir)
     return RedirectResponse("/admin/tasks", status_code=303)

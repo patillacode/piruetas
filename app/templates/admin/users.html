@@ -23,11 +23,14 @@
                 <th>{{ t.username }}</th>
                 <th>{{ t.role }}</th>
                 <th>{{ t.joined }}</th>
+                <th>{{ t.last_login }}</th>
+                <th>{{ t.entries_label }}</th>
                 <th>{{ t.actions }}</th>
             </tr>
         </thead>
         <tbody>
-            {% for u in users %}
+            {% for stat in user_stats %}
+            {% set u = stat.user %}
             <tr>
                 <td class="td--name">{{ u.username }}</td>
                 <td>
@@ -36,24 +39,95 @@
                     </span>
                 </td>
                 <td class="td--meta">
-                    {% if u.created_at %}{{ u.created_at.strftime('%b') }} {{ u.created_at.day }}, {{ u.created_at.year }}{% else %}—{% endif %}
+                    {% if u.created_at %}{{ u.created_at | datefmt(locale) }}{% else %}—{% endif %}
                 </td>
+                <td class="td--meta">
+                    {% if u.last_login %}{{ u.last_login | datefmt(locale) }}{% else %}{{ t.never }}{% endif %}
+                </td>
+                <td class="td--meta">{{ stat.entry_count }}</td>
                 <td>
-                    {% if not u.is_admin %}
-                    <form method="post" action="/admin/users/{{ u.id }}/delete" class="action-form"
-                          data-confirm="{{ t.delete_confirm | replace('{name}', u.username) }}">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                        <button type="submit" class="btn-sm btn-sm-danger">{{ t.delete }}</button>
-                    </form>
-                    {% else %}
-                    <span class="td--meta">—</span>
-                    {% endif %}
+                    <button type="button" class="btn-sm btn-details"
+                        data-user-id="{{ u.id }}"
+                        data-username="{{ u.username }}"
+                        data-is-admin="{{ 'true' if u.is_admin else 'false' }}"
+                        data-entry-count="{{ stat.entry_count }}"
+                        data-pct-days="{{ stat.pct_days }}"
+                        data-last-login="{% if u.last_login %}{{ u.last_login | datefmt(locale) }}{% else %}{{ t.never }}{% endif %}"
+                        data-storage="{{ u.storage_bytes | filesizeformat }}"
+                        data-banner="{{ u.banner_message or '' }}"
+                    >{{ t.user_details }}</button>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<div class="modal-overlay" id="user-modal" hidden aria-modal="true" role="dialog" aria-labelledby="user-modal-title">
+    <div class="modal modal--user">
+        <h2 class="modal__title" id="user-modal-title"></h2>
+
+        <section class="modal__section">
+            <h3 class="modal__section-title">{{ t.stats }}</h3>
+            <dl class="stat-list">
+                <div class="stat-row">
+                    <dt>{{ t.entries_label }}</dt>
+                    <dd id="modal-entries"></dd>
+                </div>
+                <div class="stat-row">
+                    <dt>{{ t.last_login }}</dt>
+                    <dd id="modal-last-login"></dd>
+                </div>
+                <div class="stat-row">
+                    <dt>{{ t.storage }}</dt>
+                    <dd id="modal-storage"></dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="modal__section" id="modal-banner-section">
+            <h3 class="modal__section-title">{{ t.banner }}</h3>
+            <textarea id="modal-banner-text" class="modal__textarea"
+                      placeholder="{{ t.banner_placeholder }}" maxlength="300" rows="3"></textarea>
+            <div class="modal__banner-actions">
+                <button type="button" class="btn-accent" id="modal-set-banner">{{ t.set_banner }}</button>
+                <button type="button" class="btn-ghost" id="modal-clear-banner">{{ t.clear_banner }}</button>
+            </div>
+            <p class="modal__feedback" id="modal-feedback" hidden></p>
+        </section>
+
+        <section class="modal__section modal__section--danger" id="modal-danger-section">
+            <h3 class="modal__section-title modal__section-title--danger">{{ t.danger_zone }}</h3>
+            <div id="modal-delete-idle">
+                <button type="button" class="btn-accent btn-danger" id="modal-delete-btn">{{ t.delete_account }}</button>
+            </div>
+            <div id="modal-delete-confirm" hidden>
+                <p class="modal__delete-warning" id="modal-delete-warning"></p>
+                <div class="modal__banner-actions">
+                    <form method="post" id="modal-delete-form" style="display:contents">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="btn-accent btn-danger">{{ t.delete }}</button>
+                    </form>
+                    <button type="button" class="btn-ghost" id="modal-delete-cancel">{{ t.cancel }}</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="modal__actions">
+            <button type="button" class="btn-ghost" id="modal-close">{{ t.close }}</button>
+        </div>
+    </div>
+</div>
+
+<script nonce="{{ csp_nonce }}">
+window.ADMIN_I18N = {
+    banner_saved: {{ t.banner_saved | tojson }},
+    banner_cleared: {{ t.banner_cleared | tojson }},
+    action_error: {{ t.action_error | tojson }},
+    delete_confirm: {{ t.delete_confirm | tojson }}
+};
+</script>
+
 {% block page_scripts %}
 <script src="/static/js/admin-users.js"></script>
 {% endblock %}

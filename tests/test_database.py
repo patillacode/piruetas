@@ -75,6 +75,73 @@ def test_init_db_creates_tables(db_env):
 def test_run_migrations_is_idempotent(db_env):
     db_module.init_db()
     db_module._run_migrations(db_module.get_engine())
+    inspector = inspect(db_module.get_engine())
+    user_cols = {c["name"] for c in inspector.get_columns("user")}
+    for col in (
+        "id",
+        "username",
+        "hashed_password",
+        "is_admin",
+        "session_version",
+        "created_at",
+        "last_login",
+        "storage_bytes",
+        "banner_message",
+    ):
+        assert col in user_cols, f"Missing user column: {col}"
+    entry_cols = {c["name"] for c in inspector.get_columns("entry")}
+    for col in (
+        "id",
+        "user_id",
+        "date",
+        "content",
+        "word_count",
+        "share_token",
+        "created_at",
+        "updated_at",
+    ):
+        assert col in entry_cols, f"Missing entry column: {col}"
+
+
+def test_run_migrations_on_legacy_db(db_env):
+    from sqlalchemy import text
+
+    engine = db_module.get_engine()
+    with engine.connect() as conn:
+        conn.execute(
+            text(
+                'CREATE TABLE "user" ('
+                "id INTEGER PRIMARY KEY, "
+                "username TEXT NOT NULL UNIQUE, "
+                "hashed_password TEXT NOT NULL, "
+                "is_admin INTEGER NOT NULL DEFAULT 0, "
+                "created_at DATETIME"
+                ")"
+            )
+        )
+        conn.execute(
+            text(
+                "CREATE TABLE entry ("
+                "id INTEGER PRIMARY KEY, "
+                "user_id INTEGER, "
+                "date TEXT, "
+                "content TEXT, "
+                "word_count INTEGER DEFAULT 0, "
+                "created_at DATETIME, "
+                "updated_at DATETIME"
+                ")"
+            )
+        )
+        conn.commit()
+
+    db_module._run_migrations(engine)
+
+    inspector = inspect(engine)
+    user_cols = {c["name"] for c in inspector.get_columns("user")}
+    for col in ("session_version", "last_login", "storage_bytes", "banner_message"):
+        assert col in user_cols, f"Migration failed to add column: {col}"
+    entry_cols = {c["name"] for c in inspector.get_columns("entry")}
+    assert "share_token" in entry_cols, "Migration failed to add share_token to entry"
 
 
 def test_seed_admin_creates_user(db_env):

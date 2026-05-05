@@ -93,6 +93,9 @@ async def login(
     user = session.exec(select(User).where(User.username == username)).first()
     if user and bcrypt.checkpw(password.encode(), user.hashed_password.encode()):
         clear_attempts(ip)
+        user.last_login = datetime.datetime.now(datetime.UTC)
+        session.add(user)
+        session.commit()
         token = make_session_token(
             user.id, user.is_admin, user.session_version, settings.secret_key
         )
@@ -210,6 +213,7 @@ async def signup(
 
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     user = User(username=username, hashed_password=hashed, is_admin=False)
+    user.last_login = datetime.datetime.now(datetime.UTC)
     session.add(user)
     session.commit()
     session.refresh(user)

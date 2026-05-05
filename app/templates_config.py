@@ -5,20 +5,38 @@ from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 
 from app.csrf import generate_csrf_token
-from app.i18n import get_locale, get_month_names, get_short_weekday_names, get_t, get_weekday_names
+from app.i18n import (
+    MONTH_NAMES,
+    get_locale,
+    get_month_names,
+    get_short_weekday_names,
+    get_t,
+    get_weekday_names,
+)
 from app.session_token import SESSION_COOKIE
 from app.settings import get_settings
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 
-def _next_half_hour_ts() -> int:
-    now = datetime.datetime.now()
-    if now.minute < 30:
-        next_reset = now.replace(minute=30, second=0, microsecond=0)
-    else:
-        next_reset = (now + datetime.timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
-    return int(next_reset.timestamp())
+def _datefmt(value, locale: str = "en") -> str | None:
+    if value is None:
+        return None
+    month = MONTH_NAMES.get(locale, MONTH_NAMES["en"])[value.month - 1]
+    return f"{month} {value.day}, {value.year}"
+
+
+def _filesizeformat(value: int) -> str:
+    size = float(value)
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024:
+            return f"{int(size)} B" if unit == "B" else f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} TB"
+
+
+templates.env.filters["datefmt"] = _datefmt
+templates.env.filters["filesizeformat"] = _filesizeformat
 
 
 def ctx(request: Request, **kwargs) -> dict:
@@ -28,10 +46,6 @@ def ctx(request: Request, **kwargs) -> dict:
     session_token = request.cookies.get(SESSION_COOKIE, "")
     csrf_token = generate_csrf_token(session_token) if session_token else ""
     csp_nonce = getattr(request.state, "csp_nonce", "")
-    user = kwargs.get("user")
-    is_demo = bool(
-        settings.demo_enabled and user is not None and user.username == settings.demo_username
-    )
     return {
         "locale": locale,
         "t": get_t(request),
@@ -43,7 +57,5 @@ def ctx(request: Request, **kwargs) -> dict:
         "csp_nonce": csp_nonce,
         "show_donation_prompts": settings.show_donation_prompts,
         "current_year": datetime.date.today().year,
-        "is_demo": is_demo,
-        "demo_next_reset_ts": _next_half_hour_ts() if is_demo else None,
         **kwargs,
     }

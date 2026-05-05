@@ -11,6 +11,9 @@ class User(SQLModel, table=True):
     is_admin: bool = Field(default=False)
     session_version: int = Field(default=0)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    last_login: datetime | None = Field(default=None)
+    storage_bytes: int = Field(default=0)
+    banner_message: str | None = Field(default=None)
 
 
 class Entry(SQLModel, table=True):

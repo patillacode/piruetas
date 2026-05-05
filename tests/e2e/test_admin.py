@@ -8,12 +8,12 @@ def test_admin_dashboard_loads(admin_page: Page, live_server: str, seed_admin):
 
 
 def test_delete_user(admin_page: Page, live_server: str, seed_admin, seed_user):
-    user_id = seed_user.id
     admin_page.goto(f"{live_server}/admin/")
-    admin_page.wait_for_selector(f'form[action="/admin/users/{user_id}/delete"]')
-    admin_page.evaluate("window.onbeforeunload = null")
-    admin_page.on("dialog", lambda dialog: dialog.accept())
-    admin_page.click(f'form[action="/admin/users/{user_id}/delete"] button[type="submit"]')
+    admin_page.locator(f'.btn-details[data-username="{seed_user.username}"]').click()
+    admin_page.wait_for_selector("#user-modal", state="visible")
+    admin_page.click("#modal-delete-btn")
+    admin_page.wait_for_selector("#modal-delete-confirm", state="visible")
+    admin_page.click('#modal-delete-form button[type="submit"]')
     admin_page.wait_for_url(f"{live_server}/admin/")
     assert admin_page.locator(f"text={seed_user.username}").count() == 0
 

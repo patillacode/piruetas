@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     show_donation_prompts: bool = True
     cleanup_schedule: str = "0 3 * * *"  # daily at 3am
     vacuum_schedule: str = "0 3 * * 0"  # weekly on Sunday at 3am
+    storage_schedule: str = "0 4 * * *"  # daily at 4am
     hosted_price_monthly: float = 5.0  # EUR
     hosted_price_yearly: float = 50.0  # EUR
     registration_open: bool = False

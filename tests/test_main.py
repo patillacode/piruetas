@@ -125,3 +125,11 @@ def test_privacy_page(client):
 def test_terms_page(client):
     resp = client.get("/terms")
     assert resp.status_code == 200
+
+
+def test_robots_txt(client):
+    resp = client.get("/robots.txt")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/plain")
+    assert b"User-agent: *" in resp.content
+    assert b"Disallow: /" in resp.content

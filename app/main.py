@@ -18,7 +18,7 @@ from app.database import delete_demo_user_content, get_engine, init_db, seed_adm
 from app.dependencies import get_current_user_optional
 from app.routers import account, admin, auth, journal, upload
 from app.settings import get_settings
-from app.tasks import scheduled_cleanup_images, scheduled_vacuum_db
+from app.tasks import scheduled_cleanup_images, scheduled_recalculate_storage, scheduled_vacuum_db
 from app.templates_config import ctx, templates
 
 
@@ -40,6 +40,26 @@ async def _demo_cleanup_loop() -> None:
             delete_demo_user_content(session)
 
 
+def _register_jobs(scheduler: BackgroundScheduler, settings) -> None:
+    scheduler.add_job(
+        scheduled_cleanup_images,
+        CronTrigger.from_crontab(settings.cleanup_schedule),
+        args=[settings.data_dir],
+        id="cleanup_images",
+    )
+    scheduler.add_job(
+        scheduled_vacuum_db,
+        CronTrigger.from_crontab(settings.vacuum_schedule),
+        id="vacuum_db",
+    )
+    scheduler.add_job(
+        scheduled_recalculate_storage,
+        CronTrigger.from_crontab(settings.storage_schedule),
+        args=[settings.data_dir],
+        id="recalculate_storage",
+    )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
@@ -52,17 +72,7 @@ async def lifespan(app: FastAPI):
     task = asyncio.create_task(_demo_cleanup_loop()) if settings.demo_enabled else None
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        scheduled_cleanup_images,
-        CronTrigger.from_crontab(settings.cleanup_schedule),
-        args=[settings.data_dir],
-        id="cleanup_images",
-    )
-    scheduler.add_job(
-        scheduled_vacuum_db,
-        CronTrigger.from_crontab(settings.vacuum_schedule),
-        id="vacuum_db",
-    )
+    _register_jobs(scheduler, settings)
     scheduler.start()
 
     yield

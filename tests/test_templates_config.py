@@ -1,25 +1,47 @@
-import datetime as dt
-from unittest.mock import MagicMock, patch
+from datetime import date
 
-from app.templates_config import _next_half_hour_ts
-
-
-def _mock_dt(fixed: dt.datetime):
-    m = MagicMock()
-    m.datetime.now.return_value = fixed
-    m.timedelta = dt.timedelta
-    return m
+from app.templates_config import _datefmt, _filesizeformat
 
 
-def test_next_half_hour_ts_before_half():
-    fixed = dt.datetime(2024, 1, 1, 10, 15, 0, 0)
-    expected = int(dt.datetime(2024, 1, 1, 10, 30, 0, 0).timestamp())
-    with patch("app.templates_config.datetime", _mock_dt(fixed)):
-        assert _next_half_hour_ts() == expected
+def test_datefmt_none():
+    assert _datefmt(None) is None
 
 
-def test_next_half_hour_ts_after_half():
-    fixed = dt.datetime(2024, 1, 1, 10, 45, 0, 0)
-    expected = int(dt.datetime(2024, 1, 1, 11, 0, 0, 0).timestamp())
-    with patch("app.templates_config.datetime", _mock_dt(fixed)):
-        assert _next_half_hour_ts() == expected
+def test_datefmt_en():
+    assert _datefmt(date(2024, 3, 15), "en") == "March 15, 2024"
+
+
+def test_datefmt_es():
+    assert _datefmt(date(2024, 3, 15), "es") == "Marzo 15, 2024"
+
+
+def test_datefmt_default_locale():
+    assert _datefmt(date(2024, 1, 1)) == "January 1, 2024"
+
+
+def test_datefmt_unknown_locale_falls_back_to_en():
+    assert _datefmt(date(2024, 6, 1), "fr") == "June 1, 2024"
+
+
+def test_filesizeformat_bytes():
+    assert _filesizeformat(512) == "512 B"
+
+
+def test_filesizeformat_zero():
+    assert _filesizeformat(0) == "0 B"
+
+
+def test_filesizeformat_exactly_1kb():
+    assert _filesizeformat(1024) == "1.0 KB"
+
+
+def test_filesizeformat_mb():
+    assert _filesizeformat(1024 * 1024) == "1.0 MB"
+
+
+def test_filesizeformat_gb():
+    assert _filesizeformat(1024**3) == "1.0 GB"
+
+
+def test_filesizeformat_tb():
+    assert _filesizeformat(1024**4) == "1.0 TB"
