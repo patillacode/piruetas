@@ -5,6 +5,19 @@ import httpx
 import pytest
 from playwright.sync_api import Page, expect
 
+
+def _unique_username() -> str:
+    return f"reg_{uuid.uuid4().hex[:8]}"
+
+
+def _register(page: Page, live_server: str, username: str, password: str = "testpassword123"):
+    page.goto(f"{live_server}/signup")
+    page.fill('input[name="username"]', username)
+    page.fill('input[name="password"]', password)
+    page.fill('input[name="confirm_password"]', password)
+    page.click('button[type="submit"]')
+
+
 # ── Registration closed (default server state) ────────────────────────────────
 
 
@@ -39,18 +52,6 @@ def test_signup_post_redirects_when_closed(live_server):
 # ── Registration open ─────────────────────────────────────────────────────────
 
 
-def _unique_username() -> str:
-    return f"reg_{uuid.uuid4().hex[:8]}"
-
-
-def _register(page: Page, live_server: str, username: str, password: str = "testpassword123"):
-    page.goto(f"{live_server}/signup")
-    page.fill('input[name="username"]', username)
-    page.fill('input[name="password"]', password)
-    page.fill('input[name="confirm_password"]', password)
-    page.click('button[type="submit"]')
-
-
 def test_registration_form_loads(page: Page, registration_enabled):
     page.goto(f"{registration_enabled}/signup")
     expect(page.locator('input[name="username"]')).to_be_visible()
@@ -81,7 +82,7 @@ def test_registration_username_taken(page: Page, registration_enabled, seed_user
     expect(page.locator("text=Username already taken")).to_be_visible()
 
 
-# ── Recovery codes page ───────────────────────────────────────────────────────
+# ── Recovery codes page after registration ────────────────────────────────────
 
 
 def _go_to_recovery_codes(page: Page, live_server: str) -> Page:

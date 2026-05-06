@@ -37,7 +37,7 @@ test:
 
 # Run E2E tests with Playwright (chromium + firefox)
 test-e2e:
-    uv run pytest tests/e2e/ -v --browser chromium --browser firefox
+    uv run pytest tests/e2e/ -v --browser chromium --browser firefox --dist=loadfile -n 2
 
 # Run E2E tests with visible browser (for debugging)
 test-e2e-headed:

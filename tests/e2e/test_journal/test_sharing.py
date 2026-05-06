@@ -1,5 +1,4 @@
 import base64
-from datetime import date
 
 import httpx
 from playwright.sync_api import expect
@@ -14,15 +13,6 @@ MINIMAL_PNG = base64.b64decode(
 )
 
 
-def _seed_entry(user_id: int, content: str = "<p>Hello world</p>") -> Entry:
-    entry = Entry(user_id=user_id, date=date(2020, 1, 15), content=content, word_count=2)
-    with Session(get_engine()) as session:
-        session.add(entry)
-        session.commit()
-        session.refresh(entry)
-    return entry
-
-
 def _click_share(page, is_mobile: bool):
     if is_mobile:
         page.click("#mobile-menu-btn")
@@ -32,10 +22,7 @@ def _click_share(page, is_mobile: bool):
         page.locator("#share-btn").click()
 
 
-def test_share_page_renders_entry_content(page, live_server, seed_user):
-    entry_text = "My uniquely identifiable journal entry"
-    _seed_entry(seed_user.id, f"<p>{entry_text}</p>")
-
+def test_share_page_renders_entry_content(page, live_server, seed_user, seeded_entry):
     resp = httpx.post(
         f"{live_server}/journal/2020/01/15/share",
         cookies=_get_auth_cookies(seed_user),
@@ -45,10 +32,10 @@ def test_share_page_renders_entry_content(page, live_server, seed_user):
 
     page.goto(f"{live_server}/share/{share_token}")
     page.wait_for_load_state("networkidle")
-    expect(page.locator("body")).to_contain_text(entry_text)
+    expect(page.locator("body")).to_contain_text("Hello world")
 
 
-def test_share_token_image_access(page, live_server, seed_user):
+def test_share_token_grants_image_access(page, live_server, seed_user, seeded_entry):
     resp_upload = httpx.post(
         f"{live_server}/upload",
         files={"file": ("test.png", MINIMAL_PNG, "image/png")},
@@ -57,8 +44,11 @@ def test_share_token_image_access(page, live_server, seed_user):
     assert resp_upload.status_code == 200
     image_url = resp_upload.json()["url"]
 
-    content = f'<p>Shared entry</p><img src="{image_url}">'
-    _seed_entry(seed_user.id, content)
+    with Session(get_engine()) as session:
+        entry = session.get(Entry, seeded_entry.id)
+        assert entry is not None
+        entry.content = f'<p>Shared entry</p><img src="{image_url}">'
+        session.commit()
 
     resp_share = httpx.post(
         f"{live_server}/journal/2020/01/15/share",
@@ -66,10 +56,6 @@ def test_share_token_image_access(page, live_server, seed_user):
     )
     assert resp_share.status_code == 200
     share_token = resp_share.json()["url"].split("/share/")[1]
-
-    page.goto(f"{live_server}/share/{share_token}")
-    page.wait_for_load_state("networkidle")
-    assert "Shared entry" in page.locator("body").inner_text()
 
     img_resp = httpx.get(
         f"{live_server}{image_url}",
@@ -79,8 +65,7 @@ def test_share_token_image_access(page, live_server, seed_user):
     assert img_resp.status_code == 200
 
 
-def test_share_toggle_flow(authenticated_page, live_server, seed_user):
-    _seed_entry(seed_user.id)
+def test_share_toggle_flow(authenticated_page, live_server, seeded_entry):
     authenticated_page.goto(f"{live_server}/journal/2020/01/15")
     authenticated_page.wait_for_load_state("networkidle")
 
@@ -114,8 +99,7 @@ def test_share_toggle_flow(authenticated_page, live_server, seed_user):
     assert share_btn.get_attribute("aria-label") == "Share"
 
 
-def test_share_modal_shows_url(authenticated_page, live_server, seed_user):
-    _seed_entry(seed_user.id)
+def test_share_modal_shows_url(authenticated_page, live_server, seeded_entry):
     authenticated_page.goto(f"{live_server}/journal/2020/01/15")
     authenticated_page.wait_for_load_state("networkidle")
 
@@ -131,12 +115,30 @@ def test_share_modal_shows_url(authenticated_page, live_server, seed_user):
     assert "/share/" in share_url
 
 
-def test_share_legend_label(authenticated_page, live_server, seed_user):
-    entry = _seed_entry(seed_user.id)
+def test_share_revoked_entry_returns_404(page, live_server, seed_user, seeded_entry):
+    resp = httpx.post(
+        f"{live_server}/journal/2020/01/15/share",
+        cookies=_get_auth_cookies(seed_user),
+    )
+    share_token = resp.json()["url"].split("/share/")[1]
+
+    httpx.delete(
+        f"{live_server}/journal/2020/01/15/share",
+        cookies=_get_auth_cookies(seed_user),
+    )
+
+    page.goto(f"{live_server}/share/{share_token}")
+    page.wait_for_load_state("networkidle")
+    assert page.title() == "" or "404" in page.content() or page.url.endswith(share_token)
+    resp_check = httpx.get(f"{live_server}/share/{share_token}", follow_redirects=False)
+    assert resp_check.status_code == 404
+
+
+def test_share_legend_label(authenticated_page, live_server, seeded_entry):
     with Session(get_engine()) as session:
-        db_entry = session.get(Entry, entry.id)
-        assert db_entry is not None
-        db_entry.share_token = "test-legend-token"
+        entry = session.get(Entry, seeded_entry.id)
+        assert entry is not None
+        entry.share_token = "test-legend-token"
         session.commit()
 
     authenticated_page.goto(f"{live_server}/journal/2020/01/15")

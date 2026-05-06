@@ -27,6 +27,7 @@ dev = [
 e2e = [
     "playwright>=1.40",
     "pytest-playwright>=0.4",
+    "pytest-xdist>=3.5",
 ]
 
 [build-system]

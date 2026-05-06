@@ -187,11 +187,13 @@ def authenticated_page(page, live_server, seed_user, viewport):
 
 
 @pytest.fixture()
-def admin_page(page, live_server, seed_admin, viewport):
-    page.set_viewport_size(viewport)
+def admin_page(browser, live_server, seed_admin, viewport):
+    context = browser.new_context(viewport=viewport)
+    page = context.new_page()
     page.goto(live_server)
     page.context.add_cookies([_make_auth_cookie(seed_admin)])
     yield page
+    context.close()
 
 
 @pytest.fixture()
