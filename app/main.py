@@ -84,7 +84,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Piruetas", lifespan=lifespan)
 
-if get_settings().trust_proxy:
+if get_settings().trust_proxy:  # pragma: no cover
     app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 

@@ -16,9 +16,12 @@ def is_rate_limited(ip: str) -> bool:
         return len(_attempts[ip]) >= MAX_ATTEMPTS
 
 
-def record_failed_attempt(ip: str) -> None:
+def record_failed_attempt(ip: str) -> bool:
+    now = time.time()
     with _lock:
-        _attempts[ip].append(time.time())
+        _attempts[ip].append(now)
+        _attempts[ip] = [t for t in _attempts[ip] if now - t < WINDOW]
+        return len(_attempts[ip]) == MAX_ATTEMPTS
 
 
 def clear_attempts(ip: str) -> None:

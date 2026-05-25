@@ -72,6 +72,28 @@ Seconds between automatic demo content wipes.
 
 ---
 
+## Notifications
+
+Piruetas can send alerts to ntfy and/or Telegram when security-relevant events occur. Both channels are optional and independent — configure one or both.
+
+**Events notified:**
+- New user signup
+- Admin account login
+- IP address blocked by rate limiter (10 failed attempts in 15 minutes)
+
+**`NTFY_URL`** (default: empty — disabled)
+Full ntfy topic URL, e.g. `https://ntfy.sh/my-secret-topic`. Leave empty to disable.
+
+**`TELEGRAM_BOT_TOKEN`** (default: empty — disabled)
+Telegram bot token from @BotFather. Both `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` must be set for Telegram notifications to fire.
+
+**`TELEGRAM_CHAT_ID`** (default: empty — disabled)
+Telegram chat or channel ID to send messages to.
+
+> Notification failures are silently logged and never affect request handling.
+
+---
+
 ## Scheduled Tasks
 
 | Setting | Default | Description |

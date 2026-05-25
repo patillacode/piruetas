@@ -198,6 +198,23 @@ def test_seed_demo_handles_integrity_error(db_env):
         get_settings.cache_clear()
 
 
+def test_seed_demo_updates_existing_user(db_env):
+    os.environ["DEMO_ENABLED"] = "true"
+    get_settings.cache_clear()
+    db_module.init_db()
+    try:
+        with Session(db_module.get_engine()) as session:
+            db_module.seed_demo(session)
+            user = session.exec(select(User).where(User.username == "dbdemo")).first()
+            original_version = user.session_version
+            db_module.seed_demo(session)
+            session.refresh(user)
+            assert user.session_version == original_version + 1
+    finally:
+        os.environ["DEMO_ENABLED"] = "false"
+        get_settings.cache_clear()
+
+
 def test_delete_demo_user_content_no_user(db_env):
     db_module.init_db()
     with Session(db_module.get_engine()) as session:

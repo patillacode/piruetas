@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import re
 from urllib.parse import urlparse
@@ -17,6 +18,7 @@ from app.csrf import (
 from app.database import get_session
 from app.dependencies import get_current_user_optional
 from app.models import User
+from app.notifications import send_notification
 from app.rate_limit import clear_attempts, is_rate_limited, record_failed_attempt
 from app.recovery import consume_code, create_codes_for_user
 from app.recovery_flash import set_recovery_flash
@@ -93,6 +95,10 @@ async def login(
     user = session.exec(select(User).where(User.username == username)).first()
     if user and bcrypt.checkpw(password.encode(), user.hashed_password.encode()):
         clear_attempts(ip)
+        if user.is_admin:
+            asyncio.create_task(
+                send_notification(settings, "Admin login", f"user={user.username} ip={ip}")
+            )
         user.last_login = datetime.datetime.now(datetime.UTC)
         session.add(user)
         session.commit()
@@ -112,7 +118,10 @@ async def login(
         )
         response.delete_cookie(LOGIN_CSRF_COOKIE)
         return response
-    record_failed_attempt(ip)
+    if record_failed_attempt(ip):
+        asyncio.create_task(
+            send_notification(settings, "Rate limit hit", f"target={username} ip={ip}")
+        )
     new_csrf = generate_login_csrf_token()
     resp = templates.TemplateResponse(
         request,
@@ -190,7 +199,10 @@ async def signup(
         return resp
 
     def render_error(error: str):
-        record_failed_attempt(ip)
+        if record_failed_attempt(ip):
+            asyncio.create_task(
+                send_notification(settings, "Rate limit hit", f"target={username} ip={ip}")
+            )
         new_csrf = generate_login_csrf_token()
         resp = templates.TemplateResponse(
             request,
@@ -219,6 +231,7 @@ async def signup(
     session.refresh(user)
 
     clear_attempts(ip)
+    asyncio.create_task(send_notification(settings, "New signup", f"user={username} ip={ip}"))
     assert user.id is not None
     plaintext_codes = create_codes_for_user(user.id, session)
 

@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     hosted_price_yearly: float = 50.0  # EUR
     registration_open: bool = False
     bcrypt_rounds: int = 12
+    ntfy_url: str = ""
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
 
     @model_validator(mode="after")
     def validate_settings(self) -> "Settings":

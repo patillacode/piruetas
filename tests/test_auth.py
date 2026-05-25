@@ -1,9 +1,10 @@
 import datetime
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from sqlmodel import select
 
 from app.models import User
+from app.rate_limit import MAX_ATTEMPTS, clear_attempts
 from app.session_token import make_session_token
 from app.settings import get_settings
 from tests.conftest import get_csrf, login
@@ -193,3 +194,125 @@ def test_protected_route_with_nonexistent_user_token(client):
     resp = client.get("/journal/2026/01/01")
     assert resp.status_code == 302
     assert "/login" in resp.headers["location"]
+
+
+# --- Notification tests ---
+
+
+def test_signup_triggers_notification(client):
+    with patch("app.routers.auth.send_notification", new_callable=AsyncMock) as mock_notify:
+        resp = signup(client, "notifyuser", "securepass123")
+    assert resp.status_code == 302
+    mock_notify.assert_called_once()
+    _, title, message = mock_notify.call_args[0]
+    assert title == "New signup"
+    assert "notifyuser" in message
+
+
+def test_admin_login_triggers_notification(client, admin_user):
+    with patch("app.routers.auth.send_notification", new_callable=AsyncMock) as mock_notify:
+        resp = login(client, "admin", "adminpass123")
+    assert resp.status_code == 302
+    mock_notify.assert_called_once()
+    _, title, message = mock_notify.call_args[0]
+    assert title == "Admin login"
+    assert "admin" in message
+
+
+def test_regular_login_does_not_trigger_notification(client, regular_user):
+    with patch("app.routers.auth.send_notification", new_callable=AsyncMock) as mock_notify:
+        resp = login(client, "testuser", "userpass123")
+    assert resp.status_code == 302
+    mock_notify.assert_not_called()
+
+
+def test_login_rate_limit_threshold_triggers_notification(client, admin_user):
+    test_ip = "10.0.0.99"
+    clear_attempts(test_ip)
+    try:
+        with (
+            patch("app.routers.auth.send_notification", new_callable=AsyncMock) as mock_notify,
+            patch("app.routers.auth.record_failed_attempt", return_value=True),
+        ):
+            resp = login(client, "admin", "wrongpass")
+        assert resp.status_code == 401
+        mock_notify.assert_called_once()
+        _, title, _ = mock_notify.call_args[0]
+        assert title == "Rate limit hit"
+    finally:
+        clear_attempts(test_ip)
+
+
+def test_login_below_rate_limit_threshold_no_notification(client, admin_user):
+    with (
+        patch("app.routers.auth.send_notification", new_callable=AsyncMock) as mock_notify,
+        patch("app.routers.auth.record_failed_attempt", return_value=False),
+    ):
+        resp = login(client, "admin", "wrongpass")
+    assert resp.status_code == 401
+    mock_notify.assert_not_called()
+
+
+def test_signup_validation_error_rate_limit_triggers_notification(client):
+    with (
+        patch("app.routers.auth.send_notification", new_callable=AsyncMock) as mock_notify,
+        patch("app.routers.auth.record_failed_attempt", return_value=True),
+    ):
+        resp = signup(client, "a!", "securepass123")
+    assert resp.status_code == 400
+    mock_notify.assert_called_once()
+    _, title, _ = mock_notify.call_args[0]
+    assert title == "Rate limit hit"
+
+
+def test_signup_validation_error_below_threshold_no_notification(client):
+    with (
+        patch("app.routers.auth.send_notification", new_callable=AsyncMock) as mock_notify,
+        patch("app.routers.auth.record_failed_attempt", return_value=False),
+    ):
+        resp = signup(client, "a!", "securepass123")
+    assert resp.status_code == 400
+    mock_notify.assert_not_called()
+
+
+# --- record_failed_attempt return value tests ---
+
+
+def test_record_failed_attempt_returns_false_below_threshold():
+    ip = "192.168.99.1"
+    clear_attempts(ip)
+    try:
+        from app.rate_limit import record_failed_attempt
+
+        for _ in range(MAX_ATTEMPTS - 1):
+            result = record_failed_attempt(ip)
+        assert result is False
+    finally:
+        clear_attempts(ip)
+
+
+def test_record_failed_attempt_returns_true_at_threshold():
+    ip = "192.168.99.2"
+    clear_attempts(ip)
+    try:
+        from app.rate_limit import record_failed_attempt
+
+        result = None
+        for _ in range(MAX_ATTEMPTS):
+            result = record_failed_attempt(ip)
+        assert result is True
+    finally:
+        clear_attempts(ip)
+
+
+def test_record_failed_attempt_returns_false_above_threshold():
+    ip = "192.168.99.3"
+    clear_attempts(ip)
+    try:
+        from app.rate_limit import record_failed_attempt
+
+        for _ in range(MAX_ATTEMPTS + 1):
+            result = record_failed_attempt(ip)
+        assert result is False
+    finally:
+        clear_attempts(ip)
