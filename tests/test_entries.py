@@ -225,3 +225,26 @@ def test_share_age_gate_bypassed_for_admin(client, admin_user):
     client.post("/journal/2026/04/10", json={"content": "<p>Admin</p>", "word_count": 1})
     resp = client.post("/journal/2026/04/10/share")
     assert resp.status_code == 200
+
+
+def test_share_wait_days_configurable(client, session, regular_user, monkeypatch):
+    monkeypatch.setenv("SHARING_WAIT_DAYS", "3")
+    from app.settings import get_settings
+
+    get_settings.cache_clear()
+
+    regular_user.created_at = datetime.datetime.now(UTC) - timedelta(days=2)
+    session.add(regular_user)
+    session.commit()
+    login(client, "testuser", "userpass123")
+    client.post("/journal/2026/04/10", json={"content": "<p>test</p>", "word_count": 1})
+    resp = client.post("/journal/2026/04/10/share")
+    assert resp.status_code == 403
+
+    regular_user.created_at = datetime.datetime.now(UTC) - timedelta(days=3)
+    session.add(regular_user)
+    session.commit()
+    resp = client.post("/journal/2026/04/10/share")
+    assert resp.status_code == 200
+
+    get_settings.cache_clear()

@@ -12,21 +12,19 @@ from starlette.requests import Request
 from app.database import get_session
 from app.dependencies import get_current_user
 from app.models import Entry, Image, User
-from app.settings import get_settings
+from app.settings import Settings, get_settings
 from app.templates_config import ctx, templates
 
 router = APIRouter()
 
-SHARE_AGE_DAYS = 7
 
-
-def _can_share(user: User) -> tuple[bool, int]:
+def _can_share(user: User, sharing_wait_days: int) -> tuple[bool, int]:
     if user.is_admin:
         return True, 0
     now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
     created = user.created_at.replace(tzinfo=None)
     age = (now - created).days
-    remaining = max(0, SHARE_AGE_DAYS - age)
+    remaining = max(0, sharing_wait_days - age)
     return remaining == 0, remaining
 
 
@@ -65,6 +63,7 @@ async def journal_day(
     request: Request,
     user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
+    settings: Settings = Depends(get_settings),
 ):
     try:
         date = datetime.date(year, month, day)
@@ -73,7 +72,7 @@ async def journal_day(
 
     entry = _get_entry(session, user.id, date)
 
-    can_share, share_days_remaining = _can_share(user)
+    can_share, share_days_remaining = _can_share(user, settings.sharing_wait_days)
     return templates.TemplateResponse(
         request,
         "journal.html",
@@ -236,13 +235,14 @@ async def journal_share(
     day: int,
     user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
+    settings: Settings = Depends(get_settings),
 ):
     try:
         date = datetime.date(year, month, day)
     except ValueError:
         raise HTTPException(status_code=404, detail="Invalid date") from None
 
-    can_share, days_remaining = _can_share(user)
+    can_share, days_remaining = _can_share(user, settings.sharing_wait_days)
     if not can_share:
         raise HTTPException(
             status_code=403,

@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     hosted_price_yearly: float = 50.0  # EUR
     registration_open: bool = False
     bcrypt_rounds: int = 12
+    sharing_wait_days: int = 7
     ntfy_url: str = ""
     ntfy_topic: str = ""
     ntfy_token: str = ""

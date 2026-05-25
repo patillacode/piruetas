@@ -54,6 +54,9 @@ When `true`, reads the real client IP from the `X-Forwarded-For` header for rate
 
 > **Warning:** only enable if you control the proxy. Without a proxy in front, attackers can spoof `X-Forwarded-For` to bypass rate limiting.
 
+**`SHARING_WAIT_DAYS`** (default: `7`)
+Minimum number of days an account must be open before it can share entries publicly. Set to `0` to disable the restriction.
+
 ---
 
 ## Demo mode

@@ -195,6 +195,10 @@
     background: var(--color-danger);
     color: white;
 }
+.save-toast.warning {
+    background: var(--color-warning);
+    color: #1c1917;
+}
 
 @media (max-width: 640px) {
     .editor-toolbar {

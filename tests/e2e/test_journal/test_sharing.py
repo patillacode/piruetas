@@ -8,7 +8,7 @@ from sqlmodel import Session
 
 from app.database import get_engine
 from app.models import Entry, User
-from tests.e2e.conftest import TEST_PASSWORD, _delete_user, _get_auth_cookies
+from tests.e2e.conftest import TEST_PASSWORD, _delete_user, _get_auth_cookies, _make_auth_cookie
 
 MINIMAL_PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
@@ -176,3 +176,53 @@ def test_share_legend_label(authenticated_page, live_server, seeded_entry):
 
     legend_text = authenticated_page.locator(".calendar-legend .is-shared + span").inner_text()
     assert legend_text == "Shared entry"
+
+
+def test_share_button_shows_warning_toast_for_new_account(page, live_server):
+    hashed = bcrypt.hashpw(TEST_PASSWORD.encode(), bcrypt.gensalt(rounds=4)).decode()
+    user = User(username="fresh_toast_test_user", hashed_password=hashed, is_admin=False)
+    entry_date = datetime.date(2020, 3, 1)
+
+    with Session(get_engine()) as session:
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        entry = Entry(
+            user_id=user.id,
+            date=entry_date,
+            content="<p>Toast test</p>",
+            word_count=2,
+        )
+        session.add(entry)
+        session.commit()
+        session.refresh(user)
+        session.expunge(user)
+
+    try:
+        page.context.add_cookies(
+            [
+                _make_auth_cookie(user),
+                {"name": "locale", "value": "en", "domain": "127.0.0.1", "path": "/"},
+            ]
+        )
+        page.goto(f"{live_server}/journal/2020/03/01")
+        page.wait_for_load_state("networkidle")
+
+        share_btn = page.locator("#share-btn")
+        assert not share_btn.is_disabled()
+
+        share_btn.click()
+
+        page.wait_for_function(
+            "() => document.getElementById('save-toast')?.classList.contains('show')",
+            timeout=5000,
+        )
+        toast = page.locator("#save-toast")
+        assert "warning" in (toast.get_attribute("class") or "")
+        toast_text = toast.inner_text()
+        assert "day" in toast_text.lower()
+
+        share_modal = page.locator("#share-modal")
+        expect(share_modal).to_be_hidden()
+    finally:
+        _delete_user(user.id)

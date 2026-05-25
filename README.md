@@ -24,7 +24,10 @@ Log in with **`demo`** / **`piruetas`**, content resets every 30 minutes.
 - Auto-save with 2-second debounce and "Saved" toast
 - Drag-and-drop image uploads (JPEG, PNG, GIF, WebP, max 10 MB)
 - Public entry sharing via unique link (with revocation)
-- Multi-user with admin panel (user list, delete) and self-service signup and password recovery
+- Multi-user with admin panel (user list, delete), optional self-service signup, and password recovery via recovery codes
+- Word count display per entry
+- Writing streak tracking
+- Security notifications via ntfy or Telegram (new user signup, admin login, rate limit blocks)
 - English and Spanish UI (locale switcher in header, cookie-persisted)
 - Configurable calendar week start (Monday or Sunday)
 - Light and dark theme (persisted in localStorage)

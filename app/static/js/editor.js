@@ -19,12 +19,13 @@ function updateWordCount() {
 }
 
 // ── save toast ──
-function showToast(msg, isError = false) {
+function showToast(msg, isError = false, isWarning = false) {
   const el = document.getElementById('save-toast');
   if (!el) return;
   clearTimeout(toastTimer);
   el.textContent = msg;
   el.classList.toggle('error', isError);
+  el.classList.toggle('warning', isWarning);
   el.classList.add('show');
   if (!isError) {
     toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
@@ -285,13 +286,16 @@ function setupShare() {
 
   if (!cfg.canShare) {
     const msg = (cfg.strings.shareAgeGate || '').replace('{n}', cfg.shareDaysRemaining);
-    shareBtn.disabled = true;
     shareBtn.title = msg;
     shareBtn.setAttribute('aria-label', msg);
+    shareBtn.addEventListener('click', () => showToast(msg, false, true));
     if (sheetShareBtn) {
-      sheetShareBtn.disabled = true;
       sheetShareBtn.title = msg;
       sheetShareBtn.setAttribute('aria-label', msg);
+      sheetShareBtn.addEventListener('click', () => {
+        showToast(msg, false, true);
+        window._closeSheet?.();
+      });
     }
     return;
   }
