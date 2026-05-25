@@ -1,12 +1,14 @@
 import base64
+import datetime
 
+import bcrypt
 import httpx
 from playwright.sync_api import expect
 from sqlmodel import Session
 
 from app.database import get_engine
-from app.models import Entry
-from tests.e2e.conftest import _get_auth_cookies
+from app.models import Entry, User
+from tests.e2e.conftest import TEST_PASSWORD, _delete_user, _get_auth_cookies
 
 MINIMAL_PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
@@ -132,6 +134,34 @@ def test_share_revoked_entry_returns_404(page, live_server, seed_user, seeded_en
     assert page.title() == "" or "404" in page.content() or page.url.endswith(share_token)
     resp_check = httpx.get(f"{live_server}/share/{share_token}", follow_redirects=False)
     assert resp_check.status_code == 404
+
+
+def test_share_blocked_for_new_account(live_server):
+    hashed = bcrypt.hashpw(TEST_PASSWORD.encode(), bcrypt.gensalt(rounds=4)).decode()
+    user = User(username="fresh_agegate_user", hashed_password=hashed, is_admin=False)
+    with Session(get_engine()) as session:
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        entry = Entry(
+            user_id=user.id,
+            date=datetime.date(2020, 2, 1),
+            content="<p>Fresh entry</p>",
+            word_count=2,
+        )
+        session.add(entry)
+        session.commit()
+        session.refresh(user)
+        session.expunge(user)
+
+    try:
+        resp = httpx.post(
+            f"{live_server}/journal/2020/02/01/share",
+            cookies=_get_auth_cookies(user),
+        )
+        assert resp.status_code == 403
+    finally:
+        _delete_user(user.id)
 
 
 def test_share_legend_label(authenticated_page, live_server, seeded_entry):

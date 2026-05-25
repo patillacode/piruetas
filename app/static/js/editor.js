@@ -282,6 +282,20 @@ function setupShare() {
 
   const cfg = window.PIRUETAS;
   const strings = cfg.strings;
+
+  if (!cfg.canShare) {
+    const msg = (cfg.strings.shareAgeGate || '').replace('{n}', cfg.shareDaysRemaining);
+    shareBtn.disabled = true;
+    shareBtn.title = msg;
+    shareBtn.setAttribute('aria-label', msg);
+    if (sheetShareBtn) {
+      sheetShareBtn.disabled = true;
+      sheetShareBtn.title = msg;
+      sheetShareBtn.setAttribute('aria-label', msg);
+    }
+    return;
+  }
+
   let isShared = !!(cfg.shareToken);
   let shareUrl = isShared ? `${location.origin}/share/${cfg.shareToken}` : null;
 

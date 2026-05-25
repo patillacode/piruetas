@@ -317,6 +317,11 @@ def test_images_linked_to_entry_on_save(client, session, regular_user):
 
 # Task 9: Share token revocation
 def test_share_revocation_clears_token(client, session, regular_user):
+    from datetime import UTC, datetime, timedelta
+
+    regular_user.created_at = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=7)
+    session.add(regular_user)
+    session.commit()
     login(client, "testuser", "userpass123")
     client.post("/journal/2025/06/15", json={"content": "<p>Secret</p>"})
 

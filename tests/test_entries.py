@@ -1,5 +1,6 @@
 import datetime
 import io
+from datetime import UTC, timedelta
 
 from app.models import Entry
 from tests.conftest import get_csrf, login
@@ -197,3 +198,30 @@ def test_users_cannot_see_each_others_entries(client, session, admin_user, regul
     login(client, "testuser", "userpass123")
     resp = client.get("/calendar/2026/4")
     assert 1 not in resp.json()["days"]
+
+
+def test_share_blocked_for_new_account(client, session, regular_user):
+    """Account 0 days old cannot create share links."""
+    login(client, "testuser", "userpass123")
+    client.post("/journal/2026/04/10", json={"content": "<p>New</p>", "word_count": 1})
+    resp = client.post("/journal/2026/04/10/share")
+    assert resp.status_code == 403
+
+
+def test_share_allowed_after_7_days(client, session, regular_user):
+    """Account exactly 7 days old can create share links."""
+    regular_user.created_at = datetime.datetime.now(UTC) - timedelta(days=7)
+    session.add(regular_user)
+    session.commit()
+    login(client, "testuser", "userpass123")
+    client.post("/journal/2026/04/10", json={"content": "<p>Old enough</p>", "word_count": 2})
+    resp = client.post("/journal/2026/04/10/share")
+    assert resp.status_code == 200
+
+
+def test_share_age_gate_bypassed_for_admin(client, admin_user):
+    """Admin accounts bypass the age gate regardless of account age."""
+    login(client, "admin", "adminpass123")
+    client.post("/journal/2026/04/10", json={"content": "<p>Admin</p>", "word_count": 1})
+    resp = client.post("/journal/2026/04/10/share")
+    assert resp.status_code == 200

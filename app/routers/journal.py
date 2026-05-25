@@ -17,6 +17,18 @@ from app.templates_config import ctx, templates
 
 router = APIRouter()
 
+SHARE_AGE_DAYS = 7
+
+
+def _can_share(user: User) -> tuple[bool, int]:
+    if user.is_admin:
+        return True, 0
+    now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+    created = user.created_at.replace(tzinfo=None)
+    age = (now - created).days
+    remaining = max(0, SHARE_AGE_DAYS - age)
+    return remaining == 0, remaining
+
 
 def compute_word_count(html_content: str) -> int:
     text = re.sub(r"<[^>]+>", " ", html_content)
@@ -61,8 +73,18 @@ async def journal_day(
 
     entry = _get_entry(session, user.id, date)
 
+    can_share, share_days_remaining = _can_share(user)
     return templates.TemplateResponse(
-        request, "journal.html", ctx(request, entry=entry, date=date, user=user)
+        request,
+        "journal.html",
+        ctx(
+            request,
+            entry=entry,
+            date=date,
+            user=user,
+            can_share=can_share,
+            share_days_remaining=share_days_remaining,
+        ),
     )
 
 
@@ -219,6 +241,13 @@ async def journal_share(
         date = datetime.date(year, month, day)
     except ValueError:
         raise HTTPException(status_code=404, detail="Invalid date") from None
+
+    can_share, days_remaining = _can_share(user)
+    if not can_share:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Sharing available in {days_remaining} day(s)",
+        )
 
     entry = _get_entry(session, user.id, date)
     if not entry:

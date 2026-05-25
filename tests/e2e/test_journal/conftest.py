@@ -1,3 +1,4 @@
+import datetime
 from datetime import date
 
 import bcrypt
@@ -14,6 +15,12 @@ def seed_user(live_server):
     hashed = bcrypt.hashpw(TEST_PASSWORD.encode(), bcrypt.gensalt(rounds=4)).decode()
     user = User(username=TEST_USERNAME, hashed_password=hashed, is_admin=False)
     with Session(get_engine()) as session:
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        user.created_at = datetime.datetime.now(datetime.UTC).replace(
+            tzinfo=None
+        ) - datetime.timedelta(days=8)
         session.add(user)
         session.commit()
         session.refresh(user)

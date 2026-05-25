@@ -160,6 +160,8 @@
         entryContent: {{ (entry.content if entry else '') | tojson }},
         entryExists: {{ (entry is not none) | tojson }},
         shareToken: {{ (entry.share_token if entry and entry.share_token else '') | tojson }},
+        canShare: {{ can_share | tojson }},
+        shareDaysRemaining: {{ share_days_remaining }},
         saveUrl: "/journal/{{ date.year }}/{{ '%02d' % date.month }}/{{ '%02d' % date.day }}",
         strings: {
             saved: {{ t.saved | tojson }},
@@ -178,6 +180,7 @@
             entrySingular: {{ t.entry_singular | tojson }},
             entryPlural: {{ t.entry_plural | tojson }},
             wordsThisMonth: {{ t.words_this_month | tojson }},
+            shareAgeGate: {{ t.share_age_gate | tojson }},
         },
     };
 </script>
