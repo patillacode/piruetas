@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     registration_open: bool = False
     bcrypt_rounds: int = 12
     ntfy_url: str = ""
+    ntfy_topic: str = ""
+    ntfy_token: str = ""
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
 

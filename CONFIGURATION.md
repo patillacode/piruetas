@@ -82,7 +82,13 @@ Piruetas can send alerts to ntfy and/or Telegram when security-relevant events o
 - IP address blocked by rate limiter (10 failed attempts in 15 minutes)
 
 **`NTFY_URL`** (default: empty — disabled)
-Full ntfy topic URL, e.g. `https://ntfy.sh/my-secret-topic`. Leave empty to disable.
+Base URL of your ntfy server, e.g. `https://ntfy.sh` or `https://ntfy.example.com`. Both `NTFY_URL` and `NTFY_TOPIC` must be set for ntfy notifications to fire.
+
+**`NTFY_TOPIC`** (default: empty — disabled)
+ntfy topic name to publish to, e.g. `my-secret-topic`.
+
+**`NTFY_TOKEN`** (default: empty — no auth)
+Bearer token for authenticated ntfy servers. Leave empty when using the public ntfy.sh service without auth.
 
 **`TELEGRAM_BOT_TOKEN`** (default: empty — disabled)
 Telegram bot token from @BotFather. Both `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` must be set for Telegram notifications to fire.

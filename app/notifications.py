@@ -6,9 +6,12 @@ import httpx
 logger = logging.getLogger(__name__)
 
 
-async def _notify_ntfy(url: str, title: str, message: str) -> None:
+async def _notify_ntfy(url: str, topic: str, title: str, message: str, token: str = "") -> None:
+    headers = {"Title": title}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
     async with httpx.AsyncClient() as client:
-        await client.post(url, content=message, headers={"Title": title}, timeout=5)
+        await client.post(f"{url}/{topic}", content=message, headers=headers, timeout=5)
 
 
 async def _notify_telegram(bot_token: str, chat_id: str, message: str) -> None:
@@ -21,9 +24,11 @@ async def send_notification(settings, title: str, message: str) -> None:
     timestamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
     full_message = f"{message}\ntime={timestamp}"
 
-    if settings.ntfy_url:
+    if settings.ntfy_url and settings.ntfy_topic:
         try:
-            await _notify_ntfy(settings.ntfy_url, title, full_message)
+            await _notify_ntfy(
+                settings.ntfy_url, settings.ntfy_topic, title, full_message, settings.ntfy_token
+            )
         except Exception:
             logger.exception("ntfy notification failed")
 
